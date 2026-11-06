@@ -377,6 +377,24 @@ const Map<String, String> urExact = {
       'انٹرنیٹ نہیں ہے یا ElevenLabs سست ہے۔ دوبارہ کوشش کریں۔',
   'Could not add this voice. Your voice slots may be full, or this voice is not available on your plan.': 'یہ آواز شامل نہیں ہو سکی۔ آپ کے وائس سلاٹ بھرے ہو سکتے ہیں یا یہ آواز آپ کے پلان میں دستیاب نہیں۔',
   '1. Sign in at elevenlabs.io.\n2. Developers, API Keys: create a key with all permissions.\n3. Paste it here.': '1. elevenlabs.io پر سائن ان کریں۔\n2. Developers، API Keys میں تمام اجازتوں والی کی بنائیں۔\n3. اسے یہاں پیسٹ کریں۔',
+  'Gemini voice test': 'جیمنائی آواز ٹیسٹ',
+  "Hear Google's voices speak Urdu (free key from Google AI Studio)":
+      'گوگل کی آوازوں کو اردو بولتے سنیں (Google AI Studio سے مفت کی)',
+  'Gemini key': 'جیمنائی کی',
+  'Paste the Gemini key first.': 'پہلے جیمنائی کی پیسٹ کریں۔',
+  'Style (optional)': 'انداز (اختیاری)',
+  'Sentence to speak': 'بولنے کے لیے جملہ',
+  'Generating…': 'بن رہی ہے…',
+  'Play': 'چلائیں',
+  'Automatic': 'خودکار',
+  '1. Open aistudio.google.com/apikey and create a free key.\n2. Paste it here, pick a voice and tap Play.': '1. aistudio.google.com/apikey کھول کر مفت کی بنائیں۔\n2. اسے یہاں پیسٹ کریں، آواز چنیں اور چلائیں دبائیں۔',
+  'The Gemini key is not valid.': 'جیمنائی کی درست نہیں۔',
+  'The Gemini key is not valid or not allowed.':
+      'جیمنائی کی درست نہیں یا اجازت نہیں۔',
+  'Gemini free limit reached for now. Wait a minute or try tomorrow.':
+      'جیمنائی کی مفت حد فی الحال پوری ہو گئی۔ ایک منٹ بعد یا کل کوشش کریں۔',
+  'No internet or Google is slow. Try again.':
+      'انٹرنیٹ نہیں ہے یا گوگل سست ہے۔ دوبارہ کوشش کریں۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

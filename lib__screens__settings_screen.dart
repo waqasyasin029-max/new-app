@@ -9,6 +9,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
+import 'gemini_voice_screen.dart';
 import 'onboarding_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
@@ -255,6 +256,21 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _editKey(context, s),
+              ),
+              ListTile(
+                leading: const Icon(Icons.record_voice_over_outlined),
+                title: const Text(
+                  'Gemini voice test',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Hear Google\'s voices speak Urdu (free key from Google AI Studio)',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const GeminiVoiceScreen()),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.language),

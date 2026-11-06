@@ -36,6 +36,9 @@ class AppState extends ChangeNotifier {
   bool onboardingDone = true;
   String voiceEngine = 'cloud'; // 'cloud' (AI) or 'phone'
   String groqKey = '';
+  String geminiKey = '';
+  String geminiVoice = 'Kore';
+  String geminiModel = '';
 
   bool get useCloudVoice => voiceEngine == 'cloud' && groqKey.trim().isNotEmpty;
 
@@ -70,6 +73,9 @@ class AppState extends ChangeNotifier {
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
     voiceEngine = prefs.getString('voice_engine') ?? 'cloud';
     groqKey = prefs.getString('groq_key') ?? '';
+    geminiKey = prefs.getString('gemini_key') ?? '';
+    geminiVoice = prefs.getString('gemini_voice') ?? 'Kore';
+    geminiModel = prefs.getString('gemini_model') ?? '';
     applyLook();
   }
 
@@ -215,6 +221,21 @@ class AppState extends ChangeNotifier {
     voiceEngine = engine;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('voice_engine', engine);
+    notifyListeners();
+  }
+
+  Future<void> setGemini({
+    required String key,
+    required String voice,
+    required String model,
+  }) async {
+    geminiKey = key.trim();
+    geminiVoice = voice;
+    geminiModel = model;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('gemini_key', geminiKey);
+    await prefs.setString('gemini_voice', geminiVoice);
+    await prefs.setString('gemini_model', geminiModel);
     notifyListeners();
   }
 
