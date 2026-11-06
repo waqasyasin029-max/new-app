@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../core/theme.dart';
+
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
@@ -108,19 +111,13 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
             controller: _amount,
             autofocus: !_editing,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Amount (Rs)',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Amount (Rs)'),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _desc,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'Description',
-              border: OutlineInputBorder(),
-            ),
+            decoration: const InputDecoration(labelText: 'Description'),
           ),
           const SizedBox(height: 16),
           CategoryDropdown(

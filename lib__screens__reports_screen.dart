@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/category_style.dart';
 import '../core/format.dart';
+import '../core/theme.dart';
 import '../data/models.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
@@ -27,7 +28,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Monthly report')),
+      appBar: AppBar(title: const Text('Reports')),
       body: Column(
         children: [
           MonthSwitcher(
@@ -59,7 +60,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   (a, b) => b > a ? b : a,
                 );
                 return ListView(
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 110),
+                  padding: const EdgeInsets.fromLTRB(12, 4, 12, 120),
                   children: [
                     Row(
                       children: [
@@ -88,8 +89,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             value: Fmt.money(remaining),
                             icon: Icons.savings,
                             color: remaining < 0
-                                ? Colors.red
-                                : Colors.green.shade700,
+                                ? AppColors.danger
+                                : AppColors.primary,
                           ),
                         ),
                         Expanded(
@@ -97,97 +98,142 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             label: 'Avg per day',
                             value: Fmt.money(d.spent / elapsed),
                             icon: Icons.calendar_view_day,
+                            color: Colors.indigo,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Spending by category',
-                      style: Theme.of(context).textTheme.titleMedium,
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: SectionTitle('Spending by category'),
                     ),
-                    const SizedBox(height: 6),
-                    if (d.cats.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Text('No expenses this month.'),
-                      )
-                    else
-                      for (final c in d.cats)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: Row(
-                            children: [
-                              CategoryAvatar(c.name, radius: 16),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                    AppCard(
+                      padding: const EdgeInsets.all(16),
+                      child: d.cats.isEmpty
+                          ? const Text(
+                              'No expenses this month.',
+                              style: TextStyle(color: AppColors.muted),
+                            )
+                          : Column(
+                              children: [
+                                for (final c in d.cats)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 7,
+                                    ),
+                                    child: Row(
                                       children: [
-                                        Text('${c.name} (${c.count})'),
-                                        Text(
-                                          '${Fmt.money(c.total)} • ${(c.total / d.spent * 100).toStringAsFixed(0)}%',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
+                                        CategoryAvatar(c.name, radius: 17),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    '${c.name} (${c.count})',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  Text(
+                                                    '${Fmt.money(c.total)} • ${(c.total / d.spent * 100).toStringAsFixed(0)}%',
+                                                    style: const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 13,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 6),
+                                              LinearProgressIndicator(
+                                                value: c.total / d.spent,
+                                                minHeight: 7,
+                                                borderRadius:
+                                                    BorderRadius.circular(4),
+                                                backgroundColor:
+                                                    CategoryStyle.color(c.name)
+                                                        .withOpacity(0.12),
+                                                color: CategoryStyle.color(
+                                                  c.name,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 3),
-                                    LinearProgressIndicator(
-                                      value: c.total / d.spent,
-                                      minHeight: 7,
-                                      borderRadius: BorderRadius.circular(4),
-                                      color: CategoryStyle.color(c.name),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Daily breakdown',
-                      style: Theme.of(context).textTheme.titleMedium,
+                                  ),
+                              ],
+                            ),
                     ),
-                    const SizedBox(height: 6),
-                    if (d.daily.isEmpty)
-                      const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Text('No expenses this month.'),
-                      )
-                    else
-                      for (final day in d.daily.keys.toList().reversed)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 3),
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 62,
-                                child: Text(Fmt.dayShort(Fmt.parseKey(day))),
-                              ),
-                              Expanded(
-                                child: LinearProgressIndicator(
-                                  value: d.daily[day]! / maxDay,
-                                  minHeight: 10,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 96,
-                                child: Text(
-                                  Fmt.money(d.daily[day]!),
-                                  textAlign: TextAlign.right,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: SectionTitle('Daily breakdown'),
+                    ),
+                    AppCard(
+                      padding: const EdgeInsets.all(16),
+                      child: d.daily.isEmpty
+                          ? const Text(
+                              'No expenses this month.',
+                              style: TextStyle(color: AppColors.muted),
+                            )
+                          : Column(
+                              children: [
+                                for (final day
+                                    in d.daily.keys.toList().reversed)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 5,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(
+                                          width: 56,
+                                          child: Text(
+                                            Fmt.dayShort(Fmt.parseKey(day)),
+                                            style: const TextStyle(
+                                              color: AppColors.muted,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: LinearProgressIndicator(
+                                            value: d.daily[day]! / maxDay,
+                                            minHeight: 10,
+                                            borderRadius: BorderRadius.circular(
+                                              5,
+                                            ),
+                                            backgroundColor: AppColors.primary
+                                                .withOpacity(0.12),
+                                            color: AppColors.primary,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 92,
+                                          child: Text(
+                                            Fmt.money(d.daily[day]!),
+                                            textAlign: TextAlign.right,
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                    ),
                   ],
                 );
               },

@@ -24,7 +24,7 @@ class NotificationService {
   static Future<void> init() async {
     tzdata.initializeTimeZones();
     const settings = InitializationSettings(
-      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      android: AndroidInitializationSettings('ic_notification'),
     );
     await _plugin.initialize(
       settings,
@@ -58,6 +58,7 @@ class NotificationService {
       channelDescription: 'Reminds you to record your daily expenses',
       importance: Importance.high,
       priority: Priority.high,
+      icon: 'ic_notification',
     ),
   );
 

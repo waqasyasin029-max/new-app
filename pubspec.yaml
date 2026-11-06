@@ -18,6 +18,8 @@ dependencies:
   permission_handler: ^11.3.1
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.0
+  path_provider: ^2.1.4
+  open_filex: ^4.5.0
 
 dev_dependencies:
   flutter_test:
@@ -26,3 +28,15 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon/icon.png
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700

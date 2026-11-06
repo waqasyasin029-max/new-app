@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/theme.dart';
 import 'screens/home_shell.dart';
 import 'screens/voice_entry_screen.dart';
 import 'services/notification_service.dart';
+import 'services/update_service.dart';
+import 'widgets/update_dialog.dart';
 import 'state/app_state.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -42,7 +45,17 @@ Future<void> main() async {
       final payload = await NotificationService.launchPayload();
       if (payload == NotificationService.payloadRecord) openRecordScreen();
     } catch (_) {}
+    _checkForUpdateOnLaunch();
   });
+}
+
+/// Quietly asks GitHub for a newer release; shows the update dialog if there is one.
+Future<void> _checkForUpdateOnLaunch() async {
+  final r = await UpdateService.check();
+  final ctx = navigatorKey.currentState?.overlay?.context;
+  if (r.update != null && ctx != null && ctx.mounted) {
+    showUpdateDialog(ctx, r.update!);
+  }
 }
 
 class KharchaApp extends StatelessWidget {
@@ -54,13 +67,9 @@ class KharchaApp extends StatelessWidget {
       title: 'Kharcha Tracker',
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
-      theme: ThemeData(colorSchemeSeed: Colors.teal, useMaterial3: true),
-      darkTheme: ThemeData(
-        colorSchemeSeed: Colors.teal,
-        useMaterial3: true,
-        brightness: Brightness.dark,
-      ),
+      themeMode: ThemeMode.light,
+      theme: buildAppTheme(),
+      builder: (context, child) => AppBackground(child: child),
       home: const HomeShell(),
     );
   }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../core/theme.dart';
+
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
@@ -36,10 +39,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
           controller: c,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            labelText: 'Amount (Rs)',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Amount (Rs)'),
         ),
         actions: [
           TextButton(
@@ -83,17 +83,13 @@ class _IncomeScreenState extends State<IncomeScreen> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
-                labelText: 'Amount (Rs)',
-                border: OutlineInputBorder(),
-              ),
+              decoration: const InputDecoration(labelText: 'Amount (Rs)'),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: source,
               decoration: const InputDecoration(
                 labelText: 'Source (bonus, freelance…)',
-                border: OutlineInputBorder(),
               ),
             ),
           ],
@@ -152,7 +148,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
               builder: (context, d) => ListView(
                 padding: const EdgeInsets.all(12),
                 children: [
-                  Card(
+                  AppCard(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -220,7 +216,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                     )
                   else
                     for (final i in d.extras)
-                      Card(
+                      AppCard(
                         child: ListTile(
                           leading: const Icon(
                             Icons.add_circle_outline,

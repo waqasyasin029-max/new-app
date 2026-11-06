@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../core/theme.dart';
+
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
@@ -157,7 +160,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
             child: ListView(
               padding: const EdgeInsets.all(12),
               children: [
-                Card(
+                AppCard(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
@@ -174,7 +177,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                   ),
                 ),
                 if (widget.result.items.isEmpty)
-                  Card(
+                  AppCard(
                     color: scheme.errorContainer,
                     child: Padding(
                       padding: const EdgeInsets.all(12),
@@ -186,7 +189,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                     ),
                   ),
                 if (widget.result.ignored.isNotEmpty)
-                  Card(
+                  AppCard(
                     color: scheme.tertiaryContainer,
                     child: Padding(
                       padding: const EdgeInsets.all(12),
@@ -263,14 +266,9 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
   Widget _draftCard(int i, ColorScheme scheme) {
     final d = _drafts[i];
     final needsAmount = d.include && d.value == null;
-    return Card(
+    return AppCard(
       color: d.include ? null : scheme.surfaceContainerHighest,
-      shape: needsAmount
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(color: scheme.error, width: 1.5),
-            )
-          : null,
+      borderColor: needsAmount ? scheme.error : null,
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -312,7 +310,6 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                       onChanged: (_) => setState(() {}),
                       decoration: InputDecoration(
                         labelText: 'Amount (Rs)',
-                        border: const OutlineInputBorder(),
                         errorText: needsAmount
                             ? (d.amountMissing
                                   ? 'Amount not heard: enter it'
@@ -328,7 +325,6 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                       controller: d.desc,
                       decoration: const InputDecoration(
                         labelText: 'Description',
-                        border: OutlineInputBorder(),
                       ),
                     ),
                   ),

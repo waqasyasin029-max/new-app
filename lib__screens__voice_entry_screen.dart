@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../core/theme.dart';
+
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
@@ -140,7 +143,6 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
             value: state.speechLocale,
             decoration: const InputDecoration(
               labelText: 'Speaking language',
-              border: OutlineInputBorder(),
               isDense: true,
             ),
             items: [
@@ -159,14 +161,14 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                 padding: EdgeInsets.all(10 + 14 * _pulse.value),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: (_listening ? Colors.red : scheme.primary).withOpacity(
+                  color: (_listening ? Colors.red : AppColors.gold).withOpacity(
                     0.15,
                   ),
                 ),
                 child: child,
               ),
               child: Material(
-                color: _listening ? Colors.red : scheme.primary,
+                color: _listening ? Colors.red : AppColors.gold,
                 shape: const CircleBorder(),
                 elevation: 4,
                 child: InkWell(
@@ -193,7 +195,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
             ),
           ),
           if (_error != null)
-            Card(
+            AppCard(
               color: scheme.errorContainer,
               margin: const EdgeInsets.only(top: 12),
               child: Padding(
@@ -213,7 +215,6 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
             decoration: const InputDecoration(
               labelText: 'What was heard (you can edit this)',
               hintText: 'Aj 300 rupay petrol ka kharcha hua, 200 ki chai pi, 500 ki grocery ki…',
-              border: OutlineInputBorder(),
               alignLabelWithHint: true,
             ),
           ),

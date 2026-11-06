@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../core/category_style.dart';
 import '../core/format.dart';
+import '../core/theme.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
 
@@ -14,10 +15,14 @@ class CategoryAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = CategoryStyle.color(name);
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: c.withOpacity(0.15),
-      child: Icon(CategoryStyle.icon(name), color: c, size: radius),
+    return Container(
+      width: radius * 2,
+      height: radius * 2,
+      decoration: BoxDecoration(
+        color: c.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(radius * 0.7),
+      ),
+      child: Icon(CategoryStyle.icon(name), color: c, size: radius * 0.95),
     );
   }
 }
@@ -41,19 +46,28 @@ class ExpenseTile extends StatelessWidget {
     final title = expense.description.isEmpty ? cat : expense.description;
     return ListTile(
       onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
       leading: CategoryAvatar(cat),
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      subtitle: Text(showDate ? '$cat • ${Fmt.dayShort(expense.date)}' : cat),
+      title: Text(
+        title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(
+        showDate ? '$cat • ${Fmt.dayShort(expense.date)}' : cat,
+        style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
+      ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             Fmt.money(expense.amount),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           if (onDelete != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline),
+              icon: const Icon(Icons.delete_outline, color: AppColors.muted),
               tooltip: 'Delete',
               onPressed: onDelete,
             ),
@@ -78,37 +92,49 @@ class StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = color ?? Theme.of(context).colorScheme.primary;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, size: 18, color: c),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    label,
-                    style: Theme.of(context).textTheme.labelLarge,
+    final c = color ?? AppColors.primary;
+    return AppCard(
+      margin: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: c.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 16, color: c),
+              ),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: AppColors.muted,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                value,
-                style: Theme.of(context).textTheme.titleLarge
-                    ?.copyWith(color: c, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: c,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -133,10 +159,7 @@ class CategoryDropdown extends StatelessWidget {
     return DropdownButtonFormField<int?>(
       value: value,
       isExpanded: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
+      decoration: InputDecoration(labelText: label),
       items: [
         if (allowAll)
           const DropdownMenuItem<int?>(
@@ -173,21 +196,39 @@ class MonthSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = Fmt.firstOfMonth(DateTime.now());
     final canNext = month.isBefore(now);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.chevron_left),
-          onPressed: () => onChanged(DateTime(month.year, month.month - 1, 1)),
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: AppColors.line),
         ),
-        Text(Fmt.month(month), style: Theme.of(context).textTheme.titleMedium),
-        IconButton(
-          icon: const Icon(Icons.chevron_right),
-          onPressed: canNext
-              ? () => onChanged(DateTime(month.year, month.month + 1, 1))
-              : null,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.chevron_left),
+              onPressed: () =>
+                  onChanged(DateTime(month.year, month.month - 1, 1)),
+            ),
+            SizedBox(
+              width: 150,
+              child: Text(
+                Fmt.month(month),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.chevron_right),
+              onPressed: canNext
+                  ? () => onChanged(DateTime(month.year, month.month + 1, 1))
+                  : null,
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
@@ -210,6 +251,7 @@ Future<bool> confirmDialog(
         ),
         FilledButton(
           onPressed: () => Navigator.pop(ctx, true),
+          style: FilledButton.styleFrom(minimumSize: const Size(90, 44)),
           child: Text(action),
         ),
       ],

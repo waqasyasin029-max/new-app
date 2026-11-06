@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
+import '../core/theme.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
@@ -9,7 +10,8 @@ import '../widgets/data_loader.dart';
 import 'expense_edit_screen.dart';
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+  final int? initialCategoryId;
+  const HistoryScreen({super.key, this.initialCategoryId});
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -17,7 +19,7 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   DateTimeRange? _range;
-  int? _categoryId;
+  late int? _categoryId = widget.initialCategoryId;
   String _search = '';
 
   bool get _filtered =>
@@ -41,7 +43,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           IconButton(
             tooltip: 'Add manually',
-            icon: const Icon(Icons.add),
+            icon: const Icon(Icons.add_circle_outline),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ExpenseEditScreen()),
@@ -52,30 +54,35 @@ class _HistoryScreenState extends State<HistoryScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
             child: Column(
               children: [
                 TextField(
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search),
-                    hintText: 'Search description',
-                    border: OutlineInputBorder(),
-                    isDense: true,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Search',
+                    fillColor: const Color(0xFFEFF4F5),
+                    border: pillBorder(),
+                    enabledBorder: pillBorder(),
+                    focusedBorder: pillBorder(),
                   ),
                   onChanged: (v) => setState(() => _search = v),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: _pickRange,
-                        icon: const Icon(Icons.date_range),
+                        icon: const Icon(Icons.date_range, size: 18),
                         label: Text(
                           _range == null
                               ? 'Any date'
                               : '${Fmt.dayShort(_range!.start)} – ${Fmt.dayShort(_range!.end)}',
                           overflow: TextOverflow.ellipsis,
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 56),
                         ),
                       ),
                     ),
@@ -99,7 +106,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         _categoryId = null;
                         _search = '';
                       }),
-                      icon: const Icon(Icons.clear),
+                      icon: const Icon(Icons.clear, size: 18),
                       label: const Text('Clear filters'),
                     ),
                   ),
@@ -122,6 +129,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       _filtered
                           ? 'No transactions match these filters.'
                           : 'No transactions yet.',
+                      style: const TextStyle(color: AppColors.muted),
                     ),
                   );
                 }
@@ -130,33 +138,29 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 for (final e in list) {
                   byDay.putIfAbsent(Fmt.key(e.date), () => []).add(e);
                 }
-                final days = byDay.keys.toList(); // already newest first
                 return ListView(
-                  padding: const EdgeInsets.only(bottom: 110),
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
                       child: Text(
                         '${list.length} transactions • ${Fmt.money(total)}',
-                        style: Theme.of(context).textTheme.labelLarge,
+                        style: const TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 13,
+                        ),
                       ),
                     ),
-                    for (final day in days) ...[
-                      Container(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 6,
-                        ),
+                    for (final day in byDay.keys) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               Fmt.date(Fmt.parseKey(day)),
                               style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             Text(
@@ -167,33 +171,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ),
                               ),
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.primary,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      for (final e in byDay[day]!)
-                        ExpenseTile(
-                          expense: e,
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ExpenseEditScreen(expense: e),
+                      TileGroup(
+                        children: [
+                          for (final e in byDay[day]!)
+                            ExpenseTile(
+                              expense: e,
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ExpenseEditScreen(expense: e),
+                                ),
+                              ),
+                              onDelete: () async {
+                                final label = e.description.isEmpty
+                                    ? (e.categoryName ?? 'Expense')
+                                    : e.description;
+                                if (!await confirmDialog(
+                                  context,
+                                  'Delete expense?',
+                                  '$label – ${Fmt.money(e.amount)}',
+                                ))
+                                  return;
+                                final state = context.read<AppState>();
+                                await state.expenses.delete(e.id!);
+                                state.changed();
+                              },
                             ),
-                          ),
-                          onDelete: () async {
-                            if (!await confirmDialog(
-                              context,
-                              'Delete expense?',
-                              '${e.description.isEmpty ? e.categoryName : e.description} – ${Fmt.money(e.amount)}',
-                            ))
-                              return;
-                            final state = context.read<AppState>();
-                            await state.expenses.delete(e.id!);
-                            state.changed();
-                          },
-                        ),
+                        ],
+                      ),
                     ],
                   ],
                 );
