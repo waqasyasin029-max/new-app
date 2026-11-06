@@ -157,6 +157,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       await _cloud.start(
         apiKey: app.sttKey,
         provider: app.sttProvider,
+        fallbackKey: app.geminiKey,
         localeId: app.speechLocale,
         existing: _text.text,
       );
@@ -221,6 +222,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       await _cloud.start(
         apiKey: app.sttKey,
         provider: app.sttProvider,
+        fallbackKey: app.geminiKey,
         localeId: app.speechLocale,
         existing: '',
       );

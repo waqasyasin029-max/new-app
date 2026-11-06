@@ -30,6 +30,7 @@ class CloudSpeechService {
   String _key = '';
   String _locale = 'ur_PK';
   String _provider = 'groq';
+  String _fallbackKey = '';
 
   void Function(String text)? onText;
   void Function(bool listening)? onListening;
@@ -51,8 +52,10 @@ class CloudSpeechService {
     required String localeId,
     String existing = '',
     String provider = 'groq',
+    String fallbackKey = '',
   }) async {
     _provider = provider;
+    _fallbackKey = fallbackKey.trim();
     _key = apiKey.trim();
     _locale = localeId;
     _existing = existing.trim();
@@ -150,7 +153,7 @@ class CloudSpeechService {
   }
 
   /// Gemini listens to the recording directly (used when there is no Groq key).
-  Future<String> _transcribeGemini(String path) async {
+  Future<String> _transcribeGemini(String path, String key) async {
     final bytes = await File(path).readAsBytes();
     final ur = _locale.startsWith('ur');
     final prompt = ur
@@ -163,7 +166,7 @@ class CloudSpeechService {
               'Output only the transcript. If there is no speech, output nothing.';
     try {
       final j = await GeminiApi.generate(
-        key: _key,
+        key: key,
         body: {
           'contents': [
             {
@@ -201,7 +204,20 @@ class CloudSpeechService {
   }
 
   Future<String> _transcribe(String path) async {
-    if (_provider == 'gemini') return _transcribeGemini(path);
+    if (_provider == 'gemini') return _transcribeGemini(path, _key);
+    try {
+      return await _transcribeGroq(path);
+    } on _CloudError catch (e) {
+      // The Groq key is wrong or its free limit is used up: Gemini listens
+      // instead, if its key is there.
+      if (e.recoverable && _fallbackKey.isNotEmpty) {
+        return _transcribeGemini(path, _fallbackKey);
+      }
+      rethrow;
+    }
+  }
+
+  Future<String> _transcribeGroq(String path) async {
     final lang = _locale.startsWith('ur') ? 'ur' : 'en';
     final req = http.MultipartRequest('POST', Uri.parse(_endpoint))
       ..headers['Authorization'] = 'Bearer $_key'
@@ -223,11 +239,13 @@ class CloudSpeechService {
     if (res.statusCode == 401) {
       throw _CloudError(
         'The AI voice key is not valid. Check it in Settings > Voice input.',
+        recoverable: true,
       );
     }
     if (res.statusCode == 429) {
       throw _CloudError(
         'AI voice free limit reached for now. Wait a minute, or use the phone voice engine.',
+        recoverable: true,
       );
     }
     throw _CloudError('AI voice failed (HTTP ${res.statusCode}).');
@@ -273,5 +291,6 @@ class CloudSpeechService {
 
 class _CloudError implements Exception {
   final String message;
-  _CloudError(this.message);
+  final bool recoverable;
+  _CloudError(this.message, {this.recoverable = false});
 }
