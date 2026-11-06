@@ -166,6 +166,7 @@ class SettingsScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: DropdownButton<String>(
+                  borderRadius: BorderRadius.circular(16),
                   value: s.speechLocale,
                   isExpanded: true,
                   underline: const SizedBox.shrink(),

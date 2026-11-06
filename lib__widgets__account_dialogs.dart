@@ -34,6 +34,7 @@ Future<void> showAccountDialog(
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
+              borderRadius: BorderRadius.circular(16),
               value: type,
               decoration: InputDecoration(labelText: tr('Type')),
               items: [

@@ -164,6 +164,7 @@ class CategoryDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final cats = context.read<AppState>().categories;
     return DropdownButtonFormField<int?>(
+      borderRadius: BorderRadius.circular(16),
       value: value,
       isExpanded: true,
       decoration: InputDecoration(labelText: tr(label)),
@@ -258,7 +259,10 @@ Future<bool> confirmDialog(
         ),
         FilledButton(
           onPressed: () => Navigator.pop(ctx, true),
-          style: FilledButton.styleFrom(minimumSize: const Size(90, 44)),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size(90, 44),
+            backgroundColor: action == 'Delete' ? AppColors.danger : null,
+          ),
           child: Text(action),
         ),
       ],
@@ -306,6 +310,7 @@ class AccountDropdown extends StatelessWidget {
         .toList();
     final valid = accounts.any((a) => a.id == value);
     return DropdownButtonFormField<int?>(
+      borderRadius: BorderRadius.circular(16),
       value: valid || (allowNone && value == null) ? value : null,
       isExpanded: true,
       decoration: InputDecoration(

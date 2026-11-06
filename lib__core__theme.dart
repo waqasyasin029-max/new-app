@@ -182,7 +182,153 @@ ThemeData buildAppTheme() {
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      backgroundColor: AppColors.navy,
+      actionTextColor: AppColors.gold,
+      contentTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontFamilyFallback: L10n.fallbackFonts,
+        fontSize: 14,
+        color: Colors.white,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    ),
+    // Popups, pickers and menus use the same surface, radius and colours as
+    // the screens, so nothing looks like stock Android.
+    canvasColor: AppColors.surface,
+    dialogTheme: DialogThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(28),
+        side: BorderSide(color: AppColors.line),
+      ),
+      titleTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontFamilyFallback: L10n.fallbackFonts,
+        fontSize: 19,
+        fontWeight: FontWeight.w700,
+        color: AppColors.ink,
+      ),
+      contentTextStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontFamilyFallback: L10n.fallbackFonts,
+        fontSize: 14.5,
+        height: 1.4,
+        color: AppColors.muted,
+      ),
+    ),
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: AppColors.surface,
+      modalBackgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      color: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: BorderSide(color: AppColors.line),
+      ),
+      textStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontFamilyFallback: L10n.fallbackFonts,
+        fontSize: 14.5,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
+    ),
+    datePickerTheme: DatePickerThemeData(
+      backgroundColor: AppColors.surface,
+      surfaceTintColor: Colors.transparent,
+      headerBackgroundColor: AppColors.primary,
+      headerForegroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+    ),
+    timePickerTheme: TimePickerThemeData(
+      backgroundColor: AppColors.surface,
+      dialBackgroundColor: AppColors.fieldFill,
+      hourMinuteColor: AppColors.fieldFill,
+      hourMinuteTextColor: AppColors.ink,
+      dialTextColor: AppColors.ink,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+    ),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith<Color?>(
+        (states) => states.contains(WidgetState.selected)
+            ? Colors.white
+            : AppColors.muted,
+      ),
+      trackColor: WidgetStateProperty.resolveWith<Color?>(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.primary
+            : AppColors.line,
+      ),
+      trackOutlineColor: WidgetStateProperty.resolveWith<Color?>(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.primary
+            : AppColors.line,
+      ),
+    ),
+    checkboxTheme: CheckboxThemeData(
+      fillColor: WidgetStateProperty.resolveWith<Color?>(
+        (states) => states.contains(WidgetState.selected)
+            ? AppColors.primary
+            : Colors.transparent,
+      ),
+      checkColor: WidgetStateProperty.all<Color?>(Colors.white),
+      side: BorderSide(color: AppColors.muted, width: 1.6),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.ink,
+        selectedBackgroundColor: AppColors.primary,
+        selectedForegroundColor: Colors.white,
+        side: BorderSide(color: AppColors.line),
+        textStyle: TextStyle(
+          fontFamily: 'Inter',
+          fontFamilyFallback: L10n.fallbackFonts,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.surface,
+      selectedColor: AppColors.primary.withOpacity(0.18),
+      side: BorderSide(color: AppColors.line),
+      shape: const StadiumBorder(),
+      checkmarkColor: AppColors.primary,
+      labelStyle: TextStyle(
+        fontFamily: 'Inter',
+        fontFamilyFallback: L10n.fallbackFonts,
+        fontSize: 13.5,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
+    ),
+    progressIndicatorTheme: ProgressIndicatorThemeData(
+      color: AppColors.primary,
+      linearTrackColor: AppColors.line,
+      circularTrackColor: AppColors.line,
+    ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: AppColors.navy,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      textStyle: const TextStyle(color: Colors.white, fontSize: 12.5),
+    ),
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: AppColors.primary,
+      selectionHandleColor: AppColors.primary,
+      selectionColor: AppColors.primary.withOpacity(0.25),
     ),
   );
 }

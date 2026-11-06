@@ -141,6 +141,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
         padding: const EdgeInsets.all(16),
         children: [
           DropdownButtonFormField<String>(
+            borderRadius: BorderRadius.circular(16),
             value: state.speechLocale,
             decoration: InputDecoration(
               labelText: tr('Speaking language'),
