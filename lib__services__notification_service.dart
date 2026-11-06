@@ -147,22 +147,35 @@ class NotificationService {
   }
 
   /// Plain-words state of the reminders: allowed, exact, how many scheduled.
+  /// Each check runs on its own, so one failing never hides the others.
   static Future<String> status() async {
+    String allowed;
     try {
-      final allowed = await _android?.areNotificationsEnabled() ?? true;
-      final exact = await canScheduleExact();
+      allowed = (await _android?.areNotificationsEnabled() ?? true)
+          ? 'yes'
+          : 'NO';
+    } catch (e) {
+      allowed = 'unknown ($e)';
+    }
+    String exact;
+    try {
+      exact = (await canScheduleExact()) ? 'yes' : 'no';
+    } catch (e) {
+      exact = 'unknown ($e)';
+    }
+    String count;
+    try {
       final pending = await _plugin.pendingNotificationRequests();
       final ids = {for (final p in pending) p.id};
-      final mine = ids
-          .where((i) => i == _dailyId || i == breakfastId || i == dinnerId)
-          .length;
-      final err = lastError == null ? '' : '\nError: $lastError';
-      return 'Notifications allowed: ${allowed ? 'yes' : 'NO'}\n'
-          'Exact alarms: ${exact ? 'yes' : 'no'}\n'
-          'Reminders scheduled: $mine$err';
+      count =
+          '${ids.where((i) => i == _dailyId || i == breakfastId || i == dinnerId).length}';
     } catch (e) {
-      return 'Could not read status: $e';
+      count = 'unknown ($e)';
     }
+    final err = lastError == null ? '' : '\nError: $lastError';
+    return 'Notifications allowed: $allowed\n'
+        'Exact alarms: $exact\n'
+        'Reminders scheduled: $count$err';
   }
 
   static Future<void> cancelId(int id) => _plugin.cancel(id);
