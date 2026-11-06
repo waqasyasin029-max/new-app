@@ -252,6 +252,26 @@ const Map<String, String> urExact = {
   'Cash, JazzCash, Naya Pay, Easypaisa and Meezan Bank. Track balances, withdraw, transfer and match your real balance.': 'نقد، جاز کیش، نیا پے، ایزی پیسہ اور میزان بینک۔ بیلنس دیکھیں، رقم نکالیں، منتقل کریں اور اصل بیلنس سے ملائیں۔',
   'Reports, salary and reminders': 'رپورٹس، تنخواہ اور یاد دہانی',
   'See history and monthly reports, track your salary, and get friendly reminders at breakfast, dinner and 11 PM. Light or dark, English or Urdu, fully offline.': 'ہسٹری اور ماہانہ رپورٹس دیکھیں، تنخواہ کا حساب رکھیں، اور ناشتے، رات کے کھانے اور رات 11 بجے دوستانہ یاد دہانی پائیں۔ لائٹ یا ڈارک، انگلش یا اردو، مکمل آف لائن۔',
+  'Voice engine': 'آواز کا انجن',
+  'AI (better)': 'اے آئی (بہتر)',
+  'Phone': 'فون',
+  'AI voice key': 'اے آئی وائس کی',
+  'Not added yet. Tap to add a free key':
+      'ابھی شامل نہیں۔ مفت کی شامل کرنے کے لیے دبائیں',
+  'Key saved on this phone': 'کی اس فون میں محفوظ ہے',
+  '1. Open console.groq.com in your browser and sign in.\n2. Go to API Keys and create a key (free).\n3. Copy it and paste it here.': '1. براؤزر میں console.groq.com کھولیں اور سائن ان کریں۔\n2. API Keys میں جا کر مفت کی بنائیں۔\n3. اسے کاپی کر کے یہاں پیسٹ کریں۔',
+  'Want much better voice recognition?': 'آواز کی بہتر پہچان چاہیے؟',
+  'Add a free AI voice key in Settings > Voice input.':
+      'سیٹنگز > وائس ان پٹ میں مفت اے آئی وائس کی شامل کریں۔',
+  'Converting your voice to text…': 'آپ کی آواز کو متن میں بدلا جا رہا ہے…',
+  'Nothing was heard. Tap the mic again and speak clearly.':
+      'کچھ سنائی نہیں دیا۔ مائیک دوبارہ دبائیں اور صاف بولیں۔',
+  'No internet. Turn on internet for AI voice, or switch to the phone voice engine in Settings.': 'انٹرنیٹ نہیں ہے۔ اے آئی وائس کے لیے انٹرنیٹ آن کریں، یا سیٹنگز میں فون کا آواز انجن چنیں۔',
+  'The internet is too slow. Please try again.':
+      'انٹرنیٹ بہت سست ہے۔ دوبارہ کوشش کریں۔',
+  'The AI voice key is not valid. Check it in Settings > Voice input.':
+      'اے آئی وائس کی درست نہیں۔ سیٹنگز > وائس ان پٹ میں چیک کریں۔',
+  'AI voice free limit reached for now. Wait a minute, or use the phone voice engine.': 'اے آئی وائس کی مفت حد فی الحال پوری ہو گئی۔ ایک منٹ رکیں، یا فون کا انجن استعمال کریں۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',
@@ -302,4 +322,7 @@ const Map<String, String> urTemplates = {
   'Transfer to {}': '{0} کو منتقل',
   'Received from {}': '{0} سے وصول',
   'fee {}': 'فیس {0}',
+  'AI voice failed (HTTP {})': 'اے آئی وائس ناکام (HTTP {0})',
+  'Voice error: {}': 'آواز کی خرابی: {0}',
+  'Could not start the microphone: {}': 'مائیک شروع نہیں ہو سکا: {0}',
 };

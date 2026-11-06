@@ -6,10 +6,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../logic/expense_parser.dart';
+import '../services/cloud_speech_service.dart';
 import '../services/speech_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import 'confirm_expenses_screen.dart';
+import 'settings_screen.dart';
 import '../core/i18n.dart';
 
 class VoiceEntryScreen extends StatefulWidget {
@@ -22,6 +24,9 @@ class VoiceEntryScreen extends StatefulWidget {
 class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     with SingleTickerProviderStateMixin {
   final SpeechService _speech = SpeechService();
+  final CloudSpeechService _cloud = CloudSpeechService();
+  bool _usingCloud = false;
+  bool _busy = false;
   final TextEditingController _text = TextEditingController();
   late final AnimationController _pulse = AnimationController(
     vsync: this,
@@ -33,14 +38,15 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   @override
   void initState() {
     super.initState();
-    _speech.onText = (t) {
+    void onText(String t) {
       if (!mounted) return;
       setState(() {
         _text.text = t;
         _text.selection = TextSelection.collapsed(offset: t.length);
       });
-    };
-    _speech.onListening = (v) {
+    }
+
+    void onListening(bool v) {
       if (!mounted) return;
       setState(() => _listening = v);
       if (v) {
@@ -49,31 +55,55 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
         _pulse.stop();
         _pulse.value = 0;
       }
-    };
-    _speech.onError = (m) {
+    }
+
+    void onError(String m) {
       if (mounted) setState(() => _error = m);
+    }
+
+    _speech.onText = onText;
+    _speech.onListening = onListening;
+    _speech.onError = onError;
+    _cloud.onText = onText;
+    _cloud.onListening = onListening;
+    _cloud.onError = onError;
+    _cloud.onBusy = (v) {
+      if (mounted) setState(() => _busy = v);
     };
   }
 
   @override
   void dispose() {
     _speech.dispose();
+    _cloud.dispose();
     _pulse.dispose();
     _text.dispose();
     super.dispose();
   }
 
   Future<void> _toggle() async {
+    if (_busy) return;
     if (_listening) {
-      await _speech.stop();
+      await (_usingCloud ? _cloud.stop() : _speech.stop());
       return;
     }
     setState(() => _error = null);
+    final app = context.read<AppState>();
     final mic = await _speech.ensureMic();
     if (mic != MicStatus.granted) {
       _permissionDialog(mic == MicStatus.permanentlyDenied);
       return;
     }
+    if (app.useCloudVoice) {
+      _usingCloud = true;
+      await _cloud.start(
+        apiKey: app.groqKey,
+        localeId: app.speechLocale,
+        existing: _text.text,
+      );
+      return;
+    }
+    _usingCloud = false;
     if (!await _speech.init()) {
       setState(
         () => _error = 'Speech recognition is not available on this phone. Install/enable "Speech Services by Google", or type your expenses below.',
@@ -115,7 +145,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   }
 
   Future<void> _analyze() async {
-    if (_listening) await _speech.stop();
+    if (_listening) await (_usingCloud ? _cloud.stop() : _speech.stop());
     final text = _text.text.trim();
     if (text.isEmpty) {
       snack(context, 'Speak or type your expenses first.');
@@ -175,15 +205,23 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                 elevation: 4,
                 child: InkWell(
                   customBorder: const CircleBorder(),
-                  onTap: _toggle,
+                  onTap: _busy ? null : _toggle,
                   child: SizedBox(
                     width: 110,
                     height: 110,
-                    child: Icon(
-                      _listening ? Icons.stop : Icons.mic,
-                      size: 56,
-                      color: Colors.white,
-                    ),
+                    child: _busy
+                        ? const Padding(
+                            padding: EdgeInsets.all(34),
+                            child: CircularProgressIndicator(
+                              strokeWidth: 4,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Icon(
+                            _listening ? Icons.stop : Icons.mic,
+                            size: 56,
+                            color: Colors.white,
+                          ),
                   ),
                 ),
               ),
@@ -192,10 +230,36 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
           const SizedBox(height: 12),
           Center(
             child: Text(
-              _listening ? 'Listening… tap to stop' : 'Tap the mic and speak',
+              _busy
+                  ? 'Converting your voice to text…'
+                  : _listening
+                  ? 'Listening… tap to stop'
+                  : 'Tap the mic and speak',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
+          if (state.voiceEngine == 'cloud' && state.groqKey.trim().isEmpty)
+            AppCard(
+              margin: const EdgeInsets.only(top: 12),
+              child: ListTile(
+                leading: const Icon(
+                  Icons.auto_awesome,
+                  color: AppColors.primary,
+                ),
+                title: const Text(
+                  'Want much better voice recognition?',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Add a free AI voice key in Settings > Voice input.',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                ),
+              ),
+            ),
           if (_error != null)
             AppCard(
               color: scheme.errorContainer,

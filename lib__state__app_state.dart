@@ -34,6 +34,10 @@ class AppState extends ChangeNotifier {
   /// 'en' | 'ur'
   String language = 'en';
   bool onboardingDone = true;
+  String voiceEngine = 'cloud'; // 'cloud' (AI) or 'phone'
+  String groqKey = '';
+
+  bool get useCloudVoice => voiceEngine == 'cloud' && groqKey.trim().isNotEmpty;
 
   static const speechLocales = {
     'ur_PK': 'اردو (Urdu / Roman Urdu)',
@@ -64,6 +68,8 @@ class AppState extends ChangeNotifier {
     themeMode = prefs.getString('theme_mode') ?? 'system';
     language = prefs.getString('language') ?? 'en';
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
+    voiceEngine = prefs.getString('voice_engine') ?? 'cloud';
+    groqKey = prefs.getString('groq_key') ?? '';
     applyLook();
   }
 
@@ -201,6 +207,20 @@ class AppState extends ChangeNotifier {
     speechLocale = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('speech_locale', locale);
+    notifyListeners();
+  }
+
+  Future<void> setVoiceEngine(String engine) async {
+    voiceEngine = engine;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('voice_engine', engine);
+    notifyListeners();
+  }
+
+  Future<void> setGroqKey(String key) async {
+    groqKey = key.trim();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('groq_key', groqKey);
     notifyListeners();
   }
 }

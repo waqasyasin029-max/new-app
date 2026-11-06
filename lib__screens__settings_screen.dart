@@ -184,6 +184,39 @@ class SettingsScreen extends StatelessWidget {
           TileGroup(
             children: [
               ListTile(
+                leading: const Icon(Icons.auto_awesome),
+                title: const Text(
+                  'Voice engine',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SegmentedButton<String>(
+                    showSelectedIcon: false,
+                    segments: const [
+                      ButtonSegment(value: 'cloud', label: Text('AI (better)')),
+                      ButtonSegment(value: 'phone', label: Text('Phone')),
+                    ],
+                    selected: {s.voiceEngine},
+                    onSelectionChanged: (v) => s.setVoiceEngine(v.first),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.key_outlined),
+                title: const Text(
+                  'AI voice key',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  s.groqKey.trim().isEmpty
+                      ? 'Not added yet. Tap to add a free key'
+                      : 'Key saved on this phone',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _editKey(context, s),
+              ),
+              ListTile(
                 leading: const Icon(Icons.language),
                 title: const Text(
                   'Speaking language',
@@ -261,6 +294,55 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _editKey(BuildContext context, AppState s) async {
+    final c = TextEditingController(text: s.groqKey);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('AI voice key'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              '1. Open console.groq.com in your browser and sign in.\n'
+              '2. Go to API Keys and create a key (free).\n'
+              '3. Copy it and paste it here.',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: c,
+              autocorrect: false,
+              enableSuggestions: false,
+              decoration: const InputDecoration(
+                hintText: 'gsk_...',
+                isDense: true,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          if (s.groqKey.isNotEmpty)
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, ''),
+              child: const Text('Remove'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, c.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    c.dispose();
+    if (result != null) await s.setGroqKey(result);
   }
 
   /// A switch row plus a time row for one meal reminder.
