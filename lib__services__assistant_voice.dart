@@ -5,35 +5,48 @@ import 'package:audioplayers/audioplayers.dart';
 
 import 'gemini_api.dart';
 import 'gemini_tts_service.dart';
+import 'uplift_tts_service.dart';
 
-/// The assistant's voice: Gemini speech from the user's own key. When it
-/// cannot speak (no key, limit reached) the assistant simply stays silent and
-/// the words stay on the screen.
+/// The assistant's voice. Uplift (Urdu voices) is used first when its key is
+/// there, then Gemini. When neither can speak (no key, limit reached) the
+/// assistant stays silent and the words stay on the screen.
 class AssistantVoice {
   final AudioPlayer _player = AudioPlayer();
   StreamSubscription<void>? _sub;
   Completer<void>? _playing;
   bool _stopped = false;
-  bool _broken = false;
-  String _key = '';
-  String _voice = 'Kore';
-  String _model = '';
 
-  /// Called with a short reason when the voice stops working.
+  String _geminiKey = '';
+  String _geminiVoice = 'Kore';
+  String _geminiModel = '';
+  bool _geminiBroken = false;
+
+  String _upliftKey = '';
+  String _upliftVoice = '';
+  bool _upliftBroken = false;
+
+  /// Called with a short reason when a voice stops working.
   void Function(String message)? onNotice;
 
-  bool get ready => _key.isNotEmpty && !_broken;
+  bool get _upliftOn => _upliftKey.isNotEmpty && !_upliftBroken;
+  bool get _geminiOn => _geminiKey.isNotEmpty && !_geminiBroken;
+  bool get ready => _upliftOn || _geminiOn;
 
   void configure({
-    required String key,
-    required String voice,
-    required String model,
+    required String geminiKey,
+    required String geminiVoice,
+    required String geminiModel,
     String lastGood = '',
+    String upliftKey = '',
+    String upliftVoice = '',
   }) {
-    _key = key.trim();
-    _voice = voice.isEmpty ? 'Kore' : voice;
-    _model = model;
-    _broken = false;
+    _geminiKey = geminiKey.trim();
+    _geminiVoice = geminiVoice.isEmpty ? 'Kore' : geminiVoice;
+    _geminiModel = geminiModel;
+    _geminiBroken = false;
+    _upliftKey = upliftKey.trim();
+    _upliftVoice = upliftVoice;
+    _upliftBroken = false;
     if (lastGood.isNotEmpty) GeminiTts.lastGood = lastGood;
   }
 
@@ -63,25 +76,48 @@ class AssistantVoice {
   }
 
   Future<File?> _synth(String text) async {
-    try {
-      final r = await GeminiTts.synth(
-        key: _key,
-        voice: _voice,
-        text: text,
-        model: _model,
-      );
-      return r.file;
-    } on GeminiError catch (e) {
-      _fail(e.message);
-    } catch (_) {
-      _fail('The voice could not be made. The assistant will only write.');
+    if (_upliftOn) {
+      try {
+        return await UpliftTts.synth(
+          key: _upliftKey,
+          voice: _upliftVoice,
+          text: text,
+        );
+      } on UpliftError catch (e) {
+        _upliftFailed(e.message);
+      } catch (_) {
+        _upliftFailed('The Uplift voice could not be made.');
+      }
+    }
+    if (_geminiOn) {
+      try {
+        final r = await GeminiTts.synth(
+          key: _geminiKey,
+          voice: _geminiVoice,
+          text: text,
+          model: _geminiModel,
+        );
+        return r.file;
+      } on GeminiError catch (e) {
+        _geminiFailed(e.message);
+      } catch (_) {
+        _geminiFailed(
+          'The voice could not be made. The assistant will only write.',
+        );
+      }
     }
     return null;
   }
 
-  void _fail(String message) {
-    if (_broken) return;
-    _broken = true;
+  void _upliftFailed(String message) {
+    if (_upliftBroken) return;
+    _upliftBroken = true;
+    onNotice?.call(message);
+  }
+
+  void _geminiFailed(String message) {
+    if (_geminiBroken) return;
+    _geminiBroken = true;
     onNotice?.call(message);
   }
 

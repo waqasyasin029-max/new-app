@@ -412,6 +412,31 @@ const Map<String, String> urExact = {
   'The voice could not be made. The assistant will only write.':
       'آواز نہیں بن سکی۔ اسسٹنٹ صرف لکھے گا۔',
   'Check assistant': 'اسسٹنٹ چیک کریں',
+  'Uplift voice (Urdu)': 'اپ لفٹ آواز (اردو)',
+  'Natural Urdu voices made in Pakistan. Add a key':
+      'پاکستان میں بنی قدرتی اردو آوازیں۔ کی ڈالیں',
+  'Key saved. The assistant speaks with it':
+      'کی محفوظ ہے۔ اسسٹنٹ اسی سے بولتا ہے',
+  '1. Sign up at upliftai.org.\n2. Create an API key (it starts with sk_api_).\n3. Paste it here, pick a voice and tap Play.': '1. upliftai.org پر سائن اپ کریں۔\n2. API کی بنائیں (sk_api_ سے شروع ہوتی ہے)۔\n3. اسے یہاں پیسٹ کریں، آواز چنیں اور چلائیں دبائیں۔',
+  'Uplift key': 'اپ لفٹ کی',
+  'Paste the Uplift key first.': 'پہلے اپ لفٹ کی پیسٹ کریں۔',
+  'Info / Education': 'معلومات / تعلیم',
+  'Gen Z': 'نوجوان',
+  'Dada Jee (elder)': 'دادا جی (بزرگ)',
+  'Nostalgic News': 'پرانے زمانے کی خبریں',
+  'Other (paste voice id)': 'دیگر (وائس آئی ڈی پیسٹ کریں)',
+  'Voice id (like v_8eelc901)': 'وائس آئی ڈی (جیسے v_8eelc901)',
+  'Remove Uplift key': 'اپ لفٹ کی ہٹائیں',
+  'Uplift key removed. The assistant uses the Gemini voice.':
+      'اپ لفٹ کی ہٹ گئی۔ اسسٹنٹ جیمنائی کی آواز استعمال کرے گا۔',
+  'No internet or Uplift is slow. Try again.':
+      'انٹرنیٹ نہیں ہے یا اپ لفٹ سست ہے۔ دوبارہ کوشش کریں۔',
+  'The Uplift key is not valid or not allowed.':
+      'اپ لفٹ کی درست نہیں یا اجازت نہیں۔',
+  'Uplift voice limit reached (free minutes may be finished).':
+      'اپ لفٹ آواز کی حد پوری ہو گئی (مفت منٹ ختم ہو سکتے ہیں)۔',
+  'Uplift sent no audio.': 'اپ لفٹ نے آواز نہیں بھیجی۔',
+  'The Uplift voice could not be made.': 'اپ لفٹ کی آواز نہیں بن سکی۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

@@ -139,10 +139,12 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
         return;
       }
       _voice.configure(
-        key: app.geminiKey,
-        voice: app.geminiVoice,
-        model: app.geminiModel,
+        geminiKey: app.geminiKey,
+        geminiVoice: app.geminiVoice,
+        geminiModel: app.geminiModel,
         lastGood: app.geminiTtsOk,
+        upliftKey: app.upliftKey,
+        upliftVoice: app.upliftVoice,
       );
       _voice.onNotice = (m) {
         if (mounted) setState(() => _error = m);

@@ -10,6 +10,7 @@ import '../widgets/common.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import 'gemini_voice_screen.dart';
+import 'uplift_voice_screen.dart';
 import 'onboarding_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
@@ -298,6 +299,23 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const GeminiVoiceScreen()),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.graphic_eq),
+                title: const Text(
+                  'Uplift voice (Urdu)',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  s.upliftKey.trim().isEmpty
+                      ? 'Natural Urdu voices made in Pakistan. Add a key'
+                      : 'Key saved. The assistant speaks with it',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const UpliftVoiceScreen()),
                 ),
               ),
               ListTile(

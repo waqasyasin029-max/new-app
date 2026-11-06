@@ -39,6 +39,8 @@ class AppState extends ChangeNotifier {
   bool assistantOn = true;
   String userName = 'وقاص';
   String geminiTtsOk = '';
+  String upliftKey = '';
+  String upliftVoice = '';
   String geminiKey = '';
   String geminiVoice = 'Kore';
   String geminiModel = '';
@@ -89,6 +91,8 @@ class AppState extends ChangeNotifier {
     assistantOn = prefs.getBool('assistant_on') ?? true;
     userName = prefs.getString('user_name') ?? 'وقاص';
     geminiTtsOk = prefs.getString('gemini_tts_ok') ?? '';
+    upliftKey = prefs.getString('uplift_key') ?? '';
+    upliftVoice = prefs.getString('uplift_voice') ?? '';
     geminiKey = prefs.getString('gemini_key') ?? '';
     geminiVoice = prefs.getString('gemini_voice') ?? 'Kore';
     geminiModel = prefs.getString('gemini_model') ?? '';
@@ -237,6 +241,15 @@ class AppState extends ChangeNotifier {
     voiceEngine = engine;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('voice_engine', engine);
+    notifyListeners();
+  }
+
+  Future<void> setUplift({required String key, required String voice}) async {
+    upliftKey = key.trim();
+    upliftVoice = voice.trim();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('uplift_key', upliftKey);
+    await prefs.setString('uplift_voice', upliftVoice);
     notifyListeners();
   }
 
