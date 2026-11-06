@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../core/i18n.dart';
 import '../core/theme.dart';
+import '../services/gemini_api.dart';
 import '../services/gemini_tts_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
