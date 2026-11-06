@@ -1,0 +1,50 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore folders from flat file names
+        run: |
+          for f in *__*; do
+            [ -e "$f" ] || continue
+            d="${f//__//}"
+            mkdir -p "$(dirname "$d")"
+            mv "$f" "$d"
+          done
+          ls -R lib tool
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Android scaffold, copy app, patch, build
+        run: |
+          APP="$RUNNER_TEMP/app"
+          flutter create --platforms=android --project-name kharcha_tracker --org com.personal "$APP"
+          rm -rf "$APP/lib" "$APP/test"
+          cp -r lib tool pubspec.yaml analysis_options.yaml "$APP/"
+          cd "$APP"
+          dart run tool/patch_android.dart
+          flutter pub get
+          dart run tool/parser_check.dart
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+          flutter build apk --release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kharcha-tracker-apk
+          path: ${{ runner.temp }}/app/build/app/outputs/flutter-apk/app-release.apk
