@@ -109,7 +109,7 @@ ThemeData buildAppTheme() {
   final base = ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
-    fontFamily: 'Inter',
+    fontFamily: 'Manrope',
     fontFamilyFallback: L10n.fallbackFonts,
   );
   return base.copyWith(
@@ -125,7 +125,7 @@ ThemeData buildAppTheme() {
       scrolledUnderElevation: 0,
       centerTitle: false,
       titleTextStyle: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,
         fontSize: 26,
         fontWeight: FontWeight.w700,
@@ -151,7 +151,7 @@ ThemeData buildAppTheme() {
         minimumSize: const Size(0, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: TextStyle(
-          fontFamily: 'Inter',
+          fontFamily: 'Manrope',
           fontFamilyFallback: L10n.fallbackFonts,
           fontWeight: FontWeight.w600,
           fontSize: 15,
@@ -171,7 +171,7 @@ ThemeData buildAppTheme() {
       style: TextButton.styleFrom(
         foregroundColor: AppColors.primary,
         textStyle: TextStyle(
-          fontFamily: 'Inter',
+          fontFamily: 'Manrope',
           fontFamilyFallback: L10n.fallbackFonts,
           fontWeight: FontWeight.w600,
         ),
@@ -194,7 +194,7 @@ ThemeData buildAppTheme() {
       backgroundColor: AppColors.navy,
       actionTextColor: AppColors.gold,
       contentTextStyle: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,
         fontSize: 14,
         color: Colors.white,
@@ -213,14 +213,14 @@ ThemeData buildAppTheme() {
         side: BorderSide(color: AppColors.line),
       ),
       titleTextStyle: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,
         fontSize: 19,
         fontWeight: FontWeight.w700,
         color: AppColors.ink,
       ),
       contentTextStyle: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,
         fontSize: 14.5,
         height: 1.4,
@@ -244,7 +244,7 @@ ThemeData buildAppTheme() {
         side: BorderSide(color: AppColors.line),
       ),
       textStyle: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,
         fontSize: 14.5,
         fontWeight: FontWeight.w600,
@@ -301,7 +301,7 @@ ThemeData buildAppTheme() {
         selectedForegroundColor: Colors.white,
         side: BorderSide(color: AppColors.line),
         textStyle: TextStyle(
-          fontFamily: 'Inter',
+          fontFamily: 'Manrope',
           fontFamilyFallback: L10n.fallbackFonts,
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -315,7 +315,7 @@ ThemeData buildAppTheme() {
       shape: const StadiumBorder(),
       checkmarkColor: AppColors.primary,
       labelStyle: TextStyle(
-        fontFamily: 'Inter',
+        fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,
         fontSize: 13.5,
         fontWeight: FontWeight.w600,

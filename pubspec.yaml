@@ -33,12 +33,14 @@ flutter:
   assets:
     - assets/icon/logo.png
   fonts:
-    - family: Inter
+    - family: Manrope
       fonts:
-        - asset: assets/fonts/Inter-Regular.ttf
-        - asset: assets/fonts/Inter-SemiBold.ttf
+        - asset: assets/fonts/Manrope-Regular.ttf
+        - asset: assets/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/Inter-Bold.ttf
+        - asset: assets/fonts/Manrope-Bold.ttf
           weight: 700
     - family: NotoNastaliqUrdu
       fonts:
