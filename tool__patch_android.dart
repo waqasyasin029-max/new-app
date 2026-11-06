@@ -98,6 +98,12 @@ void _patchGradle() {
       x,
       '    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")',
     );
+    // Keep native libraries compressed inside the APK (about 10 MB download
+    // instead of about 20 MB); they are unpacked when the app is installed.
+    x = x.replaceFirst(
+      'android {',
+      'android {\n    packaging {\n        jniLibs {\n            useLegacyPackaging = true\n        }\n    }',
+    );
     kts.writeAsStringSync(x);
     stdout.writeln('Patched build.gradle.kts');
   } else if (groovy.existsSync()) {
@@ -120,6 +126,12 @@ void _patchGradle() {
     x = _addDependency(
       x,
       "    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'",
+    );
+    // Keep native libraries compressed inside the APK (about 10 MB download
+    // instead of about 20 MB); they are unpacked when the app is installed.
+    x = x.replaceFirst(
+      'android {',
+      'android {\n    packaging {\n        jniLibs {\n            useLegacyPackaging = true\n        }\n    }',
     );
     groovy.writeAsStringSync(x);
     stdout.writeln('Patched build.gradle');
