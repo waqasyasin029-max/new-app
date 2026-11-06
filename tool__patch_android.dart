@@ -132,7 +132,7 @@ void _patchGradle() {
         '$signing\n'
         '            isMinifyEnabled = false\n'
         '            isShrinkResources = false\n'
-        '            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")',
+        '            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")',
       );
     } else {
       stderr.writeln(
@@ -186,7 +186,7 @@ void _patchGradle() {
         '$signing\n'
         '            minifyEnabled false\n'
         '            shrinkResources false\n'
-        "            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'",
+        "            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'",
       );
     } else {
       stderr.writeln(
