@@ -3,10 +3,13 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_10y.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
-import '../core/i18n.dart' show tr;
+import '../core/ur_strings.dart' show urExact;
 
 /// Daily "Have you recorded your expenses today?" reminder.
 class NotificationService {
+  /// Notifications are always shown in Urdu, whatever the app language is.
+  static String tr(String english) => urExact[english] ?? english;
+
   static final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
 
@@ -85,7 +88,7 @@ class NotificationService {
   static Future<void> scheduleDaily(TimeOfDay time) => scheduleAt(
     id: _dailyId,
     time: time,
-    title: 'Kharcha Tracker',
+    title: tr('Kharcha Tracker'),
     text: body,
   );
 
@@ -123,7 +126,7 @@ class NotificationService {
 
   static Future<void> showTest() => _plugin.show(
     1002,
-    'Kharcha Tracker',
+    tr('Kharcha Tracker'),
     body,
     _details,
     payload: payloadRecord,

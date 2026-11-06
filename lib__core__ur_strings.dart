@@ -223,6 +223,7 @@ const Map<String, String> urExact = {
   'Meal reminders': 'کھانے کی یاد دہانی',
   'Breakfast reminder': 'ناشتے کی یاد دہانی',
   'Dinner reminder': 'رات کے کھانے کی یاد دہانی',
+  'Kharcha Tracker': 'خرچہ ٹریکر',
 };
 
 const Map<String, String> urTemplates = {
