@@ -7,6 +7,7 @@ import '../services/update_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/update_dialog.dart';
+import 'about_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
 
@@ -231,6 +232,18 @@ class SettingsScreen extends StatelessWidget {
                     showUpdateDialog(context, r.update!);
                   }
                 },
+              ),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text(
+                  'About Kharcha Tracker',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AboutScreen()),
+                ),
               ),
               const ListTile(
                 leading: Icon(Icons.lock_outline, color: AppColors.primary),

@@ -224,6 +224,26 @@ const Map<String, String> urExact = {
   'Breakfast reminder': 'ناشتے کی یاد دہانی',
   'Dinner reminder': 'رات کے کھانے کی یاد دہانی',
   'Kharcha Tracker': 'خرچہ ٹریکر',
+  'About': 'تعارف',
+  'About Kharcha Tracker': 'خرچہ ٹریکر کے بارے میں',
+  'Your daily expense diary': 'آپ کی روزانہ خرچ کی ڈائری',
+  'What it does': 'یہ کیا کرتی ہے',
+  'Speak your expenses in Roman Urdu, Urdu or English':
+      'اپنے خرچے رومن اردو، اردو یا انگلش میں بول کر درج کریں',
+  'Check and fix everything before it is saved':
+      'محفوظ ہونے سے پہلے ہر چیز دیکھیں اور درست کریں',
+  'Cash, JazzCash, Naya Pay, Easypaisa and bank accounts with balances':
+      'نقد، جاز کیش، نیا پے، ایزی پیسہ اور بینک اکاؤنٹس بیلنس کے ساتھ',
+  'Withdraw, transfer and reconcile between accounts':
+      'اکاؤنٹس کے درمیان رقم نکالیں، منتقل کریں اور حساب ملائیں',
+  'History, reports and monthly salary tracking':
+      'ہسٹری، رپورٹس اور ماہانہ تنخواہ کا حساب',
+  'Daily, breakfast and dinner reminders':
+      'روزانہ، ناشتے اور رات کے کھانے کی یاد دہانی',
+  'Works offline, no sign-up': 'انٹرنیٹ کے بغیر چلتی ہے، سائن اپ کی ضرورت نہیں',
+  'Developed by': 'تیار کردہ',
+  'Waqas Yasin': 'وقاص یاسین',
+  'Made in Pakistan': 'پاکستان میں بنائی گئی',
 };
 
 const Map<String, String> urTemplates = {
