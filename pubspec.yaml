@@ -38,8 +38,8 @@ flutter:
           weight: 600
         - asset: assets/fonts/Inter-Bold.ttf
           weight: 700
-    - family: NotoNaskhUrdu
+    - family: NotoNastaliqUrdu
       fonts:
-        - asset: assets/fonts/NotoNaskhUrdu-Regular.ttf
-        - asset: assets/fonts/NotoNaskhUrdu-Bold.ttf
+        - asset: assets/fonts/NotoNastaliqUrdu-Regular.ttf
+        - asset: assets/fonts/NotoNastaliqUrdu-Bold.ttf
           weight: 700

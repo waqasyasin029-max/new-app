@@ -5,7 +5,7 @@ import 'ur_strings.dart';
 /// App language switch. Set by [AppState]; read everywhere through [tr].
 class L10n {
   static bool urdu = false;
-  static const fallbackFonts = ['NotoNaskhUrdu'];
+  static const fallbackFonts = ['NotoNastaliqUrdu'];
 }
 
 final List<_Template> _templates = [
