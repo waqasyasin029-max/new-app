@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../state/app_state.dart';
+import '../core/i18n.dart';
 
 /// Loads data and automatically reloads when stored data changes
 /// ([AppState.revision]) or when [depends] changes (filters, month, ...).

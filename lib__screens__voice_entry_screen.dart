@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../core/theme.dart';
 
@@ -10,6 +10,7 @@ import '../services/speech_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import 'confirm_expenses_screen.dart';
+import '../core/i18n.dart';
 
 class VoiceEntryScreen extends StatefulWidget {
   const VoiceEntryScreen({super.key});
@@ -141,8 +142,8 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
         children: [
           DropdownButtonFormField<String>(
             value: state.speechLocale,
-            decoration: const InputDecoration(
-              labelText: 'Speaking language',
+            decoration: InputDecoration(
+              labelText: tr('Speaking language'),
               isDense: true,
             ),
             items: [
@@ -212,9 +213,11 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
             minLines: 4,
             maxLines: 8,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(
-              labelText: 'What was heard (you can edit this)',
-              hintText: 'Aj 300 rupay petrol ka kharcha hua, 200 ki chai pi, 500 ki grocery ki…',
+            decoration: InputDecoration(
+              labelText: tr('What was heard (you can edit this)'),
+              hintText: tr(
+                'Aj 300 rupay petrol ka kharcha hua, 200 ki chai pi, 500 ki grocery ki…',
+              ),
               alignLabelWithHint: true,
             ),
           ),

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../core/theme.dart';
 
@@ -8,6 +8,7 @@ import '../core/format.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../core/i18n.dart';
 
 /// Add a new expense manually, or edit/delete an existing one.
 class ExpenseEditScreen extends StatefulWidget {
@@ -118,13 +119,13 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
             controller: _amount,
             autofocus: !_editing,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(labelText: 'Amount (Rs)'),
+            decoration: InputDecoration(labelText: tr('Amount (Rs)')),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _desc,
             textCapitalization: TextCapitalization.sentences,
-            decoration: const InputDecoration(labelText: 'Description'),
+            decoration: InputDecoration(labelText: tr('Description')),
           ),
           const SizedBox(height: 16),
           CategoryDropdown(

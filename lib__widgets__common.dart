@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/account_style.dart';
@@ -7,6 +7,7 @@ import '../core/format.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
+import '../core/i18n.dart';
 
 class CategoryAvatar extends StatelessWidget {
   final String name;
@@ -51,17 +52,19 @@ class ExpenseTile extends StatelessWidget {
       leading: CategoryAvatar(cat),
       title: Text(
         title,
+        verbatim: expense.description.isNotEmpty,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
         [
-          cat,
+          tr(cat),
           if (showDate) Fmt.dayShort(expense.date),
-          if (expense.accountName != null) expense.accountName!,
+          if (expense.accountName != null) tr(expense.accountName!),
         ].join(' • '),
-        style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
+        verbatim: true,
+        style: TextStyle(color: AppColors.muted, fontSize: 12.5),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
@@ -74,8 +77,8 @@ class ExpenseTile extends StatelessWidget {
           ),
           if (onDelete != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.muted),
-              tooltip: 'Delete',
+              icon: Icon(Icons.delete_outline, color: AppColors.muted),
+              tooltip: tr('Delete'),
               onPressed: onDelete,
             ),
         ],
@@ -120,10 +123,7 @@ class StatCard extends StatelessWidget {
               Flexible(
                 child: Text(
                   label,
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    color: AppColors.muted,
-                  ),
+                  style: TextStyle(fontSize: 12.5, color: AppColors.muted),
                 ),
               ),
             ],
@@ -131,7 +131,7 @@ class StatCard extends StatelessWidget {
           const SizedBox(height: 10),
           FittedBox(
             fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: Text(
               value,
               style: TextStyle(
@@ -166,7 +166,7 @@ class CategoryDropdown extends StatelessWidget {
     return DropdownButtonFormField<int?>(
       value: value,
       isExpanded: true,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(labelText: tr(label)),
       items: [
         if (allowAll)
           const DropdownMenuItem<int?>(
@@ -207,7 +207,7 @@ class MonthSwitcher extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.surface,
           borderRadius: BorderRadius.circular(30),
           border: Border.all(color: AppColors.line),
         ),
@@ -308,7 +308,10 @@ class AccountDropdown extends StatelessWidget {
     return DropdownButtonFormField<int?>(
       value: valid || (allowNone && value == null) ? value : null,
       isExpanded: true,
-      decoration: InputDecoration(labelText: label, errorText: errorText),
+      decoration: InputDecoration(
+        labelText: tr(label),
+        errorText: errorText == null ? null : tr(errorText!),
+      ),
       items: [
         if (allowNone)
           const DropdownMenuItem<int?>(

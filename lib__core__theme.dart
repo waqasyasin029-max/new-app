@@ -1,30 +1,60 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
+
+import 'i18n.dart';
 
 class AppColors {
+  /// True while the dark theme is active. Set by the app before building.
+  static bool dark = false;
+
+  // Brand colours: identical in both themes.
   static const primary = Color(0xFF0E9F78);
   static const gold = Color(0xFFF5B301);
-  static const ink = Color(0xFF111827);
-  static const muted = Color(0xFF6B7280);
-  static const line = Color(0xFFE6ECEE);
   static const danger = Color(0xFFE5484D);
-  static const bgTop = Color(0xFFEAF3F4);
-  static const bgBottom = Color(0xFFFCEBEC);
-  static const mint = Color(0xFFCDEFD8);
-  static const sky = Color(0xFFC5E8F2);
-  static const peach = Color(0xFFFFD9A0);
-  static const lavender = Color(0xFFD3C8FF);
-  static const rose = Color(0xFFF9CDEF);
-  static const navy = Color(0xFF0B1220);
+
+  // Everything below changes with the theme.
+  static Color get ink =>
+      dark ? const Color(0xFFF2F5F9) : const Color(0xFF111827);
+  static Color get muted =>
+      dark ? const Color(0xFF9AA7B8) : const Color(0xFF6B7280);
+  static Color get line =>
+      dark ? const Color(0xFF283445) : const Color(0xFFE6ECEE);
+  static Color get surface => dark ? const Color(0xFF18212D) : Colors.white;
+  static Color get bgTop =>
+      dark ? const Color(0xFF0C131C) : const Color(0xFFEAF3F4);
+  static Color get bgBottom =>
+      dark ? const Color(0xFF160F1B) : const Color(0xFFFCEBEC);
+  static Color get mint =>
+      dark ? const Color(0xFF1F4D3E) : const Color(0xFFCDEFD8);
+  static Color get sky =>
+      dark ? const Color(0xFF1F4759) : const Color(0xFFC5E8F2);
+  static Color get peach =>
+      dark ? const Color(0xFF5B4222) : const Color(0xFFFFD9A0);
+  static Color get lavender =>
+      dark ? const Color(0xFF3E3772) : const Color(0xFFD3C8FF);
+  static Color get rose =>
+      dark ? const Color(0xFF5B2E4F) : const Color(0xFFF9CDEF);
+  static Color get navy =>
+      dark ? const Color(0xFF2C3B57) : const Color(0xFF0B1220);
+
+  /// Translucent white chip on top of a coloured card.
+  static Color get softWhite =>
+      dark ? const Color(0x2EFFFFFF) : const Color(0x8AFFFFFF);
+  static Color get noteBg =>
+      dark ? const Color(0xFF3A3217) : const Color(0xFFFFF6DC);
+  static Color get fieldFill =>
+      dark ? const Color(0xFF1F2937) : const Color(0xFFEFF4F5);
+  static Color get disabledBg =>
+      dark ? const Color(0xFF202A38) : const Color(0xFFF1F4F5);
 }
 
-/// Soft pastel gradient behind every screen (like the reference design).
+/// Soft gradient behind every screen (pastel in light, deep navy in dark).
 class AppBackground extends StatelessWidget {
   final Widget? child;
   const AppBackground({super.key, this.child});
 
   @override
   Widget build(BuildContext context) => DecoratedBox(
-    decoration: const BoxDecoration(
+    decoration: BoxDecoration(
       gradient: LinearGradient(
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
@@ -46,15 +76,32 @@ OutlineInputBorder pillBorder() => OutlineInputBorder(
   borderSide: BorderSide.none,
 );
 
+/// Builds the theme for the current [AppColors.dark] value.
 ThemeData buildAppTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    brightness: Brightness.light,
-  ).copyWith(primary: AppColors.primary, error: AppColors.danger);
+  final dark = AppColors.dark;
+  final scheme =
+      ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: dark ? Brightness.dark : Brightness.light,
+      ).copyWith(
+        primary: AppColors.primary,
+        error: AppColors.danger,
+        surface: AppColors.surface,
+        onSurface: AppColors.ink,
+        onSurfaceVariant: AppColors.muted,
+        outline: AppColors.line,
+        outlineVariant: AppColors.line,
+        surfaceContainerLowest: AppColors.surface,
+        surfaceContainerLow: AppColors.surface,
+        surfaceContainer: AppColors.surface,
+        surfaceContainerHigh: AppColors.surface,
+        surfaceContainerHighest: AppColors.fieldFill,
+      );
   final base = ThemeData(
     useMaterial3: true,
     colorScheme: scheme,
     fontFamily: 'Inter',
+    fontFamilyFallback: L10n.fallbackFonts,
   );
   return base.copyWith(
     scaffoldBackgroundColor: Colors.transparent,
@@ -62,7 +109,7 @@ ThemeData buildAppTheme() {
       bodyColor: AppColors.ink,
       displayColor: AppColors.ink,
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
@@ -70,15 +117,17 @@ ThemeData buildAppTheme() {
       centerTitle: false,
       titleTextStyle: TextStyle(
         fontFamily: 'Inter',
+        fontFamilyFallback: L10n.fallbackFonts,
         fontSize: 26,
         fontWeight: FontWeight.w700,
         color: AppColors.ink,
       ),
       iconTheme: IconThemeData(color: AppColors.ink),
     ),
+    iconTheme: IconThemeData(color: AppColors.ink),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: AppColors.surface,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       border: _border(AppColors.line),
       enabledBorder: _border(AppColors.line),
@@ -92,8 +141,9 @@ ThemeData buildAppTheme() {
         foregroundColor: Colors.white,
         minimumSize: const Size(0, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           fontFamily: 'Inter',
+          fontFamilyFallback: L10n.fallbackFonts,
           fontWeight: FontWeight.w600,
           fontSize: 15,
         ),
@@ -101,30 +151,31 @@ ThemeData buildAppTheme() {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        backgroundColor: Colors.white,
+        backgroundColor: AppColors.surface,
         foregroundColor: AppColors.ink,
         minimumSize: const Size(0, 48),
-        side: const BorderSide(color: AppColors.line),
+        side: BorderSide(color: AppColors.line),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: AppColors.primary,
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           fontFamily: 'Inter',
+          fontFamilyFallback: L10n.fallbackFonts,
           fontWeight: FontWeight.w600,
         ),
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
       height: 68,
       indicatorColor: AppColors.primary.withOpacity(0.14),
     ),
-    dividerTheme: const DividerThemeData(
+    dividerTheme: DividerThemeData(
       color: AppColors.line,
       space: 1,
       thickness: 1,
@@ -160,7 +211,7 @@ class AppCard extends StatelessWidget {
     return Padding(
       padding: margin,
       child: Material(
-        color: color ?? Colors.white,
+        color: color ?? AppColors.surface,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
@@ -267,7 +318,7 @@ class ProgressRing extends StatelessWidget {
             ),
             Text(
               caption,
-              style: const TextStyle(fontSize: 11, color: AppColors.muted),
+              style: TextStyle(fontSize: 11, color: AppColors.muted),
             ),
           ],
         ),

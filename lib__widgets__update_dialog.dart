@@ -1,8 +1,9 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:open_filex/open_filex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../services/update_service.dart';
+import '../core/i18n.dart';
 
 Future<void> showUpdateDialog(BuildContext context, UpdateInfo info) =>
     showDialog<void>(

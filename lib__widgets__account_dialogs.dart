@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/account_style.dart';
@@ -7,6 +7,7 @@ import '../core/theme.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
 import 'common.dart';
+import '../core/i18n.dart';
 
 /// Add a new account or rename / retype an existing one.
 Future<void> showAccountDialog(
@@ -27,14 +28,14 @@ Future<void> showAccountDialog(
             TextField(
               controller: name,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Name (e.g. HBL, SadaPay)',
+              decoration: InputDecoration(
+                labelText: tr('Name (e.g. HBL, SadaPay)'),
               ),
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               value: type,
-              decoration: const InputDecoration(labelText: 'Type'),
+              decoration: InputDecoration(labelText: tr('Type')),
               items: [
                 for (final t in AccountStyle.types)
                   DropdownMenuItem(
@@ -51,8 +52,8 @@ Future<void> showAccountDialog(
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
-                decoration: const InputDecoration(
-                  labelText: 'Money in it right now (Rs)',
+                decoration: InputDecoration(
+                  labelText: tr('Money in it right now (Rs)'),
                 ),
               ),
             ],
@@ -162,7 +163,7 @@ Future<void> showReconcileDialog(
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              const Text(
+              Text(
                 '(from what you recorded)',
                 style: TextStyle(color: AppColors.muted, fontSize: 12),
               ),
@@ -175,9 +176,11 @@ Future<void> showReconcileDialog(
                 ),
                 onChanged: (_) => setD(() {}),
                 decoration: InputDecoration(
-                  labelText: account.isCash
-                      ? 'Cash in hand now (Rs)'
-                      : 'Balance shown in the app/bank (Rs)',
+                  labelText: tr(
+                    account.isCash
+                        ? 'Cash in hand now (Rs)'
+                        : 'Balance shown in the app/bank (Rs)',
+                  ),
                 ),
               ),
               const SizedBox(height: 12),

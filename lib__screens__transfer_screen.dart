@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../core/i18n.dart';
 
 /// Move money between accounts. In [withdraw] mode it records an ATM/cash withdrawal into Cash.
 class TransferScreen extends StatefulWidget {
@@ -136,7 +137,7 @@ class _TransferScreenState extends State<TransferScreen> {
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           if (w)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 12),
               child: Text(
                 'Record when you took money out (ATM or agent). It is added to your Cash and taken from the account you choose.',
@@ -154,7 +155,7 @@ class _TransferScreenState extends State<TransferScreen> {
               padding: const EdgeInsets.fromLTRB(6, 6, 0, 0),
               child: Text(
                 'Recorded balance: ${Fmt.money(_bal[_from!] ?? 0)}',
-                style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
+                style: TextStyle(color: AppColors.muted, fontSize: 12.5),
               ),
             ),
           const SizedBox(height: 16),
@@ -170,15 +171,17 @@ class _TransferScreenState extends State<TransferScreen> {
             autofocus: w,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
             decoration: InputDecoration(
-              labelText: w ? 'How much did you withdraw? (Rs)' : 'Amount (Rs)',
+              labelText: tr(
+                w ? 'How much did you withdraw? (Rs)' : 'Amount (Rs)',
+              ),
             ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _fee,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
-              labelText: 'Fee / charges (optional)',
+            decoration: InputDecoration(
+              labelText: tr('Fee / charges (optional)'),
             ),
           ),
           const SizedBox(height: 16),
@@ -192,7 +195,7 @@ class _TransferScreenState extends State<TransferScreen> {
           const SizedBox(height: 16),
           TextField(
             controller: _note,
-            decoration: const InputDecoration(labelText: 'Note (optional)'),
+            decoration: InputDecoration(labelText: tr('Note (optional)')),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(

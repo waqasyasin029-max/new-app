@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme.dart';
+import '../core/i18n.dart' show tr;
 
 /// Dark floating pill navigation (selected tab = white circle) with a gold mic in the middle.
 class FloatingNav extends StatelessWidget {
@@ -17,7 +18,7 @@ class FloatingNav extends StatelessWidget {
   Widget _item(int i, IconData off, IconData on, String label) {
     final selected = index == i;
     return Semantics(
-      label: label,
+      label: tr(label),
       button: true,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,

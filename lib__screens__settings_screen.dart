@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
@@ -8,6 +8,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/update_dialog.dart';
 import 'income_screen.dart';
+import '../core/i18n.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -33,6 +34,50 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const IncomeScreen()),
+                ),
+              ),
+            ],
+          ),
+          const SectionTitle('Appearance'),
+          TileGroup(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.brightness_6_outlined),
+                title: const Text(
+                  'Theme',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SegmentedButton<String>(
+                    showSelectedIcon: false,
+                    segments: const [
+                      ButtonSegment(value: 'system', label: Text('System')),
+                      ButtonSegment(value: 'light', label: Text('Light')),
+                      ButtonSegment(value: 'dark', label: Text('Dark')),
+                    ],
+                    selected: {s.themeMode},
+                    onSelectionChanged: (v) => s.setThemeMode(v.first),
+                  ),
+                ),
+              ),
+              ListTile(
+                leading: const Icon(Icons.translate),
+                title: const Text(
+                  'Language',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: SegmentedButton<String>(
+                    showSelectedIcon: false,
+                    segments: const [
+                      ButtonSegment(value: 'en', label: Text('English')),
+                      ButtonSegment(value: 'ur', label: Text('اردو')),
+                    ],
+                    selected: {s.language},
+                    onSelectionChanged: (v) => s.setLanguage(v.first),
+                  ),
                 ),
               ),
             ],

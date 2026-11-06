@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/account_style.dart';
@@ -10,6 +10,7 @@ import '../widgets/account_dialogs.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import 'transfer_screen.dart';
+import '../core/i18n.dart';
 
 class _Detail {
   final double balance;
@@ -37,13 +38,13 @@ class AccountDetailScreen extends StatelessWidget {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(labelText: 'Amount (Rs)'),
+              decoration: InputDecoration(labelText: tr('Amount (Rs)')),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: note,
-              decoration: const InputDecoration(
-                labelText: 'Source (salary, received…)',
+              decoration: InputDecoration(
+                labelText: tr('Source (salary, received…)'),
               ),
             ),
           ],
@@ -240,7 +241,7 @@ class AccountDetailScreen extends StatelessWidget {
               ),
               const SectionTitle('Activity'),
               if (d.items.isEmpty)
-                const AppCard(
+                AppCard(
                   padding: EdgeInsets.all(18),
                   child: Text(
                     'Nothing recorded for this account yet.',
@@ -286,7 +287,7 @@ class AccountDetailScreen extends StatelessWidget {
                             Fmt.dayShort(i.date),
                             if (i.subtitle.isNotEmpty) i.subtitle,
                           ].join(' • '),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.muted,
                             fontSize: 12.5,
                           ),
@@ -305,7 +306,7 @@ class AccountDetailScreen extends StatelessWidget {
                             ),
                             if (i.kind != 'expense')
                               IconButton(
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.delete_outline,
                                   color: AppColors.muted,
                                 ),
@@ -330,7 +331,7 @@ class AccountDetailScreen extends StatelessWidget {
                       ),
                   ],
                 ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(4, 8, 4, 0),
                 child: Text(
                   'Expenses are edited or deleted from the History tab.',

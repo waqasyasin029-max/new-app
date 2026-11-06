@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
@@ -8,6 +8,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import 'expense_edit_screen.dart';
+import '../core/i18n.dart';
 
 class HistoryScreen extends StatefulWidget {
   final int? initialCategoryId;
@@ -42,7 +43,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         title: const Text('History'),
         actions: [
           IconButton(
-            tooltip: 'Add manually',
+            tooltip: tr('Add manually'),
             icon: const Icon(Icons.add_circle_outline),
             onPressed: () => Navigator.push(
               context,
@@ -60,8 +61,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 TextField(
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.search),
-                    hintText: 'Search',
-                    fillColor: const Color(0xFFEFF4F5),
+                    hintText: tr('Search'),
+                    fillColor: AppColors.fieldFill,
                     border: pillBorder(),
                     enabledBorder: pillBorder(),
                     focusedBorder: pillBorder(),
@@ -99,7 +100,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 ),
                 if (_filtered)
                   Align(
-                    alignment: Alignment.centerRight,
+                    alignment: AlignmentDirectional.centerEnd,
                     child: TextButton.icon(
                       onPressed: () => setState(() {
                         _range = null;
@@ -129,7 +130,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       _filtered
                           ? 'No transactions match these filters.'
                           : 'No transactions yet.',
-                      style: const TextStyle(color: AppColors.muted),
+                      style: TextStyle(color: AppColors.muted),
                     ),
                   );
                 }
@@ -145,10 +146,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
                       child: Text(
                         '${list.length} transactions • ${Fmt.money(total)}',
-                        style: const TextStyle(
-                          color: AppColors.muted,
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: AppColors.muted, fontSize: 13),
                       ),
                     ),
                     for (final day in byDay.keys) ...[

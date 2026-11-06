@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../core/category_style.dart';
 import '../core/format.dart';
@@ -6,6 +6,7 @@ import '../core/theme.dart';
 import '../data/models.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
+import '../core/i18n.dart';
 
 class _ReportData {
   final double income;
@@ -110,7 +111,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     AppCard(
                       padding: const EdgeInsets.all(16),
                       child: d.cats.isEmpty
-                          ? const Text(
+                          ? Text(
                               'No expenses this month.',
                               style: TextStyle(color: AppColors.muted),
                             )
@@ -181,7 +182,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     AppCard(
                       padding: const EdgeInsets.all(16),
                       child: d.daily.isEmpty
-                          ? const Text(
+                          ? Text(
                               'No expenses this month.',
                               style: TextStyle(color: AppColors.muted),
                             )
@@ -199,7 +200,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                           width: 56,
                                           child: Text(
                                             Fmt.dayShort(Fmt.parseKey(day)),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               color: AppColors.muted,
                                               fontSize: 13,
                                             ),
@@ -221,7 +222,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                                           width: 92,
                                           child: Text(
                                             Fmt.money(d.daily[day]!),
-                                            textAlign: TextAlign.right,
+                                            textAlign: TextAlign.end,
                                             style: const TextStyle(
                                               fontWeight: FontWeight.w600,
                                               fontSize: 13,

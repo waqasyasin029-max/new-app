@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../core/theme.dart';
 
@@ -9,6 +9,7 @@ import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
+import '../core/i18n.dart';
 
 class _IncomeData {
   final SalaryInfo salary;
@@ -39,7 +40,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
           controller: c,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(labelText: 'Amount (Rs)'),
+          decoration: InputDecoration(labelText: tr('Amount (Rs)')),
         ),
         actions: [
           TextButton(
@@ -84,13 +85,13 @@ class _IncomeScreenState extends State<IncomeScreen> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(labelText: 'Amount (Rs)'),
+              decoration: InputDecoration(labelText: tr('Amount (Rs)')),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: source,
-              decoration: const InputDecoration(
-                labelText: 'Source (bonus, freelance…)',
+              decoration: InputDecoration(
+                labelText: tr('Source (bonus, freelance…)'),
               ),
             ),
             const SizedBox(height: 12),
@@ -233,7 +234,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                             Icons.add_circle_outline,
                             color: Colors.green,
                           ),
-                          title: Text(i.source),
+                          title: Text(i.source, verbatim: true),
                           subtitle: Text(Fmt.date(i.date)),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,

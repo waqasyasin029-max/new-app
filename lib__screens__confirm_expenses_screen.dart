@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
@@ -8,6 +8,7 @@ import '../logic/account_matcher.dart';
 import '../logic/expense_parser.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../core/i18n.dart';
 
 class _Draft {
   final TextEditingController amount;
@@ -168,7 +169,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
       final left = [
         for (final b in bals)
           if (used.contains(b.account.id))
-            '${b.account.name} left ${Fmt.money(b.balance)}',
+            tr('${b.account.name} left ${Fmt.money(b.balance)}'),
       ].join(' • ');
       nav.popUntil((r) => r.isFirst);
       messenger.showSnackBar(
@@ -205,7 +206,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         'You said',
                         style: TextStyle(
                           color: AppColors.muted,
@@ -250,7 +251,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                         onSelected: _setAll,
                       ),
                       const SizedBox(height: 8),
-                      const Text(
+                      Text(
                         'Cash, JazzCash, Naya Pay, Easypaisa or bank. You can change it per expense below.',
                         style: TextStyle(color: AppColors.muted, fontSize: 12),
                       ),
@@ -275,9 +276,11 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
           SafeArea(
             child: Container(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(blurRadius: 8, color: Colors.black12)],
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                boxShadow: const [
+                  BoxShadow(blurRadius: 8, color: Colors.black12),
+                ],
               ),
               child: Row(
                 children: [
@@ -287,8 +290,10 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          '${_included.length} expense${_included.length == 1 ? '' : 's'}',
-                          style: const TextStyle(color: AppColors.muted),
+                          _included.length == 1
+                              ? '1 expense'
+                              : '${_included.length} expenses',
+                          style: TextStyle(color: AppColors.muted),
                         ),
                         Text(
                           Fmt.money(_total),
@@ -332,7 +337,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
     final needsAmount = d.include && d.value == null;
     final needsAccount = d.include && d.accountId == null;
     return AppCard(
-      color: d.include ? null : const Color(0xFFF1F4F5),
+      color: d.include ? null : AppColors.disabledBg,
       borderColor: (needsAmount || needsAccount) ? scheme.error : null,
       padding: const EdgeInsets.all(12),
       child: Column(
@@ -347,17 +352,14 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
               Expanded(
                 child: Text(
                   'Heard: ${d.heard}',
-                  style: const TextStyle(
-                    color: AppColors.muted,
-                    fontSize: 12.5,
-                  ),
+                  style: TextStyle(color: AppColors.muted, fontSize: 12.5),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
-                tooltip: 'Remove',
+                tooltip: tr('Remove'),
                 onPressed: () => setState(() => _drafts.removeAt(i).dispose()),
               ),
             ],
@@ -374,11 +376,11 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                     ),
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      labelText: 'Amount (Rs)',
+                      labelText: tr('Amount (Rs)'),
                       errorText: needsAmount
                           ? (d.amountMissing
-                                ? 'Amount not heard: enter it'
-                                : 'Invalid amount')
+                                ? tr('Amount not heard: enter it')
+                                : tr('Invalid amount'))
                           : null,
                     ),
                   ),
@@ -388,7 +390,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                   flex: 3,
                   child: TextField(
                     controller: d.desc,
-                    decoration: const InputDecoration(labelText: 'Description'),
+                    decoration: InputDecoration(labelText: tr('Description')),
                   ),
                 ),
               ],
@@ -402,7 +404,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
             const SizedBox(height: 10),
             AccountDropdown(
               value: d.accountId,
-              errorText: needsAccount ? 'Choose where you paid from' : null,
+              errorText: needsAccount ? tr('Choose where you paid from') : null,
               onChanged: (v) => setState(() => d.accountId = v),
             ),
           ],

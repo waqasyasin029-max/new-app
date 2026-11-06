@@ -3,6 +3,8 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_10y.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../core/i18n.dart' show tr;
+
 /// Daily "Have you recorded your expenses today?" reminder.
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
@@ -11,7 +13,8 @@ class NotificationService {
   static const String payloadRecord = 'record_expense';
   static const int _dailyId = 1001;
   static const String _channelId = 'daily_reminder';
-  static const String body = 'Have you recorded your expenses today?';
+  static const String _bodyEn = 'Have you recorded your expenses today?';
+  static String get body => tr(_bodyEn);
 
   /// Called when the user taps a notification while the app is running.
   static void Function(String? payload)? onTap;

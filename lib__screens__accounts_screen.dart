@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../core/account_style.dart';
 import '../core/format.dart';
@@ -8,6 +8,7 @@ import '../widgets/account_dialogs.dart';
 import '../widgets/data_loader.dart';
 import 'account_detail_screen.dart';
 import 'transfer_screen.dart';
+import '../core/i18n.dart';
 
 class AccountsScreen extends StatelessWidget {
   const AccountsScreen({super.key});
@@ -22,7 +23,7 @@ class AccountsScreen extends StatelessWidget {
         title: const Text('Accounts'),
         actions: [
           IconButton(
-            tooltip: 'Add account',
+            tooltip: tr('Add account'),
             icon: const Icon(Icons.add_circle_outline),
             onPressed: () => showAccountDialog(context),
           ),
@@ -45,7 +46,7 @@ class AccountsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Total money you have',
                       style: TextStyle(fontSize: 13, color: AppColors.ink),
                     ),
@@ -80,7 +81,7 @@ class AccountsScreen extends StatelessWidget {
                         Expanded(
                           child: FilledButton.icon(
                             style: FilledButton.styleFrom(
-                              backgroundColor: Colors.white,
+                              backgroundColor: AppColors.surface,
                               foregroundColor: AppColors.ink,
                             ),
                             onPressed: () =>
@@ -100,7 +101,7 @@ class AccountsScreen extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFFF6DC),
+                      color: AppColors.noteBg,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: const Text(
@@ -129,8 +130,8 @@ class AccountsScreen extends StatelessWidget {
                             Container(
                               width: 46,
                               height: 46,
-                              decoration: const BoxDecoration(
-                                color: Colors.white54,
+                              decoration: BoxDecoration(
+                                color: AppColors.softWhite,
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
@@ -152,7 +153,7 @@ class AccountsScreen extends StatelessWidget {
                                   ),
                                   Text(
                                     AccountStyle.label(b.account.type),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12.5,
                                       color: AppColors.ink,
                                     ),

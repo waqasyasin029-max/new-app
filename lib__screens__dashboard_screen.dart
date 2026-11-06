@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide Text;
 
 import '../core/account_style.dart';
 import '../core/category_style.dart';
@@ -13,6 +13,7 @@ import 'expense_edit_screen.dart';
 import 'history_screen.dart';
 import 'income_screen.dart';
 import 'settings_screen.dart';
+import '../core/i18n.dart';
 
 class _DashData {
   final SalaryInfo salary;
@@ -92,7 +93,7 @@ class DashboardScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: Image.asset(
-                  'assets/icon/icon.png',
+                  'assets/icon/logo.png',
                   width: 46,
                   height: 46,
                 ),
@@ -111,21 +112,16 @@ class DashboardScreen extends StatelessWidget {
                     ),
                     Text(
                       Fmt.date(now),
-                      style: const TextStyle(
-                        color: AppColors.muted,
-                        fontSize: 13,
-                      ),
+                      style: TextStyle(color: AppColors.muted, fontSize: 13),
                     ),
                   ],
                 ),
               ),
               Material(
-                color: Colors.white,
-                shape: const CircleBorder(
-                  side: BorderSide(color: AppColors.line),
-                ),
+                color: AppColors.surface,
+                shape: CircleBorder(side: BorderSide(color: AppColors.line)),
                 child: IconButton(
-                  tooltip: 'Settings',
+                  tooltip: tr('Settings'),
                   icon: const Icon(Icons.settings_outlined),
                   onPressed: () => _open(context, const SettingsScreen()),
                 ),
@@ -133,9 +129,9 @@ class DashboardScreen extends StatelessWidget {
             ],
           ),
         ),
-        // Hero banner
+        // Hero banner: how much was spent today
         GestureDetector(
-          onTap: () => _open(context, const AccountsScreen()),
+          onTap: () => _open(context, const HistoryScreen()),
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -148,18 +144,15 @@ class DashboardScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Money in your accounts',
-                        style: TextStyle(fontSize: 13),
-                      ),
+                      Text('Spent today', style: TextStyle(fontSize: 14)),
                       const SizedBox(height: 4),
                       FittedBox(
                         fit: BoxFit.scaleDown,
-                        alignment: Alignment.centerLeft,
+                        alignment: AlignmentDirectional.centerStart,
                         child: Text(
-                          Fmt.money(d.inAccounts),
+                          Fmt.money(d.todayTotal),
                           style: const TextStyle(
-                            fontSize: 32,
+                            fontSize: 38,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -171,11 +164,15 @@ class DashboardScreen extends StatelessWidget {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white54,
+                          color: AppColors.softWhite,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          'Spent today ${Fmt.money(d.todayTotal)}',
+                          d.today.isEmpty
+                              ? 'No expenses today'
+                              : d.today.length == 1
+                              ? '1 expense today'
+                              : '${d.today.length} expenses today',
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
@@ -188,11 +185,11 @@ class DashboardScreen extends StatelessWidget {
                 Container(
                   width: 56,
                   height: 56,
-                  decoration: const BoxDecoration(
-                    color: Colors.white54,
+                  decoration: BoxDecoration(
+                    color: AppColors.softWhite,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.account_balance_wallet, size: 28),
+                  child: const Icon(Icons.payments_outlined, size: 28),
                 ),
               ],
             ),
@@ -224,7 +221,7 @@ class DashboardScreen extends StatelessWidget {
         ),
         if (d.salary.amount == 0)
           AppCard(
-            color: const Color(0xFFFFF6DC),
+            color: AppColors.noteBg,
             onTap: () => _open(context, const IncomeScreen()),
             child: const ListTile(
               leading: Icon(
@@ -295,7 +292,7 @@ class DashboardScreen extends StatelessWidget {
                           const SizedBox(height: 2),
                           FittedBox(
                             fit: BoxFit.scaleDown,
-                            alignment: Alignment.centerLeft,
+                            alignment: AlignmentDirectional.centerStart,
                             child: Text(
                               Fmt.money(b.balance),
                               style: TextStyle(
@@ -319,7 +316,7 @@ class DashboardScreen extends StatelessWidget {
         const SectionTitle('Categories this month'),
         const SizedBox(height: 6),
         if (d.cats.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.all(8),
             child: Text(
               'Spending by category will appear here.',
@@ -344,7 +341,7 @@ class DashboardScreen extends StatelessWidget {
           ),
         SectionTitle('Today', trailing: Fmt.money(d.todayTotal)),
         if (d.today.isEmpty)
-          const AppCard(
+          AppCard(
             padding: EdgeInsets.all(18),
             child: Text(
               'No expenses recorded today. Tap the mic and speak them.',
@@ -355,7 +352,7 @@ class DashboardScreen extends StatelessWidget {
           TileGroup(children: [for (final e in d.today) _tile(context, e)]),
         const SectionTitle('Recent transactions'),
         if (d.recent.isEmpty)
-          const AppCard(
+          AppCard(
             padding: EdgeInsets.all(18),
             child: Text(
               'Nothing yet.',
@@ -416,7 +413,7 @@ class _PastelTile extends StatelessWidget {
               const SizedBox(height: 8),
               FittedBox(
                 fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   value,
                   style: TextStyle(
@@ -464,7 +461,7 @@ class _CategoryTile extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             Fmt.money(total.total),
-            style: const TextStyle(color: AppColors.muted, fontSize: 12),
+            style: TextStyle(color: AppColors.muted, fontSize: 12),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

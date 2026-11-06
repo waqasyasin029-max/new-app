@@ -1,5 +1,5 @@
 """Generates all Android launcher/notification icons from one logo PNG.
-Usage: python3 tool/make_icons.py assets/icon/icon.png android/app/src/main/res
+Usage: python3 tool/make_icons.py tool/icon_source.png android/app/src/main/res
 """
 import os
 import sys

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../core/i18n.dart' show L10n;
+import '../core/theme.dart';
 import '../data/models.dart';
 import '../data/repositories.dart';
 import '../services/notification_service.dart';
@@ -21,6 +23,12 @@ class AppState extends ChangeNotifier {
   TimeOfDay reminderTime = const TimeOfDay(hour: 23, minute: 0);
   String speechLocale = 'ur_PK';
 
+  /// 'system' | 'light' | 'dark'
+  String themeMode = 'system';
+
+  /// 'en' | 'ur'
+  String language = 'en';
+
   static const speechLocales = {
     'ur_PK': 'اردو (Urdu / Roman Urdu)',
     'en_PK': 'English (Pakistan)',
@@ -37,6 +45,41 @@ class AppState extends ChangeNotifier {
       minute: prefs.getInt('reminder_minute') ?? 0,
     );
     speechLocale = prefs.getString('speech_locale') ?? 'ur_PK';
+    themeMode = prefs.getString('theme_mode') ?? 'system';
+    language = prefs.getString('language') ?? 'en';
+    applyLook();
+  }
+
+  /// True when the dark theme should be showing right now.
+  bool get isDark {
+    if (themeMode == 'dark') return true;
+    if (themeMode == 'light') return false;
+    return WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+        Brightness.dark;
+  }
+
+  /// Pushes the chosen theme and language into the globals the UI reads.
+  void applyLook() {
+    AppColors.dark = isDark;
+    L10n.urdu = language == 'ur';
+  }
+
+  Future<void> setThemeMode(String mode) async {
+    themeMode = mode;
+    applyLook();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('theme_mode', mode);
+    notifyListeners();
+  }
+
+  Future<void> setLanguage(String lang) async {
+    language = lang;
+    applyLook();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('language', lang);
+    notifyListeners();
+    // The reminder text follows the app language.
+    await applyReminder();
   }
 
   Category categoryByName(String name) => categories.firstWhere(
