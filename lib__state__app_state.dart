@@ -36,14 +36,6 @@ class AppState extends ChangeNotifier {
   bool onboardingDone = true;
   String voiceEngine = 'cloud'; // 'cloud' (AI) or 'phone'
   String groqKey = '';
-  bool assistantOn = true;
-  bool smartAgent = true;
-  bool naturalVoice = true;
-  String elevenKey = '';
-  String elevenVoiceId = '';
-  String elevenModel = ''; // empty = automatic
-  String elevenVoiceName = '';
-  String userName = 'وقاص';
 
   bool get useCloudVoice => voiceEngine == 'cloud' && groqKey.trim().isNotEmpty;
 
@@ -78,14 +70,6 @@ class AppState extends ChangeNotifier {
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
     voiceEngine = prefs.getString('voice_engine') ?? 'cloud';
     groqKey = prefs.getString('groq_key') ?? '';
-    assistantOn = prefs.getBool('assistant_on') ?? true;
-    smartAgent = prefs.getBool('smart_agent') ?? true;
-    naturalVoice = prefs.getBool('natural_voice') ?? true;
-    elevenKey = prefs.getString('eleven_key') ?? '';
-    elevenVoiceId = prefs.getString('eleven_voice') ?? '';
-    elevenModel = prefs.getString('eleven_model') ?? '';
-    elevenVoiceName = prefs.getString('eleven_voice_name') ?? '';
-    userName = prefs.getString('user_name') ?? 'وقاص';
     applyLook();
   }
 
@@ -231,52 +215,6 @@ class AppState extends ChangeNotifier {
     voiceEngine = engine;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('voice_engine', engine);
-    notifyListeners();
-  }
-
-  Future<void> setAssistantOn(bool on) async {
-    assistantOn = on;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('assistant_on', on);
-    notifyListeners();
-  }
-
-  Future<void> setNaturalVoice(bool on) async {
-    naturalVoice = on;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('natural_voice', on);
-    notifyListeners();
-  }
-
-  Future<void> setEleven({
-    required String key,
-    required String voiceId,
-    String model = '',
-    String voiceName = '',
-  }) async {
-    elevenKey = key.trim();
-    elevenVoiceId = voiceId.trim();
-    elevenModel = model.trim();
-    elevenVoiceName = voiceName.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('eleven_key', elevenKey);
-    await prefs.setString('eleven_voice', elevenVoiceId);
-    await prefs.setString('eleven_model', elevenModel);
-    await prefs.setString('eleven_voice_name', elevenVoiceName);
-    notifyListeners();
-  }
-
-  Future<void> setSmartAgent(bool on) async {
-    smartAgent = on;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('smart_agent', on);
-    notifyListeners();
-  }
-
-  Future<void> setUserName(String name) async {
-    userName = name.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_name', userName);
     notifyListeners();
   }
 
