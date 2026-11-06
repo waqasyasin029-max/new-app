@@ -90,7 +90,7 @@ class CloudSpeechService {
       _heard = true;
       _lastLoud = now;
     } else if (_heard &&
-        now.difference(_lastLoud) > const Duration(milliseconds: 2200)) {
+        now.difference(_lastLoud) > const Duration(milliseconds: 1600)) {
       // Spoke, then went quiet: finish by itself.
       stop();
     } else if (!_heard &&

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
 import '../services/notification_service.dart';
+import '../services/tts_service.dart';
 import '../services/update_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
@@ -299,6 +300,18 @@ class SettingsScreen extends StatelessWidget {
                     ? null
                     : () => _editEleven(context, s),
               ),
+              ListTile(
+                enabled: s.assistantOn,
+                leading: const Icon(Icons.volume_up_outlined),
+                title: const Text(
+                  'Hear the voice',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Plays a sample sentence with the current voice settings',
+                ),
+                onTap: !s.assistantOn ? null : () => _hearVoice(context, s),
+              ),
               SwitchListTile(
                 secondary: const Icon(Icons.psychology_outlined),
                 title: const Text(
@@ -460,6 +473,40 @@ class SettingsScreen extends StatelessWidget {
     if (result != null) await s.setUserName(result);
   }
 
+  Future<void> _hearVoice(BuildContext context, AppState s) async {
+    final tts = TtsService();
+    String? note;
+    tts.onNotice = (m) => note = m;
+    tts.configure(
+      key: s.elevenKey,
+      voiceId: s.elevenVoiceId,
+      enabled: s.naturalVoice,
+    );
+    final ok = await tts.init();
+    if (!ok) {
+      if (context.mounted) {
+        snack(
+          context,
+          'Urdu text-to-speech is not installed on this phone. Install "Speech Services by Google" and its Urdu voice, then try again. Normal voice entry is used for now.',
+        );
+      }
+      await tts.dispose();
+      return;
+    }
+    if (!tts.cloudOn && context.mounted) {
+      snack(
+        context,
+        'Natural voice is off or has no key, so this is the phone voice.',
+      );
+    }
+    final name = s.userName.trim();
+    await tts.speak(
+      'السلام علیکم${name.isEmpty ? '' : ' $name سر'}! بتائیے، اب کتنا خرچہ ہوا؟',
+    );
+    if (note != null && context.mounted) snack(context, note!);
+    await tts.dispose();
+  }
+
   Future<void> _editEleven(BuildContext context, AppState s) async {
     final key = TextEditingController(text: s.elevenKey);
     final voice = TextEditingController(text: s.elevenVoiceId);
@@ -488,6 +535,20 @@ class SettingsScreen extends StatelessWidget {
                   hintText: 'API key',
                   isDense: true,
                 ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                children: [
+                  ActionChip(
+                    label: const Text('Male voice'),
+                    onPressed: () => voice.text = 'pNInz6obpgDQGcFmaJgB',
+                  ),
+                  ActionChip(
+                    label: const Text('Female voice'),
+                    onPressed: () => voice.text = '21m00Tcm4TlvDq8ikWAM',
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               TextField(

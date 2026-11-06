@@ -319,6 +319,13 @@ const Map<String, String> urExact = {
   'yes': 'ہاں',
   'no': 'نہیں',
   'NO': 'نہیں',
+  'Hear the voice': 'آواز سنیں',
+  'Plays a sample sentence with the current voice settings':
+      'موجودہ آواز کی سیٹنگ کے ساتھ ایک نمونے کا جملہ سناتا ہے',
+  'Natural voice is off or has no key, so this is the phone voice.':
+      'قدرتی آواز بند ہے یا کی نہیں، اس لیے یہ فون کی آواز ہے۔',
+  'Male voice': 'مردانہ آواز',
+  'Female voice': 'زنانہ آواز',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

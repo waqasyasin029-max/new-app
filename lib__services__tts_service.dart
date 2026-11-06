@@ -74,18 +74,55 @@ class TtsService {
     }
   }
 
-  /// Completes when the sentence has been spoken (or was stopped).
+  bool _stopped = false;
+
+  /// Completes when the text has been spoken (or was stopped). With the
+  /// natural voice the sentences are fetched at the same time, so the second
+  /// one is ready when the first one ends.
   Future<void> speak(String text) async {
-    if (cloudOn) {
-      if (await _speakCloud(text)) return;
+    _stopped = false;
+    if (!cloudOn) {
+      await _speakPhone(text);
+      return;
     }
-    if (!available) return;
+    final parts = _split(text);
+    final files = [
+      for (final p in parts) _audioFor(p).catchError((_) => null as File?),
+    ];
+    for (var i = 0; i < parts.length; i++) {
+      if (_stopped) return;
+      File? f;
+      try {
+        f = await files[i];
+      } catch (_) {
+        f = null;
+      }
+      if (_stopped) return;
+      if (f != null && await _play(f)) continue;
+      await _speakPhone(parts[i]);
+    }
+  }
+
+  Future<void> _speakPhone(String text) async {
+    if (!available || _stopped) return;
     try {
       await _tts.speak(text);
     } catch (_) {}
   }
 
+  /// At most three chunks, split at sentence ends.
+  static List<String> _split(String text) {
+    final parts = RegExp(r'[^۔؟!.?]+[۔؟!.?]*')
+        .allMatches(text)
+        .map((m) => m[0]!.trim())
+        .where((p) => p.isNotEmpty)
+        .toList();
+    if (parts.length <= 3) return parts.isEmpty ? [text] : parts;
+    return [parts[0], parts[1], parts.sublist(2).join(' ')];
+  }
+
   Future<void> stop() async {
+    _stopped = true;
     try {
       await _tts.stop();
     } catch (_) {}
@@ -94,6 +131,14 @@ class TtsService {
     } catch (_) {}
     final p = _playing;
     if (p != null && !p.isCompleted) p.complete();
+  }
+
+  Future<void> dispose() async {
+    await stop();
+    await _doneSub?.cancel();
+    try {
+      await _player.dispose();
+    } catch (_) {}
   }
 
   // ------------------------------------------------------------ ElevenLabs
@@ -171,10 +216,8 @@ class TtsService {
     onNotice?.call(message);
   }
 
-  Future<bool> _speakCloud(String text) async {
+  Future<bool> _play(File file) async {
     try {
-      final file = await _audioFor(text);
-      if (file == null) return false;
       final done = Completer<void>();
       _playing = done;
       await _doneSub?.cancel();
