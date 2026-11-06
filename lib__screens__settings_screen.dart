@@ -228,6 +228,18 @@ class SettingsScreen extends StatelessWidget {
                 value: s.assistantOn,
                 onChanged: (v) => s.setAssistantOn(v),
               ),
+              SwitchListTile(
+                secondary: const Icon(Icons.psychology_outlined),
+                title: const Text(
+                  'Smart conversation (AI)',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Talks naturally like a person and understands any way you say it. Needs the AI key. What you say and the needed expense details are sent to Groq.',
+                ),
+                value: s.smartAgent,
+                onChanged: s.assistantOn ? (v) => s.setSmartAgent(v) : null,
+              ),
               ListTile(
                 enabled: s.assistantOn,
                 leading: const Icon(Icons.badge_outlined),

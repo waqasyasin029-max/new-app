@@ -13,6 +13,7 @@ import '../data/models.dart';
 import '../logic/account_matcher.dart';
 import '../logic/expense_parser.dart';
 import '../logic/urdu_speech.dart';
+import '../services/agent_service.dart';
 import '../services/cloud_speech_service.dart';
 import '../services/speech_service.dart';
 import '../services/tts_service.dart';
@@ -40,6 +41,8 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   // Talking assistant state.
   bool _assistantActive = false;
   bool _speaking = false;
+  bool _thinking = false;
+  String _userLine = '';
   int _session = 0;
   String _assistantLine = '';
   String _lastHeard = '';
@@ -133,7 +136,11 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     }
     if (app.assistantOn) {
       if (await _tts.init()) {
-        unawaited(_runAssistant());
+        if (app.smartAgent && app.groqKey.trim().isNotEmpty) {
+          unawaited(_runAgent());
+        } else {
+          unawaited(_runAssistant());
+        }
         return;
       }
       setState(
@@ -182,18 +189,20 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       setState(() {
         _assistantActive = false;
         _speaking = false;
+        _thinking = false;
         _assistantLine = '';
+        _userLine = '';
       });
     }
   }
 
-  Future<void> _say(String text) async {
+  Future<void> _say(String text, {String? spoken}) async {
     if (!mounted) return;
     setState(() {
       _assistantLine = text;
       _speaking = true;
     });
-    await _tts.speak(text);
+    await _tts.speak(spoken ?? text);
     if (mounted) setState(() => _speaking = false);
   }
 
@@ -336,6 +345,112 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
           ),
         ),
       );
+    }
+  }
+
+  /// Natural conversation: a language model decides what to say and asks the
+  /// app to do things through tools (see AgentService).
+  Future<void> _runAgent() async {
+    final my = ++_session;
+    bool alive() => mounted && _session == my;
+    final app = context.read<AppState>();
+    final agent = AgentService(
+      state: app,
+      apiKey: app.groqKey,
+      userName: app.userName,
+    );
+    setState(() {
+      _assistantActive = true;
+      _error = null;
+      _userLine = '';
+      _text.clear();
+    });
+
+    final hello = UrduSpeech.greeting(app.userName, DateTime.now());
+    agent.seedAssistant(hello);
+    await _say(hello);
+
+    var silent = 0;
+    var failures = 0;
+    while (alive()) {
+      final heard = await _listenTurn();
+      if (!alive()) return;
+      final text = (heard ?? '').trim();
+      if (text.isEmpty) {
+        silent++;
+        if (silent >= 2) {
+          if (agent.savedCount > 0) {
+            await _say('ٹھیک ہے، اللہ حافظ!');
+            if (alive()) {
+              await _closeAfterSave(
+                agent.savedCount,
+                agent.savedTotal,
+                agent.lastLeft,
+              );
+            }
+            return;
+          }
+          await _say('کچھ سنائی نہیں دیا۔ جب تیار ہوں، مائیک دوبارہ دبائیں۔');
+          break;
+        }
+        await _say('جی، میں سن رہا ہوں۔ آپ بولیے۔');
+        continue;
+      }
+      silent = 0;
+      setState(() {
+        _userLine = text;
+        _thinking = true;
+      });
+
+      AgentTurn turn;
+      try {
+        turn = await agent.send(text);
+      } on AgentError catch (e) {
+        if (!alive()) return;
+        setState(() {
+          _thinking = false;
+          _error = e.message;
+        });
+        failures++;
+        if (failures >= 2 || !e.network) {
+          await _say(
+            e.network
+                ? 'معاف کیجیے، انٹرنیٹ کا مسئلہ ہے۔ تھوڑی دیر بعد دوبارہ کوشش کیجیے۔'
+                : 'معاف کیجیے، اے آئی سے رابطہ نہیں ہو سکا۔ سیٹنگز میں کی دیکھ لیجیے۔',
+          );
+          break;
+        }
+        await _say('معاف کیجیے، انٹرنیٹ سست ہے۔ دوبارہ بولیے۔');
+        continue;
+      } catch (_) {
+        if (!alive()) return;
+        setState(() => _thinking = false);
+        await _say('معاف کیجیے، کچھ گڑبڑ ہو گئی۔ دوبارہ بولیے۔');
+        failures++;
+        if (failures >= 3) break;
+        continue;
+      }
+      if (!alive()) return;
+      failures = 0;
+      setState(() => _thinking = false);
+      await _say(turn.text, spoken: UrduSpeech.spokenDigits(turn.text));
+      if (!alive()) return;
+      if (turn.ended) {
+        await _closeAfterSave(
+          agent.savedCount,
+          agent.savedTotal,
+          agent.lastLeft,
+        );
+        return;
+      }
+    }
+
+    if (mounted && _session == my) {
+      setState(() {
+        _assistantActive = false;
+        _speaking = false;
+        _thinking = false;
+      });
     }
   }
 
@@ -644,7 +759,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                   child: SizedBox(
                     width: 110,
                     height: 110,
-                    child: _busy
+                    child: _busy || _thinking
                         ? const Padding(
                             padding: EdgeInsets.all(34),
                             child: CircularProgressIndicator(
@@ -667,7 +782,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
           const SizedBox(height: 12),
           Center(
             child: Text(
-              _busy
+              _thinking
+                  ? 'Thinking…'
+                  : _busy
                   ? 'Converting your voice to text…'
                   : _speaking
                   ? 'Assistant is speaking…'
@@ -677,6 +794,27 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
+          if (_assistantActive && _userLine.isNotEmpty)
+            AppCard(
+              margin: const EdgeInsets.only(top: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.mic_none_rounded, color: AppColors.muted),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _userLine,
+                        verbatim: true,
+                        style: TextStyle(color: AppColors.muted, fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (_assistantActive && _assistantLine.isNotEmpty)
             AppCard(
               margin: const EdgeInsets.only(top: 12),

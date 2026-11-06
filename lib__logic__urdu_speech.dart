@@ -209,7 +209,6 @@ class UrduSpeech {
 
   static const _yes = {
     'جی',
-    'جی ہاں',
     'ہاں',
     'ہان',
     'ٹھیک',
@@ -219,6 +218,8 @@ class UrduSpeech {
     'بالکل',
     'کرو',
     'محفوظ',
+    'سیو',
+    'پکا',
     'yes',
     'yeah',
     'ok',
@@ -232,6 +233,9 @@ class UrduSpeech {
     'sahi',
     'bilkul',
     'done',
+    'save',
+    'kardo',
+    'pakka',
   };
   static const _no = {
     'نہیں',
@@ -246,17 +250,40 @@ class UrduSpeech {
     'nope',
   };
 
+  static List<String> _tokens(String text) => text
+      .toLowerCase()
+      .replaceAll(RegExp(r'[،۔؟!?,.\-"]'), ' ')
+      .split(RegExp(r'\s+'))
+      .where((t) => t.isNotEmpty)
+      .toList();
+
+  static bool saysYes(String text) => _tokens(text).any(_yes.contains);
+  static bool saysNo(String text) => _tokens(text).any(_no.contains);
+
   /// Classifies the answer to "کیا یہ ٹھیک ہے؟".
   static Reply classify(String text) {
-    final tokens = text
-        .toLowerCase()
-        .replaceAll(RegExp(r'[،۔؟!?,.\-"]'), ' ')
-        .split(RegExp(r'\s+'))
-        .where((t) => t.isNotEmpty)
-        .toList();
+    final tokens = _tokens(text);
     if (tokens.any(_no.contains)) return Reply.no;
     if (tokens.length <= 5 && tokens.any(_yes.contains)) return Reply.yes;
     return Reply.other;
+  }
+
+  /// Turns digits inside a sentence into Urdu words so text-to-speech reads
+  /// them correctly: "300 روپے" -> "تین سو روپے".
+  static String spokenDigits(String text) {
+    return text.replaceAllMapped(RegExp(r'\d[\d,]*(?:\.\d+)?'), (m) {
+      final raw = m[0]!.replaceAll(',', '');
+      final dot = raw.indexOf('.');
+      final whole = int.tryParse(dot < 0 ? raw : raw.substring(0, dot));
+      if (whole == null || whole > 999999999) return m[0]!;
+      if (dot < 0) return number(whole);
+      final frac = raw
+          .substring(dot + 1)
+          .split('')
+          .map((d) => _t[int.parse(d)])
+          .join(' ');
+      return '${number(whole)} اعشاریہ $frac';
+    });
   }
 }
 

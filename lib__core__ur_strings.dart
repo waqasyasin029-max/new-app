@@ -280,6 +280,15 @@ const Map<String, String> urExact = {
       'اسسٹنٹ آپ کو اسی نام سے پکارے گا۔ درست تلفظ کے لیے اردو میں لکھیں۔',
   'Assistant is speaking…': 'اسسٹنٹ بول رہا ہے…',
   'Urdu text-to-speech is not installed on this phone. Install "Speech Services by Google" and its Urdu voice, then try again. Normal voice entry is used for now.': 'اس فون میں اردو بولنے کی آواز انسٹال نہیں۔ "Speech Services by Google" اور اس کی اردو آواز انسٹال کر کے دوبارہ کوشش کریں۔ فی الحال عام آواز سے اندراج چل رہا ہے۔',
+  'Thinking…': 'سوچ رہا ہے…',
+  'Smart conversation (AI)': 'سمارٹ گفتگو (اے آئی)',
+  'Talks naturally like a person and understands any way you say it. Needs the AI key. What you say and the needed expense details are sent to Groq.': 'انسان کی طرح قدرتی گفتگو کرتا ہے اور آپ جس طرح بھی کہیں سمجھ لیتا ہے۔ اے آئی کی چاہیے۔ آپ کی بات اور ضروری خرچوں کی تفصیل Groq کو بھیجی جاتی ہے۔',
+  'No internet, or it is too slow.': 'انٹرنیٹ نہیں ہے، یا بہت سست ہے۔',
+  'The AI key is not valid.': 'اے آئی کی درست نہیں۔',
+  'The AI free limit is reached for now.':
+      'اے آئی کی مفت حد فی الحال پوری ہو گئی۔',
+  'The AI could not understand. Please try again.':
+      'اے آئی سمجھ نہیں سکا۔ دوبارہ کوشش کریں۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',
@@ -330,6 +339,7 @@ const Map<String, String> urTemplates = {
   'Transfer to {}': '{0} کو منتقل',
   'Received from {}': '{0} سے وصول',
   'fee {}': 'فیس {0}',
+  'AI failed (HTTP {})': 'اے آئی ناکام (HTTP {0})',
   'AI voice failed (HTTP {})': 'اے آئی وائس ناکام (HTTP {0})',
   'Voice error: {}': 'آواز کی خرابی: {0}',
   'Could not start the microphone: {}': 'مائیک شروع نہیں ہو سکا: {0}',
