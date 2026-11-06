@@ -5,6 +5,9 @@ on:
   push:
     branches: [main, master]
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -32,24 +35,37 @@ jobs:
           cache: true
 
       - name: Use fixed signing key (so new APKs install over old ones)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
         run: |
           mkdir -p ~/.android
-          base64 -d debug.keystore.b64 > ~/.android/debug.keystore
+          echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
+          test -s ~/.android/debug.keystore
 
       - name: Create Android scaffold, copy app, patch, build
         run: |
           APP="$RUNNER_TEMP/app"
           flutter create --platforms=android --project-name kharcha_tracker --org com.personal "$APP"
           rm -rf "$APP/lib" "$APP/test"
-          cp -r lib tool pubspec.yaml analysis_options.yaml "$APP/"
+          cp -r lib tool assets pubspec.yaml analysis_options.yaml "$APP/"
           cd "$APP"
           dart run tool/patch_android.dart
+          pip install pillow
+          python3 tool/make_icons.py assets/icon/icon.png android/app/src/main/res
           flutter pub get
           dart run tool/parser_check.dart
           flutter analyze --no-fatal-infos --no-fatal-warnings
-          flutter build apk --release
+          flutter build apk --release --build-number=${{ github.run_number }} --dart-define=BUILD_NUMBER=${{ github.run_number }}
 
       - uses: actions/upload-artifact@v4
         with:
           name: kharcha-tracker-apk
           path: ${{ runner.temp }}/app/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Publish release (the app checks this for updates)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp "$RUNNER_TEMP/app/build/app/outputs/flutter-apk/app-release.apk" kharcha-tracker.apk
+          NOTES="$(git log -1 --pretty=%s)"
+          gh release create "v${{ github.run_number }}" kharcha-tracker.apk --title "Update ${{ github.run_number }}" --notes "$NOTES" --latest
