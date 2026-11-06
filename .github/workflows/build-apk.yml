@@ -31,6 +31,11 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Use fixed signing key (so new APKs install over old ones)
+        run: |
+          mkdir -p ~/.android
+          base64 -d debug.keystore.b64 > ~/.android/debug.keystore
+
       - name: Create Android scaffold, copy app, patch, build
         run: |
           APP="$RUNNER_TEMP/app"
