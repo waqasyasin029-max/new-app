@@ -395,6 +395,22 @@ const Map<String, String> urExact = {
       'جیمنائی کی مفت حد فی الحال پوری ہو گئی۔ ایک منٹ بعد یا کل کوشش کریں۔',
   'No internet or Google is slow. Try again.':
       'انٹرنیٹ نہیں ہے یا گوگل سست ہے۔ دوبارہ کوشش کریں۔',
+  'Talks with you, saves your expenses and answers questions':
+      'آپ سے بات کرتا ہے، خرچے لکھتا ہے اور سوالوں کے جواب دیتا ہے',
+  'Talks with you, saves your expenses and answers questions like "how much today?"': 'آپ سے بات کرتا ہے، خرچے لکھتا ہے اور "آج کتنا خرچہ ہوا؟" جیسے سوالوں کے جواب دیتا ہے',
+  'Gemini assistant (key and voice)': 'جیمنائی اسسٹنٹ (کی اور آواز)',
+  'Not added yet. Free key from Google AI Studio':
+      'ابھی شامل نہیں۔ Google AI Studio سے مفت کی',
+  'Key saved. Tap to change the voice or test it':
+      'کی محفوظ ہے۔ آواز بدلنے یا ٹیسٹ کے لیے دبائیں',
+  'Add your Gemini key first: Settings > Voice input > Gemini assistant.':
+      'پہلے جیمنائی کی ڈالیں: سیٹنگز > وائس ان پٹ > جیمنائی اسسٹنٹ۔',
+  'Gemini sent an unexpected answer.': 'جیمنائی نے غیر متوقع جواب بھیجا۔',
+  'No Gemini model answered.': 'کسی جیمنائی ماڈل نے جواب نہیں دیا۔',
+  'Gemini gave no answer. Please try again.':
+      'جیمنائی نے جواب نہیں دیا۔ دوبارہ کوشش کریں۔',
+  'The voice could not be made. The assistant will only write.':
+      'آواز نہیں بن سکی۔ اسسٹنٹ صرف لکھے گا۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

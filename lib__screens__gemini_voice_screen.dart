@@ -77,7 +77,7 @@ class _GeminiVoiceScreenState extends State<GeminiVoiceScreen> {
         model: _model,
         style: _style.text,
       );
-      await app.setGemini(key: key, voice: _voice, model: _model);
+      await app.setGemini(key: key, voice: _voice, model: _model, ok: r.model);
       if (!mounted) return;
       setState(() {
         _ok = true;

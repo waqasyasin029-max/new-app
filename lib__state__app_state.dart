@@ -36,11 +36,24 @@ class AppState extends ChangeNotifier {
   bool onboardingDone = true;
   String voiceEngine = 'cloud'; // 'cloud' (AI) or 'phone'
   String groqKey = '';
+  bool assistantOn = true;
+  String userName = 'وقاص';
+  String geminiTtsOk = '';
   String geminiKey = '';
   String geminiVoice = 'Kore';
   String geminiModel = '';
 
-  bool get useCloudVoice => voiceEngine == 'cloud' && groqKey.trim().isNotEmpty;
+  /// Which service turns speech into text: Groq (Whisper) if its key is
+  /// there, otherwise Gemini, otherwise the phone's own recogniser.
+  String get sttProvider {
+    if (voiceEngine != 'cloud') return '';
+    if (groqKey.trim().isNotEmpty) return 'groq';
+    if (geminiKey.trim().isNotEmpty) return 'gemini';
+    return '';
+  }
+
+  String get sttKey => sttProvider == 'groq' ? groqKey : geminiKey;
+  bool get useCloudVoice => sttProvider.isNotEmpty;
 
   static const speechLocales = {
     'ur_PK': 'اردو (Urdu / Roman Urdu)',
@@ -73,6 +86,9 @@ class AppState extends ChangeNotifier {
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
     voiceEngine = prefs.getString('voice_engine') ?? 'cloud';
     groqKey = prefs.getString('groq_key') ?? '';
+    assistantOn = prefs.getBool('assistant_on') ?? true;
+    userName = prefs.getString('user_name') ?? 'وقاص';
+    geminiTtsOk = prefs.getString('gemini_tts_ok') ?? '';
     geminiKey = prefs.getString('gemini_key') ?? '';
     geminiVoice = prefs.getString('gemini_voice') ?? 'Kore';
     geminiModel = prefs.getString('gemini_model') ?? '';
@@ -224,11 +240,27 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setAssistantOn(bool on) async {
+    assistantOn = on;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('assistant_on', on);
+    notifyListeners();
+  }
+
+  Future<void> setUserName(String name) async {
+    userName = name.trim();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name', userName);
+    notifyListeners();
+  }
+
   Future<void> setGemini({
     required String key,
     required String voice,
     required String model,
+    String ok = '',
   }) async {
+    if (ok.isNotEmpty) geminiTtsOk = ok;
     geminiKey = key.trim();
     geminiVoice = voice;
     geminiModel = model;
@@ -236,6 +268,7 @@ class AppState extends ChangeNotifier {
     await prefs.setString('gemini_key', geminiKey);
     await prefs.setString('gemini_voice', geminiVoice);
     await prefs.setString('gemini_model', geminiModel);
+    await prefs.setString('gemini_tts_ok', geminiTtsOk);
     notifyListeners();
   }
 

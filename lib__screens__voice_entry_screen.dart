@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Text;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../core/i18n.dart';
+import '../core/format.dart';
 import '../core/theme.dart';
 import '../logic/expense_parser.dart';
+import '../logic/urdu_speech.dart';
+import '../services/agent_service.dart';
+import '../services/assistant_voice.dart';
 import '../services/cloud_speech_service.dart';
 import '../services/speech_service.dart';
 import '../state/app_state.dart';
@@ -23,8 +29,19 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     with SingleTickerProviderStateMixin {
   final SpeechService _speech = SpeechService();
   final CloudSpeechService _cloud = CloudSpeechService();
+  final AssistantVoice _voice = AssistantVoice();
   bool _usingCloud = false;
   bool _busy = false;
+
+  // Talking assistant state.
+  bool _assistantActive = false;
+  bool _speaking = false;
+  bool _thinking = false;
+  String _userLine = '';
+  String _assistantLine = '';
+  String _lastHeard = '';
+  int _session = 0;
+  Completer<String?>? _turn;
   final TextEditingController _text = TextEditingController();
   late final AnimationController _pulse = AnimationController(
     vsync: this,
@@ -38,6 +55,12 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     super.initState();
     void onText(String t) {
       if (!mounted) return;
+      if (_assistantActive) {
+        // In assistant mode the conversation decides what goes in the box.
+        _lastHeard = t;
+        if (_usingCloud) _complete(t);
+        return;
+      }
       setState(() {
         _text.text = t;
         _text.selection = TextSelection.collapsed(offset: t.length);
@@ -52,11 +75,18 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       } else {
         _pulse.stop();
         _pulse.value = 0;
+        if (_assistantActive && !_usingCloud) {
+          // Phone engine finished one answer.
+          Future.delayed(const Duration(milliseconds: 300), () {
+            _complete(_lastHeard.trim().isEmpty ? null : _lastHeard);
+          });
+        }
       }
     }
 
     void onError(String m) {
       if (mounted) setState(() => _error = m);
+      if (_assistantActive) _complete(null);
     }
 
     _speech.onText = onText;
@@ -72,6 +102,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
 
   @override
   void dispose() {
+    _session++;
+    _complete(null);
+    _voice.dispose();
     _speech.dispose();
     _cloud.dispose();
     _pulse.dispose();
@@ -80,6 +113,10 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   }
 
   Future<void> _toggle() async {
+    if (_assistantActive) {
+      await _cancelAssistant();
+      return;
+    }
     if (_busy) return;
     if (_listening) {
       await (_usingCloud ? _cloud.stop() : _speech.stop());
@@ -92,10 +129,30 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       _permissionDialog(mic == MicStatus.permanentlyDenied);
       return;
     }
+    if (app.assistantOn) {
+      if (app.geminiKey.trim().isEmpty) {
+        setState(
+          () => _error = 'Add your Gemini key first: Settings > Voice input > Gemini assistant.',
+        );
+        return;
+      }
+      _voice.configure(
+        key: app.geminiKey,
+        voice: app.geminiVoice,
+        model: app.geminiModel,
+        lastGood: app.geminiTtsOk,
+      );
+      _voice.onNotice = (m) {
+        if (mounted) setState(() => _error = m);
+      };
+      unawaited(_runAgent());
+      return;
+    }
     if (app.useCloudVoice) {
       _usingCloud = true;
       await _cloud.start(
-        apiKey: app.groqKey,
+        apiKey: app.sttKey,
+        provider: app.sttProvider,
         localeId: app.speechLocale,
         existing: _text.text,
       );
@@ -109,6 +166,196 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       return;
     }
     await _speech.start(localeId: app.speechLocale, existing: _text.text);
+  }
+
+  // ---------------------------------------------------------------------
+  // Talking assistant: Gemini decides what to say and uses tools to save
+  // expenses (only after a spoken yes) or to answer questions.
+  // ---------------------------------------------------------------------
+
+  void _complete(String? value) {
+    final t = _turn;
+    if (t != null && !t.isCompleted) t.complete(value);
+  }
+
+  Future<void> _cancelAssistant() async {
+    _session++;
+    _complete(null);
+    await _voice.stop();
+    if (_listening) {
+      await (_usingCloud ? _cloud.cancel() : _speech.cancel());
+    }
+    if (mounted) {
+      setState(() {
+        _assistantActive = false;
+        _speaking = false;
+        _thinking = false;
+        _assistantLine = '';
+        _userLine = '';
+      });
+    }
+  }
+
+  Future<void> _say(String text, {String? spoken}) async {
+    if (!mounted) return;
+    setState(() {
+      _assistantLine = text;
+      _speaking = _voice.ready;
+    });
+    await _voice.speak(spoken ?? text);
+    if (mounted) setState(() => _speaking = false);
+  }
+
+  /// Listens for one answer. Returns null when nothing was understood.
+  Future<String?> _listenTurn() async {
+    final app = context.read<AppState>();
+    setState(() => _error = null);
+    _lastHeard = '';
+    _turn = Completer<String?>();
+    _usingCloud = app.useCloudVoice;
+    if (_usingCloud) {
+      await _cloud.start(
+        apiKey: app.sttKey,
+        provider: app.sttProvider,
+        localeId: app.speechLocale,
+        existing: '',
+      );
+    } else if (await _speech.init()) {
+      await _speech.start(localeId: app.speechLocale, existing: '', once: true);
+    } else {
+      _complete(null);
+    }
+    final result = await _turn!.future.timeout(
+      const Duration(seconds: 100),
+      onTimeout: () => null,
+    );
+    _turn = null;
+    return result;
+  }
+
+  Future<void> _closeAfterSave(int n, double total, String left) async {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    setState(() {
+      _assistantActive = false;
+      _speaking = false;
+    });
+    nav.pop();
+    if (n > 0) {
+      messenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 6),
+          content: Text(
+            'Saved $n expense${n == 1 ? '' : 's'} • ${Fmt.money(total)}\n$left',
+          ),
+        ),
+      );
+    }
+  }
+
+  Future<void> _runAgent() async {
+    final my = ++_session;
+    bool alive() => mounted && _session == my;
+    final app = context.read<AppState>();
+    final agent = AgentService(
+      state: app,
+      apiKey: app.geminiKey,
+      userName: app.userName,
+    );
+    setState(() {
+      _assistantActive = true;
+      _error = null;
+      _userLine = '';
+      _text.clear();
+    });
+
+    final hello = UrduSpeech.greeting(app.userName, DateTime.now());
+    agent.seedAssistant(hello);
+    await _say(hello);
+
+    var silent = 0;
+    var failures = 0;
+    while (alive()) {
+      final heard = await _listenTurn();
+      if (!alive()) return;
+      final text = (heard ?? '').trim();
+      if (text.isEmpty) {
+        silent++;
+        if (silent >= 2) {
+          if (agent.savedCount > 0) {
+            await _say('ٹھیک ہے، اللہ حافظ!');
+            if (alive()) {
+              await _closeAfterSave(
+                agent.savedCount,
+                agent.savedTotal,
+                agent.lastLeft,
+              );
+            }
+            return;
+          }
+          await _say('کچھ سنائی نہیں دیا۔ جب تیار ہوں، مائیک دوبارہ دبائیں۔');
+          break;
+        }
+        await _say('جی، میں سن رہا ہوں۔ آپ بولیے۔');
+        continue;
+      }
+      silent = 0;
+      setState(() {
+        _userLine = text;
+        _thinking = true;
+      });
+
+      AgentTurn turn;
+      try {
+        turn = await agent.send(text);
+      } on AgentError catch (e) {
+        if (!alive()) return;
+        setState(() {
+          _thinking = false;
+          _error = e.message;
+        });
+        failures++;
+        if (failures >= 2 || !e.network) {
+          await _say(
+            e.network
+                ? 'معاف کیجیے، انٹرنیٹ کا مسئلہ ہے۔ تھوڑی دیر بعد دوبارہ کوشش کیجیے۔'
+                : 'معاف کیجیے، اسسٹنٹ سے رابطہ نہیں ہو سکا۔',
+          );
+          break;
+        }
+        await _say('معاف کیجیے، انٹرنیٹ سست ہے۔ دوبارہ بولیے۔');
+        continue;
+      } catch (_) {
+        if (!alive()) return;
+        setState(() => _thinking = false);
+        await _say('معاف کیجیے، کچھ گڑبڑ ہو گئی۔ دوبارہ بولیے۔');
+        failures++;
+        if (failures >= 3) break;
+        continue;
+      }
+      if (!alive()) return;
+      failures = 0;
+      setState(() => _thinking = false);
+      await _say(turn.text, spoken: UrduSpeech.spokenDigits(turn.text));
+      if (!alive()) return;
+      if (turn.ended) {
+        await _closeAfterSave(
+          agent.savedCount,
+          agent.savedTotal,
+          agent.lastLeft,
+        );
+        return;
+      }
+    }
+
+    if (mounted && _session == my) {
+      setState(() {
+        _assistantActive = false;
+        _speaking = false;
+        _thinking = false;
+      });
+    }
   }
 
   void _permissionDialog(bool permanent) {
@@ -180,6 +427,22 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                 ? null
                 : (v) => v == null ? null : state.setSpeechLocale(v),
           ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: const Text(
+              'Talking assistant',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: const Text(
+              'Talks with you, saves your expenses and answers questions like "how much today?"',
+              style: TextStyle(fontSize: 12),
+            ),
+            value: state.assistantOn,
+            onChanged: _listening || _assistantActive
+                ? null
+                : (v) => state.setAssistantOn(v),
+          ),
           const SizedBox(height: 16),
           Center(
             child: AnimatedBuilder(
@@ -200,11 +463,11 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                 elevation: 4,
                 child: InkWell(
                   customBorder: const CircleBorder(),
-                  onTap: _busy ? null : _toggle,
+                  onTap: _busy && !_assistantActive ? null : _toggle,
                   child: SizedBox(
                     width: 110,
                     height: 110,
-                    child: _busy
+                    child: _busy || _thinking
                         ? const Padding(
                             padding: EdgeInsets.all(34),
                             child: CircularProgressIndicator(
@@ -213,7 +476,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                             ),
                           )
                         : Icon(
-                            _listening ? Icons.stop : Icons.mic,
+                            _listening || _assistantActive
+                                ? Icons.stop
+                                : Icons.mic,
                             size: 56,
                             color: Colors.white,
                           ),
@@ -225,15 +490,69 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
           const SizedBox(height: 12),
           Center(
             child: Text(
-              _busy
+              _thinking
+                  ? 'Thinking…'
+                  : _busy
                   ? 'Converting your voice to text…'
+                  : _speaking
+                  ? 'Assistant is speaking…'
                   : _listening
                   ? 'Listening… tap to stop'
                   : 'Tap the mic and speak',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-          if (state.voiceEngine == 'cloud' && state.groqKey.trim().isEmpty)
+          if (_assistantActive && _userLine.isNotEmpty)
+            AppCard(
+              margin: const EdgeInsets.only(top: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.mic_none_rounded, color: AppColors.muted),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        _userLine,
+                        verbatim: true,
+                        style: TextStyle(color: AppColors.muted, fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (_assistantActive && _assistantLine.isNotEmpty)
+            AppCard(
+              margin: const EdgeInsets.only(top: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.record_voice_over_rounded,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Text(
+                          _assistantLine,
+                          verbatim: true,
+                          style: const TextStyle(fontSize: 16, height: 1.8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          if (state.voiceEngine == 'cloud' &&
+              state.groqKey.trim().isEmpty &&
+              state.geminiKey.trim().isEmpty)
             AppCard(
               margin: const EdgeInsets.only(top: 12),
               child: ListTile(

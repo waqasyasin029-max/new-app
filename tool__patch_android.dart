@@ -14,6 +14,7 @@ void main() {
   }
   _patchManifest(manifest);
   _patchGradle();
+  _writeProguard();
   final stale = File('test/widget_test.dart');
   if (stale.existsSync()) {
     stale.deleteSync();
@@ -121,6 +122,23 @@ void _patchGradle() {
       'signingConfigs.getByName("debug")',
       'signingConfigs.getByName("release")',
     );
+    // No R8 renaming or shrinking: it broke the reminder library (Gson could
+    // not read its saved data: "Missing type parameter"), so alarms never rang
+    // and the app crashed when one fired. The proguard rules are a safety net.
+    const signing = 'signingConfig = signingConfigs.getByName("release")';
+    if (x.contains(signing)) {
+      x = x.replaceFirst(
+        signing,
+        '$signing\n'
+        '            isMinifyEnabled = false\n'
+        '            isShrinkResources = false\n'
+        '            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")',
+      );
+    } else {
+      stderr.writeln(
+        'WARNING: release signingConfig line not found; R8 settings not patched.',
+      );
+    }
     kts.writeAsStringSync(x);
     stdout.writeln('Patched build.gradle.kts');
   } else if (groovy.existsSync()) {
@@ -161,6 +179,20 @@ void _patchGradle() {
           '        }\n    }\n    buildTypes {',
     );
     x = x.replaceAll('signingConfigs.debug', 'signingConfigs.release');
+    const signing = 'signingConfig signingConfigs.release';
+    if (x.contains(signing)) {
+      x = x.replaceFirst(
+        signing,
+        '$signing\n'
+        '            minifyEnabled false\n'
+        '            shrinkResources false\n'
+        "            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'",
+      );
+    } else {
+      stderr.writeln(
+        'WARNING: release signingConfig line not found; R8 settings not patched.',
+      );
+    }
     groovy.writeAsStringSync(x);
     stdout.writeln('Patched build.gradle');
   } else {
@@ -168,6 +200,19 @@ void _patchGradle() {
       'No android/app/build.gradle(.kts) found: add desugaring manually (see README).',
     );
   }
+}
+
+void _writeProguard() {
+  File('android/app/proguard-rules.pro').writeAsStringSync('''
+-keepattributes Signature
+-keepattributes *Annotation*
+-keep class com.dexterous.** { *; }
+-keep class com.google.gson.reflect.TypeToken { *; }
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
+''');
+  stdout.writeln('Wrote proguard-rules.pro');
 }
 
 String _addDependency(String x, String line) {

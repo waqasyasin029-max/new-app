@@ -257,14 +257,42 @@ class SettingsScreen extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _editKey(context, s),
               ),
-              ListTile(
-                leading: const Icon(Icons.record_voice_over_outlined),
+              SwitchListTile(
+                secondary: const Icon(Icons.record_voice_over_outlined),
                 title: const Text(
-                  'Gemini voice test',
+                  'Talking assistant',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: const Text(
-                  'Hear Google\'s voices speak Urdu (free key from Google AI Studio)',
+                  'Talks with you, saves your expenses and answers questions',
+                ),
+                value: s.assistantOn,
+                onChanged: (v) => s.setAssistantOn(v),
+              ),
+              ListTile(
+                enabled: s.assistantOn,
+                leading: const Icon(Icons.badge_outlined),
+                title: const Text(
+                  'Assistant name',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  s.userName.isEmpty ? '—' : s.userName,
+                  verbatim: true,
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: !s.assistantOn ? null : () => _editName(context, s),
+              ),
+              ListTile(
+                leading: const Icon(Icons.auto_awesome),
+                title: const Text(
+                  'Gemini assistant (key and voice)',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  s.geminiKey.trim().isEmpty
+                      ? 'Not added yet. Free key from Google AI Studio'
+                      : 'Key saved. Tap to change the voice or test it',
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.push(
@@ -364,6 +392,47 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _editName(BuildContext context, AppState s) async {
+    final c = TextEditingController(text: s.userName);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Assistant name'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'The assistant calls you by this name. Write it in Urdu so it is pronounced correctly.',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: c,
+              textDirection: TextDirection.rtl,
+              decoration: const InputDecoration(
+                hintText: 'وقاص',
+                isDense: true,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, c.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    c.dispose();
+    if (result != null) await s.setUserName(result);
   }
 
   Future<void> _editKey(BuildContext context, AppState s) async {

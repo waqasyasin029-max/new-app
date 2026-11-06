@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 
+import 'gemini_api.dart';
 import 'speech_service.dart' show MicStatus;
 
 /// Records the voice and turns it into text with Whisper large-v3 (served by
@@ -28,6 +29,7 @@ class CloudSpeechService {
   String _existing = '';
   String _key = '';
   String _locale = 'ur_PK';
+  String _provider = 'groq';
 
   void Function(String text)? onText;
   void Function(bool listening)? onListening;
@@ -48,7 +50,9 @@ class CloudSpeechService {
     required String apiKey,
     required String localeId,
     String existing = '',
+    String provider = 'groq',
   }) async {
+    _provider = provider;
     _key = apiKey.trim();
     _locale = localeId;
     _existing = existing.trim();
@@ -145,7 +149,59 @@ class CloudSpeechService {
     }
   }
 
+  /// Gemini listens to the recording directly (used when there is no Groq key).
+  Future<String> _transcribeGemini(String path) async {
+    final bytes = await File(path).readAsBytes();
+    final ur = _locale.startsWith('ur');
+    final prompt = ur
+        ? 'Transcribe this audio word for word. The speaker talks in Urdu, '
+              'sometimes mixed with English or Roman words (money amounts, '
+              'JazzCash, Easypaisa, petrol, chai). Write Urdu in Urdu script and '
+              'numbers as digits. Output only the transcript. If there is no '
+              'speech, output nothing.'
+        : 'Transcribe this audio word for word in English. Numbers as digits. '
+              'Output only the transcript. If there is no speech, output nothing.';
+    try {
+      final j = await GeminiApi.generate(
+        key: _key,
+        body: {
+          'contents': [
+            {
+              'parts': [
+                {'text': prompt},
+                {
+                  'inlineData': {
+                    'mimeType': 'audio/wav',
+                    'data': base64Encode(bytes),
+                  },
+                },
+              ],
+            },
+          ],
+          'generationConfig': {'temperature': 0},
+        },
+      );
+      final c = j['candidates'];
+      if (c is List && c.isNotEmpty && c.first is Map) {
+        final content = (c.first as Map)['content'];
+        final parts = content is Map ? content['parts'] : null;
+        if (parts is List) {
+          return parts
+              .whereType<Map>()
+              .where((p) => p['text'] is String && p['thought'] != true)
+              .map((p) => (p['text'] as String).trim())
+              .join(' ')
+              .trim();
+        }
+      }
+      return '';
+    } on GeminiError catch (e) {
+      throw _CloudError(e.message);
+    }
+  }
+
   Future<String> _transcribe(String path) async {
+    if (_provider == 'gemini') return _transcribeGemini(path);
     final lang = _locale.startsWith('ur') ? 'ur' : 'en';
     final req = http.MultipartRequest('POST', Uri.parse(_endpoint))
       ..headers['Authorization'] = 'Bearer $_key'

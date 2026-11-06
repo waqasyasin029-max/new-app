@@ -5,15 +5,7 @@ import 'dart:typed_data';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 
-class GeminiError implements Exception {
-  GeminiError(this.message, {this.tryNext = false});
-  final String message;
-
-  /// True when another model may work (model not found / not supported).
-  final bool tryNext;
-  @override
-  String toString() => message;
-}
+import 'gemini_api.dart';
 
 class GeminiVoiceInfo {
   const GeminiVoiceInfo(this.name, this.female);
@@ -30,6 +22,9 @@ class GeminiTts {
     'gemini-3.1-flash-tts-preview',
     'gemini-3.8-flash-tts',
   ];
+
+  /// The model that worked last time, tried first.
+  static String lastGood = '';
 
   static const voices = <GeminiVoiceInfo>[
     GeminiVoiceInfo('Kore', true),
@@ -72,11 +67,17 @@ class GeminiTts {
     String model = '',
     String style = '',
   }) async {
-    final list = model.isEmpty ? models : [model];
+    final list = model.isEmpty
+        ? [
+            if (lastGood.isNotEmpty) lastGood,
+            ...models.where((e) => e != lastGood),
+          ]
+        : [model];
     GeminiError? last;
     for (final m in list) {
       try {
         final f = await _one(key, m, voice, text, style);
+        lastGood = m;
         return (file: f, model: m);
       } on GeminiError catch (e) {
         last = e;
