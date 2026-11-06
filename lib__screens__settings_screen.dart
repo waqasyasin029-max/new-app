@@ -10,6 +10,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
+import 'voice_picker_screen.dart';
 import 'onboarding_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
@@ -508,17 +509,6 @@ class SettingsScreen extends StatelessWidget {
     await tts.dispose();
   }
 
-  static const _voices = <(String, String)>[
-    ('Adam (male, deep)', 'pNInz6obpgDQGcFmaJgB'),
-    ('Josh (male, young)', 'TxGEqnHWrfWFTfGW9XjX'),
-    ('Antoni (male, soft)', 'ErXwobaYiN019PkySvjV'),
-    ('Arnold (male, strong)', 'VR6AewLTigWG4xSOukaG'),
-    ('Rachel (female, calm)', '21m00Tcm4TlvDq8ikWAM'),
-    ('Bella (female, soft)', 'EXAVITQu4vr4xnSDxMaL'),
-    ('Elli (female, young)', 'MF3mGyEYCl7XYWbV9V6O'),
-    ('Domi (female, strong)', 'AZnzlk1XvdvUeBnXmlld'),
-  ];
-
   static const _models = <(String, String)>[
     ('Automatic (best first)', ''),
     ('Eleven v3 (most natural)', 'eleven_v3'),
@@ -529,13 +519,8 @@ class SettingsScreen extends StatelessWidget {
 
   Future<void> _editEleven(BuildContext context, AppState s) async {
     final key = TextEditingController(text: s.elevenKey);
-    final custom = TextEditingController();
-    final known = _voices.any((v) => v.$2 == s.elevenVoiceId);
-    // '' means the default voice, 'custom' means the Voice ID box is used.
-    var voiceSel = s.elevenVoiceId.isEmpty
-        ? _voices.first.$2
-        : (known ? s.elevenVoiceId : 'custom');
-    if (voiceSel == 'custom') custom.text = s.elevenVoiceId;
+    var voiceId = s.elevenVoiceId;
+    var voiceName = s.elevenVoiceName;
     var modelSel = _models.any((m) => m.$2 == s.elevenModel)
         ? s.elevenModel
         : '';
@@ -551,7 +536,7 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 const Text(
                   '1. Sign in at elevenlabs.io.\n'
-                  '2. Developers, API Keys: create a key and allow Text to Speech.\n'
+                  '2. Developers, API Keys: create a key with all permissions.\n'
                   '3. Paste it here.',
                   style: TextStyle(fontSize: 13),
                 ),
@@ -570,29 +555,44 @@ class SettingsScreen extends StatelessWidget {
                   'Voice',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                DropdownButton<String>(
-                  isExpanded: true,
-                  value: voiceSel,
-                  items: [
-                    for (final v in _voices)
-                      DropdownMenuItem(value: v.$2, child: Text(v.$1)),
-                    const DropdownMenuItem(
-                      value: 'custom',
-                      child: Text('Other (paste Voice ID)'),
-                    ),
-                  ],
-                  onChanged: (v) => setSt(() => voiceSel = v ?? voiceSel),
-                ),
-                if (voiceSel == 'custom')
-                  TextField(
-                    controller: custom,
-                    autocorrect: false,
-                    enableSuggestions: false,
-                    decoration: const InputDecoration(
-                      hintText: 'Voice ID from your Voices page',
-                      isDense: true,
-                    ),
+                const SizedBox(height: 4),
+                OutlinedButton.icon(
+                  icon: const Icon(Icons.record_voice_over_outlined),
+                  label: Text(
+                    voiceName.isNotEmpty
+                        ? voiceName
+                        : (voiceId.isEmpty
+                              ? 'Default voice (Adam)'
+                              : 'Custom voice'),
+                    verbatim: voiceName.isNotEmpty,
                   ),
+                  onPressed: () async {
+                    if (key.text.trim().isEmpty) {
+                      snack(ctx, 'Paste the API key first.');
+                      return;
+                    }
+                    final picked = await Navigator.of(ctx).push<PickedVoice>(
+                      MaterialPageRoute(
+                        builder: (_) => VoicePickerScreen(
+                          apiKey: key.text.trim(),
+                          model: modelSel,
+                          currentId: voiceId,
+                          userName: s.userName,
+                        ),
+                      ),
+                    );
+                    if (picked != null) {
+                      setSt(() {
+                        voiceId = picked.id;
+                        voiceName = picked.name;
+                      });
+                    }
+                  },
+                ),
+                const Text(
+                  'Open the list to hear each voice before choosing.',
+                  style: TextStyle(fontSize: 12),
+                ),
                 const SizedBox(height: 14),
                 const Text(
                   'Model',
@@ -620,7 +620,8 @@ class SettingsScreen extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   key.clear();
-                  voiceSel = _voices.first.$2;
+                  voiceId = '';
+                  voiceName = '';
                   modelSel = '';
                   Navigator.pop(ctx, true);
                 },
@@ -639,10 +640,14 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
     final k = key.text;
-    final v = voiceSel == 'custom' ? custom.text.trim() : voiceSel;
     key.dispose();
-    custom.dispose();
-    if (ok == true) await s.setEleven(key: k, voiceId: v, model: modelSel);
+    if (ok == true)
+      await s.setEleven(
+        key: k,
+        voiceId: voiceId,
+        model: modelSel,
+        voiceName: voiceName,
+      );
   }
 
   Future<void> _editKey(BuildContext context, AppState s) async {

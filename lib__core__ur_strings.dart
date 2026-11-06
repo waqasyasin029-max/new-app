@@ -343,6 +343,40 @@ const Map<String, String> urExact = {
   'Flash v2.5 (fastest)': 'Flash v2.5 (سب سے تیز)',
   'After saving, use "Hear the voice" to test it.':
       'محفوظ کرنے کے بعد "آواز سنیں" سے جانچیں۔',
+  'Choose voice': 'آواز منتخب کریں',
+  'Urdu library': 'اردو لائبریری',
+  'My voices': 'میری آوازیں',
+  'Female': 'زنانہ',
+  'Male': 'مردانہ',
+  'All': 'سب',
+  'Search a voice name': 'آواز کا نام تلاش کریں',
+  'Tap play to hear a free sample. "Use" adds the voice to your ElevenLabs account.': 'مفت نمونہ سننے کے لیے پلے دبائیں۔ "استعمال کریں" آواز کو آپ کے ElevenLabs اکاؤنٹ میں شامل کرتا ہے۔',
+  'Tap play for a free sample, or the speaker to hear it say an Urdu sentence.':
+      'مفت نمونے کے لیے پلے دبائیں، یا اردو جملہ سننے کے لیے سپیکر دبائیں۔',
+  'This voice has no sample.': 'اس آواز کا نمونہ نہیں ہے۔',
+  'Could not play the sample.': 'نمونہ نہیں چل سکا۔',
+  'Could not load voices. Try again.':
+      'آوازیں لوڈ نہیں ہو سکیں۔ دوبارہ کوشش کریں۔',
+  'Try again': 'دوبارہ کوشش کریں',
+  'No voices found.': 'کوئی آواز نہیں ملی۔',
+  'Hear sample': 'نمونہ سنیں',
+  'Hear Urdu sentence': 'اردو جملہ سنیں',
+  'Use': 'استعمال کریں',
+  'Selected': 'منتخب',
+  'Default voice (Adam)': 'پہلے سے طے شدہ آواز (Adam)',
+  'Custom voice': 'اپنی آواز',
+  'Paste the API key first.': 'پہلے API کی پیسٹ کریں۔',
+  'Open the list to hear each voice before choosing.':
+      'چننے سے پہلے فہرست کھول کر ہر آواز سنیں۔',
+  'This key cannot list voices. Create a key with all permissions (at least Voices read and write, and Text to Speech).': 'اس کی سے آوازیں نہیں دیکھی جا سکتیں۔ تمام اجازتوں والی کی بنائیں (کم از کم Voices read/write اور Text to Speech)۔',
+  'Your ElevenLabs plan does not allow this. Pick one of your own voices.':
+      'آپ کا ElevenLabs پلان اس کی اجازت نہیں دیتا۔ اپنی آوازوں میں سے چنیں۔',
+  'Too many requests. Try again in a minute.':
+      'بہت زیادہ درخواستیں۔ ایک منٹ بعد کوشش کریں۔',
+  'No internet or ElevenLabs is slow. Try again.':
+      'انٹرنیٹ نہیں ہے یا ElevenLabs سست ہے۔ دوبارہ کوشش کریں۔',
+  'Could not add this voice. Your voice slots may be full, or this voice is not available on your plan.': 'یہ آواز شامل نہیں ہو سکی۔ آپ کے وائس سلاٹ بھرے ہو سکتے ہیں یا یہ آواز آپ کے پلان میں دستیاب نہیں۔',
+  '1. Sign in at elevenlabs.io.\n2. Developers, API Keys: create a key with all permissions.\n3. Paste it here.': '1. elevenlabs.io پر سائن ان کریں۔\n2. Developers، API Keys میں تمام اجازتوں والی کی بنائیں۔\n3. اسے یہاں پیسٹ کریں۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

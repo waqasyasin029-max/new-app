@@ -42,6 +42,7 @@ class AppState extends ChangeNotifier {
   String elevenKey = '';
   String elevenVoiceId = '';
   String elevenModel = ''; // empty = automatic
+  String elevenVoiceName = '';
   String userName = 'وقاص';
 
   bool get useCloudVoice => voiceEngine == 'cloud' && groqKey.trim().isNotEmpty;
@@ -83,6 +84,7 @@ class AppState extends ChangeNotifier {
     elevenKey = prefs.getString('eleven_key') ?? '';
     elevenVoiceId = prefs.getString('eleven_voice') ?? '';
     elevenModel = prefs.getString('eleven_model') ?? '';
+    elevenVoiceName = prefs.getString('eleven_voice_name') ?? '';
     userName = prefs.getString('user_name') ?? 'وقاص';
     applyLook();
   }
@@ -250,14 +252,17 @@ class AppState extends ChangeNotifier {
     required String key,
     required String voiceId,
     String model = '',
+    String voiceName = '',
   }) async {
     elevenKey = key.trim();
     elevenVoiceId = voiceId.trim();
     elevenModel = model.trim();
+    elevenVoiceName = voiceName.trim();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('eleven_key', elevenKey);
     await prefs.setString('eleven_voice', elevenVoiceId);
     await prefs.setString('eleven_model', elevenModel);
+    await prefs.setString('eleven_voice_name', elevenVoiceName);
     notifyListeners();
   }
 
