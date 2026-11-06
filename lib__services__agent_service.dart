@@ -213,6 +213,8 @@ CONTEXT
 ''';
   }
 
+  static List<Map<String, dynamic>> get toolDeclarations => _tools;
+
   static final List<Map<String, dynamic>> _tools = [
     {
       'name': 'add_expenses',

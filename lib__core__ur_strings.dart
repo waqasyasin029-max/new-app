@@ -411,6 +411,7 @@ const Map<String, String> urExact = {
       'جیمنائی نے جواب نہیں دیا۔ دوبارہ کوشش کریں۔',
   'The voice could not be made. The assistant will only write.':
       'آواز نہیں بن سکی۔ اسسٹنٹ صرف لکھے گا۔',
+  'Check assistant': 'اسسٹنٹ چیک کریں',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

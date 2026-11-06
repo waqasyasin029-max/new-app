@@ -18,6 +18,9 @@ class GeminiApi {
   /// "Latest flash" always points at a current model; the second is a fallback.
   static const textModels = ['gemini-flash-latest', 'gemini-2.5-flash'];
 
+  /// The model that answered last (shown in the checks).
+  static String lastModel = '';
+
   static String detail(http.Response r) {
     try {
       final j = jsonDecode(utf8.decode(r.bodyBytes));
@@ -67,7 +70,10 @@ class GeminiApi {
         }
         if (r.statusCode == 200) {
           final j = jsonDecode(utf8.decode(r.bodyBytes));
-          if (j is Map<String, dynamic>) return j;
+          if (j is Map<String, dynamic>) {
+            lastModel = m;
+            return j;
+          }
           throw GeminiError('Gemini sent an unexpected answer.');
         }
         final c = r.statusCode;

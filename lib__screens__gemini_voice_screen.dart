@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../core/i18n.dart';
 import '../core/theme.dart';
+import '../services/agent_service.dart';
 import '../services/gemini_api.dart';
 import '../services/gemini_tts_service.dart';
 import '../state/app_state.dart';
@@ -34,6 +35,8 @@ class _GeminiVoiceScreenState extends State<GeminiVoiceScreen> {
   String _model = '';
   String? _result;
   bool _ok = false;
+  bool _checking = false;
+  String _report = '';
 
   @override
   void initState() {
@@ -54,6 +57,122 @@ class _GeminiVoiceScreenState extends State<GeminiVoiceScreen> {
     _text.dispose();
     _style.dispose();
     super.dispose();
+  }
+
+  /// Tests the three things the assistant needs, with timings and the exact
+  /// error from Google when one fails.
+  Future<void> _check() async {
+    final key = _key.text.trim();
+    if (key.isEmpty) {
+      snack(context, 'Paste the Gemini key first.');
+      return;
+    }
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _checking = true;
+      _report = '';
+    });
+    final lines = <String>[];
+    void add(String s) {
+      lines.add(s);
+      if (mounted) setState(() => _report = lines.join('\n'));
+    }
+
+    String secs(Stopwatch w) =>
+        (w.elapsedMilliseconds / 1000).toStringAsFixed(1);
+    final w = Stopwatch()..start();
+    try {
+      await GeminiApi.generate(
+        key: key,
+        body: {
+          'contents': [
+            {
+              'parts': [
+                {'text': 'Reply with the single word: ok'},
+              ],
+            },
+          ],
+          'generationConfig': {'temperature': 0},
+        },
+      );
+      add('1. Thinking: OK in ${secs(w)}s (${GeminiApi.lastModel})');
+    } on GeminiError catch (e) {
+      add('1. Thinking: FAILED. ${e.message}');
+    } catch (e) {
+      add('1. Thinking: FAILED. $e');
+    }
+
+    w
+      ..reset()
+      ..start();
+    try {
+      final j = await GeminiApi.generate(
+        key: key,
+        body: {
+          'systemInstruction': {
+            'parts': [
+              {
+                'text': 'You record expenses. Categories: Food, Fuel, Other. Accounts: Cash, JazzCash. Use the tools.',
+              },
+            ],
+          },
+          'contents': [
+            {
+              'role': 'user',
+              'parts': [
+                {'text': '300 ka petrol cash se'},
+              ],
+            },
+          ],
+          'tools': [
+            {'functionDeclarations': AgentService.toolDeclarations},
+          ],
+          'toolConfig': {
+            'functionCallingConfig': {'mode': 'AUTO'},
+          },
+          'generationConfig': {'temperature': 0.3},
+        },
+      );
+      var what = 'no answer';
+      final c = j['candidates'];
+      if (c is List && c.isNotEmpty && c.first is Map) {
+        final content = (c.first as Map)['content'];
+        final parts = content is Map ? content['parts'] : null;
+        if (parts is List) {
+          final calls = parts
+              .whereType<Map>()
+              .where((p) => p['functionCall'] is Map)
+              .map((p) => (p['functionCall'] as Map)['name'])
+              .toList();
+          what = calls.isEmpty
+              ? 'answered in words only'
+              : 'asked to run ${calls.join(', ')}';
+        }
+      }
+      add('2. Saving tools: OK in ${secs(w)}s, Gemini $what');
+    } on GeminiError catch (e) {
+      add('2. Saving tools: FAILED. ${e.message}');
+    } catch (e) {
+      add('2. Saving tools: FAILED. $e');
+    }
+
+    w
+      ..reset()
+      ..start();
+    try {
+      final r = await GeminiTts.synth(
+        key: key,
+        voice: _voice,
+        text: 'ٹھیک ہے',
+        model: _model,
+      );
+      add('3. Voice: OK in ${secs(w)}s (${r.model})');
+    } on GeminiError catch (e) {
+      add('3. Voice: FAILED. ${e.message}');
+    } catch (e) {
+      add('3. Voice: FAILED. $e');
+    }
+    if (mounted) setState(() => _checking = false);
   }
 
   Future<void> _play() async {
@@ -208,6 +327,23 @@ class _GeminiVoiceScreenState extends State<GeminiVoiceScreen> {
               minimumSize: const Size.fromHeight(52),
             ),
           ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: _checking ? null : _check,
+            icon: const Icon(Icons.health_and_safety_outlined),
+            label: Text(_checking ? 'Checking…' : 'Check assistant'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+          ),
+          if (_report.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: SelectableText(
+                _report,
+                style: TextStyle(color: AppColors.muted, fontSize: 13),
+              ),
+            ),
           if (_result != null)
             Padding(
               padding: const EdgeInsets.only(top: 12),

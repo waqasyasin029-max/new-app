@@ -12,6 +12,7 @@ import '../logic/urdu_speech.dart';
 import '../services/agent_service.dart';
 import '../services/assistant_voice.dart';
 import '../services/cloud_speech_service.dart';
+import '../services/gemini_api.dart';
 import '../services/speech_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
@@ -40,6 +41,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   String _userLine = '';
   String _assistantLine = '';
   String _lastHeard = '';
+  String _debug = '';
   int _session = 0;
   Completer<String?>? _turn;
   final TextEditingController _text = TextEditingController();
@@ -307,8 +309,23 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       });
 
       AgentTurn turn;
+      final watch = Stopwatch()..start();
       try {
-        turn = await agent.send(text);
+        turn = await agent
+            .send(text)
+            .timeout(
+              const Duration(seconds: 75),
+              onTimeout: () => throw const AgentError(
+                'Gemini took too long (over 75 seconds). Try again.',
+                network: true,
+              ),
+            );
+        if (mounted) {
+          setState(
+            () => _debug =
+                'Gemini answered in ${(watch.elapsedMilliseconds / 1000).toStringAsFixed(1)}s (${GeminiApi.lastModel})',
+          );
+        }
       } on AgentError catch (e) {
         if (!alive()) return;
         setState(() {
@@ -521,6 +538,15 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                     ),
                   ],
                 ),
+              ),
+            ),
+          if (_assistantActive && _debug.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                _debug,
+                verbatim: true,
+                style: TextStyle(color: AppColors.muted, fontSize: 11),
               ),
             ),
           if (_assistantActive && _assistantLine.isNotEmpty)
