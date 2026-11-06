@@ -7,7 +7,10 @@ import '../core/theme.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../core/format.dart';
 import '../core/ur_strings.dart' show urExact;
+import '../data/models.dart';
+import '../logic/account_matcher.dart';
 import '../logic/expense_parser.dart';
 import '../logic/urdu_speech.dart';
 import '../services/cloud_speech_service.dart';
@@ -225,6 +228,117 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
 
   String _urdu(String s) => urExact[s] ?? s;
 
+  List<({int id, String name})> get _accs => [
+    for (final a in context.read<AppState>().accounts) (id: a.id, name: a.name),
+  ];
+
+  String _accountName(int id) {
+    for (final a in context.read<AppState>().accounts) {
+      if (a.id == id) return _urdu(a.name);
+    }
+    return '';
+  }
+
+  /// Which account each item was paid from: named in the sentence, or the one
+  /// the assistant asked about.
+  List<int?> _resolveAccounts(ParseResult r, String raw, int? chosen) {
+    final accs = _accs;
+    final per = [
+      for (final p in r.items) AccountMatcher.match(p.sourceText, accs),
+    ];
+    final whole = per.every((x) => x == null)
+        ? AccountMatcher.match(raw, accs)
+        : null;
+    return [for (final x in per) x ?? whole ?? chosen];
+  }
+
+  String _accountQuestion() {
+    final names = [
+      for (final a in context.read<AppState>().accounts) _urdu(a.name),
+    ];
+    final list = names.length < 2
+        ? names.join()
+        : '${names.sublist(0, names.length - 1).join('، ')} یا ${names.last}';
+    return 'یہ رقم کہاں سے ادا کی؟ $list؟';
+  }
+
+  /// Saves the confirmed order straight away (the spoken "yes" was the confirmation).
+  Future<({int n, double total, String left, String speech})?> _saveByVoice(
+    String raw,
+    ParseResult r,
+    List<int?> accIds,
+  ) async {
+    final state = context.read<AppState>();
+    final accs = _accs;
+    final list = <Expense>[];
+    for (var i = 0; i < r.items.length; i++) {
+      final p = r.items[i];
+      var desc = p.description;
+      final stripped = AccountMatcher.strip(desc, accs);
+      if (stripped.isNotEmpty) {
+        desc = stripped[0].toUpperCase() + stripped.substring(1);
+      }
+      final cat = state.categoryByName(p.category);
+      if (desc.trim().isEmpty) desc = cat.name;
+      list.add(
+        Expense(
+          amount: p.amount!,
+          categoryId: cat.id,
+          accountId: accIds[i]!,
+          description: desc,
+          date: Fmt.dateOnly(DateTime.now()),
+          source: 'voice',
+          rawText: raw,
+        ),
+      );
+    }
+    try {
+      await state.expenses.insertMany(list);
+      state.changed();
+      final used = {for (final e in list) e.accountId!};
+      final bals = await state.accountRepo.balances();
+      final left = <String>[];
+      final speech = <String>[];
+      for (final b in bals) {
+        if (!used.contains(b.account.id)) continue;
+        left.add(tr('${b.account.name} left ${Fmt.money(b.balance)}'));
+        final amount = UrduSpeech.money(b.balance.abs());
+        speech.add(
+          '${_urdu(b.account.name)} میں اب ${b.balance < 0 ? 'منفی ' : ''}$amount باقی ہیں',
+        );
+      }
+      return (
+        n: list.length,
+        total: list.fold<double>(0, (a, e) => a + e.amount),
+        left: left.join(' • '),
+        speech: speech.join('، '),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _closeAfterSave(int n, double total, String left) async {
+    if (!mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    setState(() {
+      _assistantActive = false;
+      _speaking = false;
+    });
+    nav.pop();
+    if (n > 0) {
+      messenger.showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 6),
+          content: Text(
+            'Saved $n expense${n == 1 ? '' : 's'} • ${Fmt.money(total)}\n$left',
+          ),
+        ),
+      );
+    }
+  }
+
   Future<void> _runAssistant() async {
     final my = ++_session;
     bool alive() => mounted && _session == my;
@@ -237,10 +351,35 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
 
     await _say(UrduSpeech.greeting(app.userName, DateTime.now()));
 
+    // Stages: 0 = waiting for the order, 1 = asking which account,
+    // 2 = waiting for yes/no on the repeated order, 3 = "anything else?".
+    var stage = 0;
     var collected = '';
+    int? chosenAcc;
     var silent = 0;
     var unclear = 0;
-    var needOrder = true; // true: waiting for the order, false: for yes/no
+    var savedCount = 0;
+    var savedTotal = 0.0;
+    var lastLeft = '';
+    ParseResult result = const ParseResult([], []);
+    var accIds = <int?>[];
+
+    Future<void> repeatOrAsk() async {
+      result = ExpenseParser.parse(collected);
+      accIds = _resolveAccounts(result, collected, chosenAcc);
+      unclear = 0;
+      if (accIds.any((x) => x == null)) {
+        stage = 1;
+        await _say(_accountQuestion());
+      } else {
+        stage = 2;
+        final names = [for (final id in accIds) _accountName(id!)];
+        await _say(
+          '${UrduSpeech.repeatOrder(result, _urdu, accountNames: names)} کیا یہ ٹھیک ہے؟',
+        );
+      }
+    }
+
     while (alive()) {
       final heard = await _listenTurn();
       if (!alive()) return;
@@ -249,6 +388,12 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       if (text.isEmpty) {
         silent++;
         if (silent >= 2) {
+          if (savedCount > 0) {
+            await _say('ٹھیک ہے، اللہ حافظ!');
+            if (alive())
+              await _closeAfterSave(savedCount, savedTotal, lastLeft);
+            return;
+          }
           await _say('کچھ سنائی نہیں دیا۔ جب تیار ہوں، مائیک دوبارہ دبائیں۔');
           break;
         }
@@ -257,21 +402,68 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       }
       silent = 0;
 
-      if (!needOrder) {
+      if (stage == 3) {
+        final reply = UrduSpeech.classify(text);
+        if (reply == Reply.no) {
+          await _say('ٹھیک ہے، اللہ حافظ!');
+          if (alive()) await _closeAfterSave(savedCount, savedTotal, lastLeft);
+          return;
+        }
+        if (reply == Reply.yes) {
+          stage = 0;
+          collected = '';
+          chosenAcc = null;
+          setState(() => _text.clear());
+          await _say('جی، بتائیے۔');
+          continue;
+        }
+        if (ExpenseParser.parse(text).items.isEmpty) {
+          unclear++;
+          if (unclear >= 2) {
+            await _say('ٹھیک ہے، اللہ حافظ!');
+            if (alive()) {
+              await _closeAfterSave(savedCount, savedTotal, lastLeft);
+            }
+            return;
+          }
+          await _say('براہِ کرم ہاں یا نہیں کہیے۔');
+          continue;
+        }
+        // A new order was spoken straight away.
+        stage = 0;
+        collected = '';
+        chosenAcc = null;
+      } else if (stage == 2) {
         final reply = UrduSpeech.classify(text);
         if (reply == Reply.yes) {
-          await _say('ٹھیک ہے۔ اب اسکرین پر دیکھ کر محفوظ کر لیجیے۔');
-          if (alive()) await _finishAssistant(collected);
-          return;
+          final saved = await _saveByVoice(collected, result, accIds);
+          if (!alive()) return;
+          if (saved == null) {
+            await _say('معاف کیجیے، محفوظ نہیں ہو سکا۔ اسکرین پر دیکھ لیجیے۔');
+            if (alive()) await _finishAssistant(collected);
+            return;
+          }
+          savedCount += saved.n;
+          savedTotal += saved.total;
+          lastLeft = saved.left;
+          setState(() => _text.clear());
+          collected = '';
+          chosenAcc = null;
+          stage = 3;
+          unclear = 0;
+          await _say(
+            'محفوظ ہو گیا۔ ${saved.speech}۔ کیا کچھ اور خرچہ بھی لکھنا ہے؟',
+          );
+          continue;
         }
         if (reply == Reply.no) {
           collected = '';
-          needOrder = true;
+          chosenAcc = null;
+          stage = 0;
           setState(() => _text.clear());
           await _say('کوئی بات نہیں، دوبارہ بتائیے۔');
           continue;
         }
-        // Not yes or no: maybe more items were added.
         if (ExpenseParser.parse(text).items.isEmpty) {
           unclear++;
           if (unclear >= 2) {
@@ -282,32 +474,47 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
           await _say('براہِ کرم ہاں یا نہیں کہیے۔');
           continue;
         }
+        // More items added to the same order: handled below.
+        stage = 0;
+      } else if (stage == 1) {
+        final id = AccountMatcher.match(text, _accs);
+        if (id == null) {
+          unclear++;
+          if (unclear >= 2) {
+            await _say('ٹھیک ہے، اسکرین پر خود چن لیجیے۔');
+            if (alive()) await _finishAssistant(collected);
+            return;
+          }
+          await _say('معاف کیجیے، اکاؤنٹ سمجھ نہیں آیا۔ دوبارہ بتائیے۔');
+          continue;
+        }
+        chosenAcc = id;
+        await repeatOrAsk();
+        continue;
       }
 
       // The order (or more items added to it).
-      unclear = 0;
       collected = _join(collected, text);
-      final result = ExpenseParser.parse(collected);
+      final parsed = ExpenseParser.parse(collected);
       setState(() {
         _text.text = collected;
         _text.selection = TextSelection.collapsed(offset: collected.length);
       });
-      if (result.items.isEmpty) {
+      if (parsed.items.isEmpty) {
         collected = '';
-        needOrder = true;
+        stage = 0;
         await _say(
           'مجھے کوئی خرچہ سمجھ نہیں آیا۔ مثال کے طور پر کہیے، تین سو کا پیٹرول۔',
         );
         continue;
       }
-      if (result.missingAmounts > 0) {
+      if (parsed.missingAmounts > 0) {
         collected = '';
-        needOrder = true;
+        stage = 0;
         await _say('کسی خرچے کی رقم سنائی نہیں دی۔ پوری بات دوبارہ بتائیے۔');
         continue;
       }
-      needOrder = false;
-      await _say('${UrduSpeech.repeatOrder(result, _urdu)} کیا یہ ٹھیک ہے؟');
+      await repeatOrAsk();
     }
 
     if (mounted && _session == my) {

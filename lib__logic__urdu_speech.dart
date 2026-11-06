@@ -183,13 +183,28 @@ class UrduSpeech {
   }
 
   /// "آپ نے بتایا: چائے کے دو سو روپے، پیٹرول کے تین سو روپے۔ کل پانچ سو روپے۔"
-  static String repeatOrder(ParseResult r, String Function(String) tr) {
+  /// [accountNames] (one per item, already in Urdu) adds where each was paid from.
+  static String repeatOrder(
+    ParseResult r,
+    String Function(String) tr, {
+    List<String?>? accountNames,
+  }) {
+    final names = accountNames;
+    final allSame =
+        names != null &&
+        names.isNotEmpty &&
+        names.every((n) => n != null && n == names.first);
     final parts = <String>[];
-    for (final e in r.items) {
-      parts.add('${_itemName(e, tr)} کے ${money(e.amount ?? 0)}');
+    for (var i = 0; i < r.items.length; i++) {
+      final e = r.items[i];
+      final acc = (names != null && !allSame && names[i] != null)
+          ? ' ${names[i]} سے'
+          : '';
+      parts.add('${_itemName(e, tr)} کے ${money(e.amount ?? 0)}$acc');
     }
     final total = r.items.length > 1 ? ' کل ${money(r.total)}۔' : '';
-    return 'آپ نے بتایا: ${parts.join('، ')}۔$total';
+    final paid = allSame ? ' ${names.first} سے ادا ہوئے۔' : '';
+    return 'آپ نے بتایا: ${parts.join('، ')}۔$total$paid';
   }
 
   static const _yes = {
