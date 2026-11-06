@@ -93,6 +93,10 @@ class CloudSpeechService {
         now.difference(_lastLoud) > const Duration(milliseconds: 2200)) {
       // Spoke, then went quiet: finish by itself.
       stop();
+    } else if (!_heard &&
+        now.difference(_startedAt) > const Duration(seconds: 9)) {
+      // Nobody spoke at all.
+      stop();
     }
   }
 
@@ -171,6 +175,21 @@ class CloudSpeechService {
       );
     }
     throw _CloudError('AI voice failed (HTTP ${res.statusCode}).');
+  }
+
+  /// Stops recording and throws the audio away (the user cancelled).
+  Future<void> cancel() async {
+    if (!_recording) return;
+    _recording = false;
+    _maxTimer?.cancel();
+    await _ampSub?.cancel();
+    _ampSub = null;
+    String? path;
+    try {
+      path = await _rec.stop();
+    } catch (_) {}
+    await _delete(path);
+    onListening?.call(false);
   }
 
   Future<void> _delete(String? path) async {

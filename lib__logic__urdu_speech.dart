@@ -1,0 +1,248 @@
+import 'expense_parser.dart';
+
+/// Urdu phrases for the talking assistant (read out by text-to-speech, so
+/// everything is written in Urdu script and numbers are spelled out).
+class UrduSpeech {
+  static const _t = [
+    'صفر',
+    'ایک',
+    'دو',
+    'تین',
+    'چار',
+    'پانچ',
+    'چھ',
+    'سات',
+    'آٹھ',
+    'نو',
+    'دس',
+    'گیارہ',
+    'بارہ',
+    'تیرہ',
+    'چودہ',
+    'پندرہ',
+    'سولہ',
+    'سترہ',
+    'اٹھارہ',
+    'انیس',
+    'بیس',
+    'اکیس',
+    'بائیس',
+    'تئیس',
+    'چوبیس',
+    'پچیس',
+    'چھبیس',
+    'ستائیس',
+    'اٹھائیس',
+    'انتیس',
+    'تیس',
+    'اکتیس',
+    'بتیس',
+    'تینتیس',
+    'چونتیس',
+    'پینتیس',
+    'چھتیس',
+    'سینتیس',
+    'اڑتیس',
+    'انتالیس',
+    'چالیس',
+    'اکتالیس',
+    'بیالیس',
+    'تینتالیس',
+    'چوالیس',
+    'پینتالیس',
+    'چھیالیس',
+    'سینتالیس',
+    'اڑتالیس',
+    'انچاس',
+    'پچاس',
+    'اکیاون',
+    'باون',
+    'ترپن',
+    'چون',
+    'پچپن',
+    'چھپن',
+    'ستاون',
+    'اٹھاون',
+    'انسٹھ',
+    'ساٹھ',
+    'اکسٹھ',
+    'باسٹھ',
+    'تریسٹھ',
+    'چونسٹھ',
+    'پینسٹھ',
+    'چھیاسٹھ',
+    'سڑسٹھ',
+    'اڑسٹھ',
+    'انہتر',
+    'ستر',
+    'اکہتر',
+    'بہتر',
+    'تہتر',
+    'چوہتر',
+    'پچھتر',
+    'چھہتر',
+    'ستتر',
+    'اٹھہتر',
+    'اناسی',
+    'اسی',
+    'اکیاسی',
+    'بیاسی',
+    'تراسی',
+    'چوراسی',
+    'پچاسی',
+    'چھیاسی',
+    'ستاسی',
+    'اٹھاسی',
+    'نواسی',
+    'نوے',
+    'اکانوے',
+    'بانوے',
+    'ترانوے',
+    'چورانوے',
+    'پچانوے',
+    'چھیانوے',
+    'ستانوے',
+    'اٹھانوے',
+    'ننانوے',
+  ];
+
+  static const _months = [
+    'جنوری',
+    'فروری',
+    'مارچ',
+    'اپریل',
+    'مئی',
+    'جون',
+    'جولائی',
+    'اگست',
+    'ستمبر',
+    'اکتوبر',
+    'نومبر',
+    'دسمبر',
+  ];
+  static const _days = [
+    'پیر',
+    'منگل',
+    'بدھ',
+    'جمعرات',
+    'جمعہ',
+    'ہفتہ',
+    'اتوار',
+  ];
+
+  /// 1250 -> "ایک ہزار دو سو پچاس".
+  static String number(int n) {
+    if (n < 0) return 'منفی ${number(-n)}';
+    if (n < 100) return _t[n];
+    String part(int div, String unit) {
+      final q = n ~/ div, r = n % div;
+      return '${number(q)} $unit${r > 0 ? ' ${number(r)}' : ''}';
+    }
+
+    if (n < 1000) return part(100, 'سو');
+    if (n < 100000) return part(1000, 'ہزار');
+    if (n < 10000000) return part(100000, 'لاکھ');
+    return part(10000000, 'کروڑ');
+  }
+
+  static String money(double amount) {
+    final whole = amount.floor();
+    final paisa = ((amount - whole) * 100).round();
+    final w = '${number(whole)} روپے';
+    return paisa > 0 ? '$w اور ${number(paisa)} پیسے' : w;
+  }
+
+  static String dayPart(int hour) {
+    if (hour >= 5 && hour < 12) return 'صبح';
+    if (hour >= 12 && hour < 16) return 'دوپہر';
+    if (hour >= 16 && hour < 19) return 'شام';
+    return 'رات';
+  }
+
+  static String timeWords(DateTime d) {
+    final h12 = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final part = dayPart(d.hour);
+    if (d.minute == 0) return '$part کے ${number(h12)} بجے ہیں';
+    return '$part کے ${number(h12)} بج کر ${number(d.minute)} منٹ ہوئے ہیں';
+  }
+
+  static String dateWords(DateTime d) =>
+      '${_days[d.weekday - 1]}، ${number(d.day)} ${_months[d.month - 1]}';
+
+  /// Greeting like a waiter: salam, name, date, time, then the first question.
+  static String greeting(String name, DateTime now) {
+    final who = name.trim().isEmpty ? '' : ' ${name.trim()} سر';
+    return 'السلام علیکم$who! آج ${dateWords(now)} ہے، اور ${timeWords(now)}۔ '
+        'بتائیے، اب کتنا خرچہ ہوا؟';
+  }
+
+  static String _itemName(ParsedExpense e, String Function(String) tr) {
+    final arabic = RegExp(r'[؀-ۿ]');
+    if (arabic.hasMatch(e.description)) return e.description;
+    return tr(e.category);
+  }
+
+  /// "آپ نے بتایا: چائے کے دو سو روپے، پیٹرول کے تین سو روپے۔ کل پانچ سو روپے۔"
+  static String repeatOrder(ParseResult r, String Function(String) tr) {
+    final parts = <String>[];
+    for (final e in r.items) {
+      parts.add('${_itemName(e, tr)} کے ${money(e.amount ?? 0)}');
+    }
+    final total = r.items.length > 1 ? ' کل ${money(r.total)}۔' : '';
+    return 'آپ نے بتایا: ${parts.join('، ')}۔$total';
+  }
+
+  static const _yes = {
+    'جی',
+    'جی ہاں',
+    'ہاں',
+    'ہان',
+    'ٹھیک',
+    'صحیح',
+    'درست',
+    'اوکے',
+    'بالکل',
+    'کرو',
+    'محفوظ',
+    'yes',
+    'yeah',
+    'ok',
+    'okay',
+    'haan',
+    'han',
+    'ji',
+    'jee',
+    'theek',
+    'thik',
+    'sahi',
+    'bilkul',
+    'done',
+  };
+  static const _no = {
+    'نہیں',
+    'نہی',
+    'نہ',
+    'غلط',
+    'no',
+    'nahi',
+    'nahin',
+    'nai',
+    'galat',
+    'nope',
+  };
+
+  /// Classifies the answer to "کیا یہ ٹھیک ہے؟".
+  static Reply classify(String text) {
+    final tokens = text
+        .toLowerCase()
+        .replaceAll(RegExp(r'[،۔؟!?,.\-"]'), ' ')
+        .split(RegExp(r'\s+'))
+        .where((t) => t.isNotEmpty)
+        .toList();
+    if (tokens.any(_no.contains)) return Reply.no;
+    if (tokens.length <= 5 && tokens.any(_yes.contains)) return Reply.yes;
+    return Reply.other;
+  }
+}
+
+enum Reply { yes, no, other }

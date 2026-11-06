@@ -272,6 +272,14 @@ const Map<String, String> urExact = {
   'The AI voice key is not valid. Check it in Settings > Voice input.':
       'اے آئی وائس کی درست نہیں۔ سیٹنگز > وائس ان پٹ میں چیک کریں۔',
   'AI voice free limit reached for now. Wait a minute, or use the phone voice engine.': 'اے آئی وائس کی مفت حد فی الحال پوری ہو گئی۔ ایک منٹ رکیں، یا فون کا انجن استعمال کریں۔',
+  'Talking assistant': 'بولنے والا اسسٹنٹ',
+  'Greets you, listens, repeats your order and asks you to confirm':
+      'سلام کرتا ہے، سنتا ہے، آپ کا آرڈر دہراتا ہے اور تصدیق پوچھتا ہے',
+  'Assistant name': 'اسسٹنٹ کے لیے نام',
+  'The assistant calls you by this name. Write it in Urdu so it is pronounced correctly.':
+      'اسسٹنٹ آپ کو اسی نام سے پکارے گا۔ درست تلفظ کے لیے اردو میں لکھیں۔',
+  'Assistant is speaking…': 'اسسٹنٹ بول رہا ہے…',
+  'Urdu text-to-speech is not installed on this phone. Install "Speech Services by Google" and its Urdu voice, then try again. Normal voice entry is used for now.': 'اس فون میں اردو بولنے کی آواز انسٹال نہیں۔ "Speech Services by Google" اور اس کی اردو آواز انسٹال کر کے دوبارہ کوشش کریں۔ فی الحال عام آواز سے اندراج چل رہا ہے۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

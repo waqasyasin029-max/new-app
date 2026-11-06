@@ -36,6 +36,8 @@ class AppState extends ChangeNotifier {
   bool onboardingDone = true;
   String voiceEngine = 'cloud'; // 'cloud' (AI) or 'phone'
   String groqKey = '';
+  bool assistantOn = true;
+  String userName = 'وقاص';
 
   bool get useCloudVoice => voiceEngine == 'cloud' && groqKey.trim().isNotEmpty;
 
@@ -70,6 +72,8 @@ class AppState extends ChangeNotifier {
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
     voiceEngine = prefs.getString('voice_engine') ?? 'cloud';
     groqKey = prefs.getString('groq_key') ?? '';
+    assistantOn = prefs.getBool('assistant_on') ?? true;
+    userName = prefs.getString('user_name') ?? 'وقاص';
     applyLook();
   }
 
@@ -214,6 +218,20 @@ class AppState extends ChangeNotifier {
     voiceEngine = engine;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('voice_engine', engine);
+    notifyListeners();
+  }
+
+  Future<void> setAssistantOn(bool on) async {
+    assistantOn = on;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('assistant_on', on);
+    notifyListeners();
+  }
+
+  Future<void> setUserName(String name) async {
+    userName = name.trim();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name', userName);
     notifyListeners();
   }
 

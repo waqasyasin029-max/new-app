@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart' hide Text;
 
 import '../core/theme.dart';
@@ -5,9 +7,12 @@ import '../core/theme.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../core/ur_strings.dart' show urExact;
 import '../logic/expense_parser.dart';
+import '../logic/urdu_speech.dart';
 import '../services/cloud_speech_service.dart';
 import '../services/speech_service.dart';
+import '../services/tts_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import 'confirm_expenses_screen.dart';
@@ -25,8 +30,17 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     with SingleTickerProviderStateMixin {
   final SpeechService _speech = SpeechService();
   final CloudSpeechService _cloud = CloudSpeechService();
+  final TtsService _tts = TtsService();
   bool _usingCloud = false;
   bool _busy = false;
+
+  // Talking assistant state.
+  bool _assistantActive = false;
+  bool _speaking = false;
+  int _session = 0;
+  String _assistantLine = '';
+  String _lastHeard = '';
+  Completer<String?>? _turn;
   final TextEditingController _text = TextEditingController();
   late final AnimationController _pulse = AnimationController(
     vsync: this,
@@ -40,6 +54,12 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     super.initState();
     void onText(String t) {
       if (!mounted) return;
+      if (_assistantActive) {
+        // In assistant mode the conversation decides what goes in the box.
+        _lastHeard = t;
+        if (_usingCloud) _complete(t);
+        return;
+      }
       setState(() {
         _text.text = t;
         _text.selection = TextSelection.collapsed(offset: t.length);
@@ -54,11 +74,18 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       } else {
         _pulse.stop();
         _pulse.value = 0;
+        if (_assistantActive && !_usingCloud) {
+          // Phone engine finished one answer.
+          Future.delayed(const Duration(milliseconds: 300), () {
+            _complete(_lastHeard.trim().isEmpty ? null : _lastHeard);
+          });
+        }
       }
     }
 
     void onError(String m) {
       if (mounted) setState(() => _error = m);
+      if (_assistantActive) _complete(null);
     }
 
     _speech.onText = onText;
@@ -74,6 +101,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
 
   @override
   void dispose() {
+    _session++;
+    _complete(null);
+    _tts.stop();
     _speech.dispose();
     _cloud.dispose();
     _pulse.dispose();
@@ -82,6 +112,10 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
   }
 
   Future<void> _toggle() async {
+    if (_assistantActive) {
+      await _cancelAssistant();
+      return;
+    }
     if (_busy) return;
     if (_listening) {
       await (_usingCloud ? _cloud.stop() : _speech.stop());
@@ -93,6 +127,15 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
     if (mic != MicStatus.granted) {
       _permissionDialog(mic == MicStatus.permanentlyDenied);
       return;
+    }
+    if (app.assistantOn) {
+      if (await _tts.init()) {
+        unawaited(_runAssistant());
+        return;
+      }
+      setState(
+        () => _error = 'Urdu text-to-speech is not installed on this phone. Install "Speech Services by Google" and its Urdu voice, then try again. Normal voice entry is used for now.',
+      );
     }
     if (app.useCloudVoice) {
       _usingCloud = true;
@@ -114,6 +157,175 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       localeId: context.read<AppState>().speechLocale,
       existing: _text.text,
     );
+  }
+
+  // ---------------------------------------------------------------------
+  // Talking assistant: greets, listens, repeats the order, asks to confirm.
+  // ---------------------------------------------------------------------
+
+  void _complete(String? value) {
+    final t = _turn;
+    if (t != null && !t.isCompleted) t.complete(value);
+  }
+
+  Future<void> _cancelAssistant() async {
+    _session++;
+    _complete(null);
+    await _tts.stop();
+    if (_listening) {
+      await (_usingCloud ? _cloud.cancel() : _speech.cancel());
+    }
+    if (mounted) {
+      setState(() {
+        _assistantActive = false;
+        _speaking = false;
+        _assistantLine = '';
+      });
+    }
+  }
+
+  Future<void> _say(String text) async {
+    if (!mounted) return;
+    setState(() {
+      _assistantLine = text;
+      _speaking = true;
+    });
+    await _tts.speak(text);
+    if (mounted) setState(() => _speaking = false);
+  }
+
+  /// Listens for one answer. Returns null when nothing was understood.
+  Future<String?> _listenTurn() async {
+    final app = context.read<AppState>();
+    setState(() => _error = null);
+    _lastHeard = '';
+    _turn = Completer<String?>();
+    _usingCloud = app.useCloudVoice;
+    if (_usingCloud) {
+      await _cloud.start(
+        apiKey: app.groqKey,
+        localeId: app.speechLocale,
+        existing: '',
+      );
+    } else if (await _speech.init()) {
+      await _speech.start(localeId: app.speechLocale, existing: '', once: true);
+    } else {
+      _complete(null);
+    }
+    final result = await _turn!.future.timeout(
+      const Duration(seconds: 100),
+      onTimeout: () => null,
+    );
+    _turn = null;
+    return result;
+  }
+
+  static String _join(String a, String b) =>
+      [a, b].where((x) => x.trim().isNotEmpty).join(' ').trim();
+
+  String _urdu(String s) => urExact[s] ?? s;
+
+  Future<void> _runAssistant() async {
+    final my = ++_session;
+    bool alive() => mounted && _session == my;
+    final app = context.read<AppState>();
+    setState(() {
+      _assistantActive = true;
+      _error = null;
+      _text.clear();
+    });
+
+    await _say(UrduSpeech.greeting(app.userName, DateTime.now()));
+
+    var collected = '';
+    var silent = 0;
+    var unclear = 0;
+    var needOrder = true; // true: waiting for the order, false: for yes/no
+    while (alive()) {
+      final heard = await _listenTurn();
+      if (!alive()) return;
+      final text = (heard ?? '').trim();
+
+      if (text.isEmpty) {
+        silent++;
+        if (silent >= 2) {
+          await _say('کچھ سنائی نہیں دیا۔ جب تیار ہوں، مائیک دوبارہ دبائیں۔');
+          break;
+        }
+        await _say('معاف کیجیے، آواز صاف نہیں آئی۔ دوبارہ بتائیے۔');
+        continue;
+      }
+      silent = 0;
+
+      if (!needOrder) {
+        final reply = UrduSpeech.classify(text);
+        if (reply == Reply.yes) {
+          await _say('ٹھیک ہے۔ اب اسکرین پر دیکھ کر محفوظ کر لیجیے۔');
+          if (alive()) await _finishAssistant(collected);
+          return;
+        }
+        if (reply == Reply.no) {
+          collected = '';
+          needOrder = true;
+          setState(() => _text.clear());
+          await _say('کوئی بات نہیں، دوبارہ بتائیے۔');
+          continue;
+        }
+        // Not yes or no: maybe more items were added.
+        if (ExpenseParser.parse(text).items.isEmpty) {
+          unclear++;
+          if (unclear >= 2) {
+            await _say('ٹھیک ہے، اسکرین پر خود دیکھ لیجیے۔');
+            if (alive()) await _finishAssistant(collected);
+            return;
+          }
+          await _say('براہِ کرم ہاں یا نہیں کہیے۔');
+          continue;
+        }
+      }
+
+      // The order (or more items added to it).
+      unclear = 0;
+      collected = _join(collected, text);
+      final result = ExpenseParser.parse(collected);
+      setState(() {
+        _text.text = collected;
+        _text.selection = TextSelection.collapsed(offset: collected.length);
+      });
+      if (result.items.isEmpty) {
+        collected = '';
+        needOrder = true;
+        await _say(
+          'مجھے کوئی خرچہ سمجھ نہیں آیا۔ مثال کے طور پر کہیے، تین سو کا پیٹرول۔',
+        );
+        continue;
+      }
+      if (result.missingAmounts > 0) {
+        collected = '';
+        needOrder = true;
+        await _say('کسی خرچے کی رقم سنائی نہیں دی۔ پوری بات دوبارہ بتائیے۔');
+        continue;
+      }
+      needOrder = false;
+      await _say('${UrduSpeech.repeatOrder(result, _urdu)} کیا یہ ٹھیک ہے؟');
+    }
+
+    if (mounted && _session == my) {
+      setState(() {
+        _assistantActive = false;
+        _speaking = false;
+      });
+    }
+  }
+
+  Future<void> _finishAssistant(String collected) async {
+    if (!mounted) return;
+    setState(() {
+      _assistantActive = false;
+      _speaking = false;
+      _text.text = collected;
+    });
+    await _analyze();
   }
 
   void _permissionDialog(bool permanent) {
@@ -185,7 +397,23 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                 ? null
                 : (v) => v == null ? null : state.setSpeechLocale(v),
           ),
-          const SizedBox(height: 24),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            dense: true,
+            title: const Text(
+              'Talking assistant',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            subtitle: const Text(
+              'Greets you, listens, repeats your order and asks you to confirm',
+              style: TextStyle(fontSize: 12),
+            ),
+            value: state.assistantOn,
+            onChanged: _listening || _assistantActive
+                ? null
+                : (v) => state.setAssistantOn(v),
+          ),
+          const SizedBox(height: 16),
           Center(
             child: AnimatedBuilder(
               animation: _pulse,
@@ -205,7 +433,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                 elevation: 4,
                 child: InkWell(
                   customBorder: const CircleBorder(),
-                  onTap: _busy ? null : _toggle,
+                  onTap: _busy && !_assistantActive ? null : _toggle,
                   child: SizedBox(
                     width: 110,
                     height: 110,
@@ -218,7 +446,9 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
                             ),
                           )
                         : Icon(
-                            _listening ? Icons.stop : Icons.mic,
+                            _listening || _assistantActive
+                                ? Icons.stop
+                                : Icons.mic,
                             size: 56,
                             color: Colors.white,
                           ),
@@ -232,12 +462,41 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
             child: Text(
               _busy
                   ? 'Converting your voice to text…'
+                  : _speaking
+                  ? 'Assistant is speaking…'
                   : _listening
                   ? 'Listening… tap to stop'
                   : 'Tap the mic and speak',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
+          if (_assistantActive && _assistantLine.isNotEmpty)
+            AppCard(
+              margin: const EdgeInsets.only(top: 12),
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.record_voice_over_rounded,
+                      color: AppColors.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Directionality(
+                        textDirection: TextDirection.rtl,
+                        child: Text(
+                          _assistantLine,
+                          verbatim: true,
+                          style: const TextStyle(fontSize: 16, height: 1.8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (state.voiceEngine == 'cloud' && state.groqKey.trim().isEmpty)
             AppCard(
               margin: const EdgeInsets.only(top: 12),

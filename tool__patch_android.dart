@@ -43,6 +43,9 @@ void _patchManifest(File f) {
         <intent>
             <action android:name="android.speech.RecognitionService"/>
         </intent>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE"/>
+        </intent>
 ''';
   const receivers = '''
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>

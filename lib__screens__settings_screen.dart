@@ -216,6 +216,32 @@ class SettingsScreen extends StatelessWidget {
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => _editKey(context, s),
               ),
+              SwitchListTile(
+                secondary: const Icon(Icons.record_voice_over_outlined),
+                title: const Text(
+                  'Talking assistant',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Greets you, listens, repeats your order and asks you to confirm',
+                ),
+                value: s.assistantOn,
+                onChanged: (v) => s.setAssistantOn(v),
+              ),
+              ListTile(
+                enabled: s.assistantOn,
+                leading: const Icon(Icons.badge_outlined),
+                title: const Text(
+                  'Assistant name',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  s.userName.isEmpty ? '—' : s.userName,
+                  verbatim: true,
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: !s.assistantOn ? null : () => _editName(context, s),
+              ),
               ListTile(
                 leading: const Icon(Icons.language),
                 title: const Text(
@@ -294,6 +320,47 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _editName(BuildContext context, AppState s) async {
+    final c = TextEditingController(text: s.userName);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Assistant name'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'The assistant calls you by this name. Write it in Urdu so it is pronounced correctly.',
+              style: TextStyle(fontSize: 13),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: c,
+              textDirection: TextDirection.rtl,
+              decoration: const InputDecoration(
+                hintText: 'وقاص',
+                isDense: true,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, c.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    c.dispose();
+    if (result != null) await s.setUserName(result);
   }
 
   Future<void> _editKey(BuildContext context, AppState s) async {

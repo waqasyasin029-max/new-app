@@ -18,6 +18,7 @@ class SpeechService {
   String _committed = '';
   String _partial = '';
   String _locale = 'ur_PK';
+  bool _once = false;
 
   void Function(String text)? onText;
   void Function(bool listening)? onListening;
@@ -41,8 +42,13 @@ class SpeechService {
     return _ready;
   }
 
-  Future<void> start({required String localeId, String existing = ''}) async {
+  Future<void> start({
+    required String localeId,
+    String existing = '',
+    bool once = false,
+  }) async {
     _locale = localeId;
+    _once = once;
     _committed = existing.trim();
     _partial = '';
     _silentRounds = 0;
@@ -58,7 +64,7 @@ class SpeechService {
         onResult: _onResult,
         localeId: _locale,
         listenFor: const Duration(minutes: 2),
-        pauseFor: const Duration(seconds: 8),
+        pauseFor: Duration(seconds: _once ? 4 : 8),
         listenOptions: stt.SpeechListenOptions(
           partialResults: true,
           cancelOnError: false,
@@ -76,6 +82,16 @@ class SpeechService {
       await _stt.stop();
     } catch (_) {}
     _commitPartial();
+    onListening?.call(false);
+  }
+
+  /// Stops without producing any result (the user cancelled).
+  Future<void> cancel() async {
+    _want = false;
+    _partial = '';
+    try {
+      await _stt.cancel();
+    } catch (_) {}
     onListening?.call(false);
   }
 
@@ -111,6 +127,12 @@ class SpeechService {
     if (status != 'done' && status != 'notListening') return;
     _commitPartial();
     if (!_want) {
+      onListening?.call(false);
+      return;
+    }
+    if (_once && _gotWordsThisRound) {
+      // One answer is enough in assistant mode.
+      _want = false;
       onListening?.call(false);
       return;
     }
