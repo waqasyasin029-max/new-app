@@ -289,6 +289,19 @@ const Map<String, String> urExact = {
       'اے آئی کی مفت حد فی الحال پوری ہو گئی۔',
   'The AI could not understand. Please try again.':
       'اے آئی سمجھ نہیں سکا۔ دوبارہ کوشش کریں۔',
+  'Natural voice (ElevenLabs)': 'قدرتی آواز (ElevenLabs)',
+  'Human-like voice. Add your ElevenLabs key below.':
+      'انسان جیسی آواز۔ نیچے اپنی ElevenLabs کی شامل کریں۔',
+  'The assistant speaks with a natural voice. Without internet it uses the phone voice.': 'اسسٹنٹ قدرتی آواز میں بولتا ہے۔ انٹرنیٹ نہ ہو تو فون کی آواز استعمال ہوتی ہے۔',
+  'ElevenLabs key and voice': 'ElevenLabs کی اور آواز',
+  'Not added yet. Tap to add': 'ابھی شامل نہیں۔ شامل کرنے کے لیے دبائیں',
+  '1. Sign in at elevenlabs.io.\n2. Developers, API Keys: create a key and allow Text to Speech.\n3. Paste it here.\nOptional: paste a Voice ID from your Voices page to change the voice. Leave it empty for the default.': '1. elevenlabs.io پر سائن ان کریں۔\n2. Developers، API Keys میں کی بنائیں اور Text to Speech کی اجازت دیں۔\n3. اسے یہاں پیسٹ کریں۔\nاختیاری: آواز بدلنے کے لیے اپنے Voices صفحے سے Voice ID پیسٹ کریں۔ خالی چھوڑیں تو پہلے سے طے شدہ آواز ہو گی۔',
+  'The natural voice key is not valid. Using the phone voice.':
+      'قدرتی آواز کی درست نہیں۔ فون کی آواز استعمال ہو رہی ہے۔',
+  'Natural voice limit reached. Using the phone voice.':
+      'قدرتی آواز کی حد پوری ہو گئی۔ فون کی آواز استعمال ہو رہی ہے۔',
+  'Natural voice could not load. Using the phone voice.':
+      'قدرتی آواز لوڈ نہیں ہو سکی۔ فون کی آواز استعمال ہو رہی ہے۔',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

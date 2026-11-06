@@ -38,6 +38,9 @@ class AppState extends ChangeNotifier {
   String groqKey = '';
   bool assistantOn = true;
   bool smartAgent = true;
+  bool naturalVoice = true;
+  String elevenKey = '';
+  String elevenVoiceId = '';
   String userName = 'وقاص';
 
   bool get useCloudVoice => voiceEngine == 'cloud' && groqKey.trim().isNotEmpty;
@@ -75,6 +78,9 @@ class AppState extends ChangeNotifier {
     groqKey = prefs.getString('groq_key') ?? '';
     assistantOn = prefs.getBool('assistant_on') ?? true;
     smartAgent = prefs.getBool('smart_agent') ?? true;
+    naturalVoice = prefs.getBool('natural_voice') ?? true;
+    elevenKey = prefs.getString('eleven_key') ?? '';
+    elevenVoiceId = prefs.getString('eleven_voice') ?? '';
     userName = prefs.getString('user_name') ?? 'وقاص';
     applyLook();
   }
@@ -227,6 +233,22 @@ class AppState extends ChangeNotifier {
     assistantOn = on;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('assistant_on', on);
+    notifyListeners();
+  }
+
+  Future<void> setNaturalVoice(bool on) async {
+    naturalVoice = on;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('natural_voice', on);
+    notifyListeners();
+  }
+
+  Future<void> setEleven({required String key, required String voiceId}) async {
+    elevenKey = key.trim();
+    elevenVoiceId = voiceId.trim();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('eleven_key', elevenKey);
+    await prefs.setString('eleven_voice', elevenVoiceId);
     notifyListeners();
   }
 

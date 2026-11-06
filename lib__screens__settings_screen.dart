@@ -229,6 +229,37 @@ class SettingsScreen extends StatelessWidget {
                 onChanged: (v) => s.setAssistantOn(v),
               ),
               SwitchListTile(
+                secondary: const Icon(Icons.graphic_eq_rounded),
+                title: const Text(
+                  'Natural voice (ElevenLabs)',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  s.elevenKey.trim().isEmpty
+                      ? 'Human-like voice. Add your ElevenLabs key below.'
+                      : 'The assistant speaks with a natural voice. Without internet it uses the phone voice.',
+                ),
+                value: s.naturalVoice,
+                onChanged: s.assistantOn ? (v) => s.setNaturalVoice(v) : null,
+              ),
+              ListTile(
+                enabled: s.assistantOn && s.naturalVoice,
+                leading: const Icon(Icons.vpn_key_outlined),
+                title: const Text(
+                  'ElevenLabs key and voice',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  s.elevenKey.trim().isEmpty
+                      ? 'Not added yet. Tap to add'
+                      : 'Key saved on this phone',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: !(s.assistantOn && s.naturalVoice)
+                    ? null
+                    : () => _editEleven(context, s),
+              ),
+              SwitchListTile(
                 secondary: const Icon(Icons.psychology_outlined),
                 title: const Text(
                   'Smart conversation (AI)',
@@ -373,6 +404,75 @@ class SettingsScreen extends StatelessWidget {
     );
     c.dispose();
     if (result != null) await s.setUserName(result);
+  }
+
+  Future<void> _editEleven(BuildContext context, AppState s) async {
+    final key = TextEditingController(text: s.elevenKey);
+    final voice = TextEditingController(text: s.elevenVoiceId);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('ElevenLabs key and voice'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '1. Sign in at elevenlabs.io.\n'
+                '2. Developers, API Keys: create a key and allow Text to Speech.\n'
+                '3. Paste it here.\n'
+                'Optional: paste a Voice ID from your Voices page to change the voice. Leave it empty for the default.',
+                style: TextStyle(fontSize: 13),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: key,
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: const InputDecoration(
+                  hintText: 'API key',
+                  isDense: true,
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: voice,
+                autocorrect: false,
+                enableSuggestions: false,
+                decoration: const InputDecoration(
+                  hintText: 'Voice ID (optional)',
+                  isDense: true,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          if (s.elevenKey.isNotEmpty)
+            TextButton(
+              onPressed: () {
+                key.clear();
+                voice.clear();
+                Navigator.pop(ctx, true);
+              },
+              child: const Text('Remove'),
+            ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    final k = key.text, v = voice.text;
+    key.dispose();
+    voice.dispose();
+    if (ok == true) await s.setEleven(key: k, voiceId: v);
   }
 
   Future<void> _editKey(BuildContext context, AppState s) async {

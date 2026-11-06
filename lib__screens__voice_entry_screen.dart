@@ -135,6 +135,14 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       return;
     }
     if (app.assistantOn) {
+      _tts.configure(
+        key: app.elevenKey,
+        voiceId: app.elevenVoiceId,
+        enabled: app.naturalVoice,
+      );
+      _tts.onNotice = (m) {
+        if (mounted) setState(() => _error = m);
+      };
       if (await _tts.init()) {
         if (app.smartAgent && app.groqKey.trim().isNotEmpty) {
           unawaited(_runAgent());
