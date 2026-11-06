@@ -127,7 +127,7 @@ ThemeData buildAppTheme() {
       titleTextStyle: TextStyle(
         fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,
-        fontSize: 26,
+        fontSize: L10n.urdu ? 22 : 26,
         fontWeight: FontWeight.w700,
         color: AppColors.ink,
       ),

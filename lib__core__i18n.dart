@@ -65,13 +65,25 @@ class Text extends m.StatelessWidget {
     this.verbatim = false,
   });
 
+  static final _arabicScript = RegExp(r'[\u0600-\u06FF]');
+
   @override
-  m.Widget build(m.BuildContext context) => m.Text(
-    verbatim ? data : tr(data),
-    style: style,
-    maxLines: maxLines,
-    overflow: overflow,
-    textAlign: textAlign,
-    softWrap: softWrap,
-  );
+  m.Widget build(m.BuildContext context) {
+    final out = verbatim ? data : tr(data);
+    var st = style;
+    final fs = st?.fontSize;
+    // Nastaliq looks larger than English at the same size: headings in Urdu
+    // are drawn 4 px smaller (digits and English stay as they are).
+    if (L10n.urdu && fs != null && fs >= 17 && _arabicScript.hasMatch(out)) {
+      st = st!.copyWith(fontSize: fs - 4);
+    }
+    return m.Text(
+      out,
+      style: st,
+      maxLines: maxLines,
+      overflow: overflow,
+      textAlign: textAlign,
+      softWrap: softWrap,
+    );
+  }
 }
