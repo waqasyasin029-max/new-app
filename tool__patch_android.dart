@@ -104,6 +104,21 @@ void _patchGradle() {
       'android {',
       'android {\n    packaging {\n        jniLibs {\n            useLegacyPackaging = true\n        }\n    }',
     );
+    // Sign with our own fixed key so every update installs over the last one.
+    x = x.replaceFirst(
+      'buildTypes {',
+      'signingConfigs {\n        create("release") {\n'
+          '            storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")\n'
+          '            storePassword = "android"\n'
+          '            keyAlias = "androiddebugkey"\n'
+          '            keyPassword = "android"\n'
+          '            storeType = "pkcs12"\n'
+          '        }\n    }\n    buildTypes {',
+    );
+    x = x.replaceAll(
+      'signingConfigs.getByName("debug")',
+      'signingConfigs.getByName("release")',
+    );
     kts.writeAsStringSync(x);
     stdout.writeln('Patched build.gradle.kts');
   } else if (groovy.existsSync()) {
@@ -133,6 +148,17 @@ void _patchGradle() {
       'android {',
       'android {\n    packaging {\n        jniLibs {\n            useLegacyPackaging = true\n        }\n    }',
     );
+    x = x.replaceFirst(
+      'buildTypes {',
+      'signingConfigs {\n        release {\n'
+          "            storeFile file(System.getProperty('user.home') + '/.android/debug.keystore')\n"
+          "            storePassword 'android'\n"
+          "            keyAlias 'androiddebugkey'\n"
+          "            keyPassword 'android'\n"
+          "            storeType 'pkcs12'\n"
+          '        }\n    }\n    buildTypes {',
+    );
+    x = x.replaceAll('signingConfigs.debug', 'signingConfigs.release');
     groovy.writeAsStringSync(x);
     stdout.writeln('Patched build.gradle');
   } else {
