@@ -210,8 +210,9 @@ class AppState extends ChangeNotifier {
       } else {
         await NotificationService.cancelId(NotificationService.dinnerId);
       }
-    } catch (_) {
+    } catch (e) {
       // Never crash the app because a reminder could not be scheduled.
+      NotificationService.lastError ??= '$e';
     }
   }
 

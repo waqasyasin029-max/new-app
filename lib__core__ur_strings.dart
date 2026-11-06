@@ -303,6 +303,22 @@ const Map<String, String> urExact = {
   'Natural voice could not load. Using the phone voice.':
       'قدرتی آواز لوڈ نہیں ہو سکی۔ فون کی آواز استعمال ہو رہی ہے۔',
   'Show intro again': 'تعارفی اسکرینیں دوبارہ دیکھیں',
+  'Test reminder': 'ٹیسٹ یاد دہانی',
+  'Allow background running': 'پس منظر میں چلنے کی اجازت',
+  'Stops the phone battery saver from blocking reminders':
+      'فون کا بیٹری سیور یاد دہانی کو رکنے نہیں دیتا',
+  'Test reminder in 1 minute': '1 منٹ میں ٹیسٹ یاد دہانی',
+  'Tap, then lock the phone and wait. It should ring on time.':
+      'دبائیں، پھر فون لاک کر کے انتظار کریں۔ یہ وقت پر بجنی چاہیے۔',
+  'A test reminder will arrive in 1 minute.':
+      'ایک منٹ میں ٹیسٹ یاد دہانی آئے گی۔',
+  'Reminder status': 'یاد دہانی کی حالت',
+  'Notifications allowed': 'نوٹیفکیشن کی اجازت',
+  'Exact alarms': 'درست وقت کے الارم',
+  'Reminders scheduled': 'مقرر یاد دہانیاں',
+  'yes': 'ہاں',
+  'no': 'نہیں',
+  'NO': 'نہیں',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

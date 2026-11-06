@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../core/theme.dart';
@@ -138,6 +139,44 @@ class SettingsScreen extends StatelessWidget {
                   await s.applyReminder();
                 },
               ),
+              ListTile(
+                leading: const Icon(Icons.battery_saver_outlined),
+                title: const Text(
+                  'Allow background running',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Stops the phone battery saver from blocking reminders',
+                ),
+                onTap: () => Permission.ignoreBatteryOptimizations.request(),
+              ),
+              ListTile(
+                leading: const Icon(Icons.timer_outlined),
+                title: const Text(
+                  'Test reminder in 1 minute',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Tap, then lock the phone and wait. It should ring on time.',
+                ),
+                onTap: () async {
+                  final ok = await NotificationService.requestPermission();
+                  if (!ok && context.mounted) {
+                    snack(
+                      context,
+                      'Notification permission is off. Enable it in Android settings.',
+                    );
+                    return;
+                  }
+                  await NotificationService.scheduleTestIn(
+                    const Duration(minutes: 1),
+                  );
+                  if (context.mounted) {
+                    snack(context, 'A test reminder will arrive in 1 minute.');
+                  }
+                },
+              ),
+              const _ReminderStatusTile(),
               ListTile(
                 leading: const Icon(Icons.notification_add_outlined),
                 title: const Text(
@@ -585,4 +624,51 @@ class SettingsScreen extends StatelessWidget {
       ),
     ];
   }
+}
+
+/// Shows whether reminders are really set up, and any error.
+class _ReminderStatusTile extends StatefulWidget {
+  const _ReminderStatusTile();
+
+  @override
+  State<_ReminderStatusTile> createState() => _ReminderStatusTileState();
+}
+
+class _ReminderStatusTileState extends State<_ReminderStatusTile> {
+  late Future<String> _status = NotificationService.status();
+
+  Future<void> _refresh() async {
+    await context.read<AppState>().applyReminder();
+    if (mounted) setState(() => _status = NotificationService.status());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: _status,
+      builder: (context, snap) => ListTile(
+        leading: const Icon(Icons.fact_check_outlined),
+        title: const Text(
+          'Reminder status',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text(
+          snap.data == null ? '…' : _lines(snap.data!),
+          verbatim: true,
+        ),
+        trailing: const Icon(Icons.refresh),
+        onTap: _refresh,
+      ),
+    );
+  }
+
+  /// Translates each status line when the app is in Urdu.
+  String _lines(String raw) => raw
+      .split('\n')
+      .map((l) {
+        final i = l.indexOf(': ');
+        if (i < 0) return tr(l);
+        return '${tr(l.substring(0, i))}: ${tr(l.substring(i + 2))}';
+      })
+      .join('\n');
 }

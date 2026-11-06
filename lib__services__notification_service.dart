@@ -14,6 +14,9 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const String payloadRecord = 'record_expense';
+
+  /// Last scheduling error, shown in Settings so a failure is never silent.
+  static String? lastError;
   static const int _dailyId = 1001;
   static const String _channelId = 'daily_reminder';
   static const String _bodyEn = 'Have you recorded your expenses today?';
@@ -104,20 +107,62 @@ class NotificationService {
     var next = DateTime(now.year, now.month, now.day, time.hour, time.minute);
     if (!next.isAfter(now)) next = next.add(const Duration(days: 1));
     final exact = await canScheduleExact();
+    try {
+      await _plugin.zonedSchedule(
+        id,
+        title,
+        text,
+        tz.TZDateTime.from(next, tz.UTC),
+        _details,
+        androidScheduleMode: exact
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: payloadRecord,
+      );
+    } catch (e) {
+      lastError = '$e';
+      rethrow;
+    }
+  }
+
+  /// One-off reminder [after] from now, to prove that alarms really fire.
+  static Future<void> scheduleTestIn(Duration after) async {
+    final exact = await canScheduleExact();
     await _plugin.zonedSchedule(
-      id,
-      title,
-      text,
-      tz.TZDateTime.from(next, tz.UTC),
+      1005,
+      tr('Kharcha Tracker'),
+      tr('Test reminder'),
+      tz.TZDateTime.from(DateTime.now().add(after), tz.UTC),
       _details,
       androidScheduleMode: exact
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle,
       uiLocalNotificationDateInterpretation:
           UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time,
       payload: payloadRecord,
     );
+  }
+
+  /// Plain-words state of the reminders: allowed, exact, how many scheduled.
+  static Future<String> status() async {
+    try {
+      final allowed = await _android?.areNotificationsEnabled() ?? true;
+      final exact = await canScheduleExact();
+      final pending = await _plugin.pendingNotificationRequests();
+      final ids = {for (final p in pending) p.id};
+      final mine = ids
+          .where((i) => i == _dailyId || i == breakfastId || i == dinnerId)
+          .length;
+      final err = lastError == null ? '' : '\nError: $lastError';
+      return 'Notifications allowed: ${allowed ? 'yes' : 'NO'}\n'
+          'Exact alarms: ${exact ? 'yes' : 'no'}\n'
+          'Reminders scheduled: $mine$err';
+    } catch (e) {
+      return 'Could not read status: $e';
+    }
   }
 
   static Future<void> cancelId(int id) => _plugin.cancel(id);
