@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-
-import '../core/theme.dart';
-
 import 'package:provider/provider.dart';
 
 import '../core/format.dart';
+import '../core/theme.dart';
 import '../data/models.dart';
+import '../logic/account_matcher.dart';
 import '../logic/expense_parser.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
@@ -15,6 +14,7 @@ class _Draft {
   final TextEditingController desc;
   final String heard;
   int categoryId;
+  int? accountId;
   bool include = true;
   final bool amountMissing;
 
@@ -23,6 +23,7 @@ class _Draft {
     required String description,
     required this.categoryId,
     required this.heard,
+    this.accountId,
   }) : amount = TextEditingController(
          text: amt == null ? '' : Fmt.number(amt).replaceAll(',', ''),
        ),
@@ -37,7 +38,7 @@ class _Draft {
 }
 
 /// Shows detected expenses for review. Nothing is written to the database
-/// until the user presses "Save".
+/// until the user presses "Save". Every expense must have a "Paid from" account.
 class ConfirmExpensesScreen extends StatefulWidget {
   final String rawText;
   final ParseResult result;
@@ -55,18 +56,38 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
   final List<_Draft> _drafts = [];
   DateTime _date = Fmt.dateOnly(DateTime.now());
   bool _saving = false;
+  int? _allAccount;
 
   @override
   void initState() {
     super.initState();
     final state = context.read<AppState>();
-    for (final p in widget.result.items) {
+    final accs = [for (final a in state.accounts) (id: a.id, name: a.name)];
+    final perItem = <int?>[
+      for (final p in widget.result.items)
+        AccountMatcher.match(p.sourceText, accs),
+    ];
+    // If no single item named an account but the whole sentence names exactly one, use it for all.
+    final whole = perItem.every((x) => x == null)
+        ? AccountMatcher.match(widget.rawText, accs)
+        : null;
+    for (var i = 0; i < widget.result.items.length; i++) {
+      final p = widget.result.items[i];
+      final acc = perItem[i] ?? whole;
+      var desc = p.description;
+      if (acc != null) {
+        final stripped = AccountMatcher.strip(desc, accs);
+        desc = stripped.isEmpty
+            ? desc
+            : stripped[0].toUpperCase() + stripped.substring(1);
+      }
       _drafts.add(
         _Draft(
           amt: p.amount,
-          description: p.description,
+          description: desc,
           categoryId: state.categoryByName(p.category).id,
           heard: p.sourceText,
+          accountId: acc,
         ),
       );
     }
@@ -82,7 +103,8 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
 
   Iterable<_Draft> get _included => _drafts.where((d) => d.include);
   bool get _canSave =>
-      _included.isNotEmpty && _included.every((d) => d.value != null);
+      _included.isNotEmpty &&
+      _included.every((d) => d.value != null && d.accountId != null);
   double get _total => _included.fold<double>(0, (a, d) => a + (d.value ?? 0));
 
   void _addBlank() {
@@ -94,10 +116,18 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
           description: '',
           categoryId: state.categoryByName('Other').id,
           heard: '(added by you)',
+          accountId: _allAccount,
         ),
       ),
     );
   }
+
+  void _setAll(int id) => setState(() {
+    _allAccount = id;
+    for (final d in _drafts) {
+      d.accountId = id;
+    }
+  });
 
   Future<void> _pickDate() async {
     final d = await showDatePicker(
@@ -120,6 +150,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
         Expense(
           amount: d.value!,
           categoryId: d.categoryId,
+          accountId: d.accountId,
           description: d.desc.text.trim().isEmpty
               ? (state.categoryById(d.categoryId)?.name ?? 'Expense')
               : d.desc.text.trim(),
@@ -132,11 +163,19 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
       await state.expenses.insertMany(list);
       state.changed();
       final total = list.fold<double>(0, (a, e) => a + e.amount);
+      final used = {for (final e in list) e.accountId!};
+      final bals = await state.accountRepo.balances();
+      final left = [
+        for (final b in bals)
+          if (used.contains(b.account.id))
+            '${b.account.name} left ${Fmt.money(b.balance)}',
+      ].join(' • ');
       nav.popUntil((r) => r.isFirst);
       messenger.showSnackBar(
         SnackBar(
+          duration: const Duration(seconds: 6),
           content: Text(
-            'Saved ${list.length} expense${list.length == 1 ? '' : 's'} • ${Fmt.money(total)}',
+            'Saved ${list.length} expense${list.length == 1 ? '' : 's'} • ${Fmt.money(total)}\n$left',
           ),
         ),
       );
@@ -151,7 +190,8 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final missing = _included.where((d) => d.value == null).length;
+    final missingAmt = _included.where((d) => d.value == null).length;
+    final missingAcc = _included.where((d) => d.accountId == null).length;
     return Scaffold(
       appBar: AppBar(title: const Text('Confirm expenses')),
       body: Column(
@@ -161,47 +201,65 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
               padding: const EdgeInsets.all(12),
               children: [
                 AppCard(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'You said',
-                          style: Theme.of(context).textTheme.labelLarge,
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'You said',
+                        style: TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 12.5,
                         ),
-                        const SizedBox(height: 4),
-                        Text(widget.rawText),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(widget.rawText),
+                    ],
                   ),
                 ),
                 if (widget.result.items.isEmpty)
                   AppCard(
                     color: scheme.errorContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(
-                        'No expenses with amounts were recognised. Go back and correct the text, '
-                        'or add an expense below.',
-                        style: TextStyle(color: scheme.onErrorContainer),
-                      ),
+                    padding: const EdgeInsets.all(14),
+                    child: Text(
+                      'No expenses with amounts were recognised. Go back and correct the text, or add an expense below.',
+                      style: TextStyle(color: scheme.onErrorContainer),
                     ),
                   ),
                 if (widget.result.ignored.isNotEmpty)
                   AppCard(
                     color: scheme.tertiaryContainer,
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(
-                        'Not understood (not saved): ${widget.result.ignored.join(' • ')}',
-                        style: TextStyle(color: scheme.onTertiaryContainer),
-                      ),
+                    padding: const EdgeInsets.all(14),
+                    child: Text(
+                      'Not understood (not saved): ${widget.result.ignored.join(' • ')}',
+                      style: TextStyle(color: scheme.onTertiaryContainer),
                     ),
                   ),
+                AppCard(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Paid from (apply to all)',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 8),
+                      AccountChips(
+                        selectedId: _allAccount,
+                        onSelected: _setAll,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Cash, JazzCash, Naya Pay, Easypaisa or bank. You can change it per expense below.',
+                        style: TextStyle(color: AppColors.muted, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ),
                 OutlinedButton.icon(
                   onPressed: _pickDate,
-                  icon: const Icon(Icons.calendar_today),
+                  icon: const Icon(Icons.calendar_today, size: 18),
                   label: Text('Date for all: ${Fmt.date(_date)}'),
                 ),
                 const SizedBox(height: 8),
@@ -216,12 +274,10 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
           ),
           SafeArea(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              decoration: BoxDecoration(
-                color: scheme.surface,
-                boxShadow: const [
-                  BoxShadow(blurRadius: 6, color: Colors.black12),
-                ],
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [BoxShadow(blurRadius: 8, color: Colors.black12)],
               ),
               child: Row(
                 children: [
@@ -232,15 +288,23 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                       children: [
                         Text(
                           '${_included.length} expense${_included.length == 1 ? '' : 's'}',
+                          style: const TextStyle(color: AppColors.muted),
                         ),
                         Text(
                           Fmt.money(_total),
-                          style: Theme.of(context).textTheme.titleLarge
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
-                        if (missing > 0)
+                        if (missingAmt > 0)
                           Text(
-                            '$missing need an amount',
+                            '$missingAmt need an amount',
+                            style: TextStyle(color: scheme.error, fontSize: 12),
+                          ),
+                        if (missingAcc > 0)
+                          Text(
+                            '$missingAcc need "Paid from"',
                             style: TextStyle(color: scheme.error, fontSize: 12),
                           ),
                       ],
@@ -266,79 +330,83 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
   Widget _draftCard(int i, ColorScheme scheme) {
     final d = _drafts[i];
     final needsAmount = d.include && d.value == null;
+    final needsAccount = d.include && d.accountId == null;
     return AppCard(
-      color: d.include ? null : scheme.surfaceContainerHighest,
-      borderColor: needsAmount ? scheme.error : null,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      color: d.include ? null : const Color(0xFFF1F4F5),
+      borderColor: (needsAmount || needsAccount) ? scheme.error : null,
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Checkbox(
+                value: d.include,
+                onChanged: (v) => setState(() => d.include = v ?? true),
+              ),
+              Expanded(
+                child: Text(
+                  'Heard: ${d.heard}',
+                  style: const TextStyle(
+                    color: AppColors.muted,
+                    fontSize: 12.5,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: 'Remove',
+                onPressed: () => setState(() => _drafts.removeAt(i).dispose()),
+              ),
+            ],
+          ),
+          if (d.include) ...[
             Row(
               children: [
-                Checkbox(
-                  value: d.include,
-                  onChanged: (v) => setState(() => d.include = v ?? true),
-                ),
                 Expanded(
-                  child: Text(
-                    'Heard: ${d.heard}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  flex: 2,
+                  child: TextField(
+                    controller: d.amount,
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    onChanged: (_) => setState(() {}),
+                    decoration: InputDecoration(
+                      labelText: 'Amount (Rs)',
+                      errorText: needsAmount
+                          ? (d.amountMissing
+                                ? 'Amount not heard: enter it'
+                                : 'Invalid amount')
+                          : null,
+                    ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: 'Remove',
-                  onPressed: () => setState(() {
-                    _drafts.removeAt(i).dispose();
-                  }),
+                const SizedBox(width: 8),
+                Expanded(
+                  flex: 3,
+                  child: TextField(
+                    controller: d.desc,
+                    decoration: const InputDecoration(labelText: 'Description'),
+                  ),
                 ),
               ],
             ),
-            if (d.include) ...[
-              Row(
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: d.amount,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        labelText: 'Amount (Rs)',
-                        errorText: needsAmount
-                            ? (d.amountMissing
-                                  ? 'Amount not heard: enter it'
-                                  : 'Invalid amount')
-                            : null,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 3,
-                    child: TextField(
-                      controller: d.desc,
-                      decoration: const InputDecoration(
-                        labelText: 'Description',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              CategoryDropdown(
-                value: d.categoryId,
-                onChanged: (v) =>
-                    setState(() => d.categoryId = v ?? d.categoryId),
-              ),
-            ],
+            const SizedBox(height: 10),
+            CategoryDropdown(
+              value: d.categoryId,
+              onChanged: (v) =>
+                  setState(() => d.categoryId = v ?? d.categoryId),
+            ),
+            const SizedBox(height: 10),
+            AccountDropdown(
+              value: d.accountId,
+              errorText: needsAccount ? 'Choose where you paid from' : null,
+              onChanged: (v) => setState(() => d.accountId = v),
+            ),
           ],
-        ),
+        ],
       ),
     );
   }

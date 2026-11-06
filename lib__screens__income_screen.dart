@@ -70,6 +70,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
   Future<void> _addExtra() async {
     final amount = TextEditingController();
     final source = TextEditingController();
+    int? accId;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -90,6 +91,15 @@ class _IncomeScreenState extends State<IncomeScreen> {
               controller: source,
               decoration: const InputDecoration(
                 labelText: 'Source (bonus, freelance…)',
+              ),
+            ),
+            const SizedBox(height: 12),
+            StatefulBuilder(
+              builder: (c, setD) => AccountDropdown(
+                label: 'Add to account (optional)',
+                value: accId,
+                allowNone: true,
+                onChanged: (v) => setD(() => accId = v),
               ),
             ),
           ],
@@ -124,6 +134,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
       a,
       s.isEmpty ? 'Other income' : s,
       isCurrent ? Fmt.dateOnly(now) : _month,
+      accountId: accId,
     );
     state.changed();
   }

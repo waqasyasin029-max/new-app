@@ -11,8 +11,10 @@ class AppState extends ChangeNotifier {
   final categoryRepo = CategoryRepository();
   final expenses = ExpenseRepository();
   final incomes = IncomeRepository();
+  final accountRepo = AccountRepository();
 
   List<Category> categories = [];
+  List<Account> accounts = [];
   int revision = 0;
 
   bool reminderEnabled = true;
@@ -27,6 +29,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> init() async {
     categories = await categoryRepo.all();
+    accounts = await accountRepo.all();
     final prefs = await SharedPreferences.getInstance();
     reminderEnabled = prefs.getBool('reminder_enabled') ?? true;
     reminderTime = TimeOfDay(
@@ -46,6 +49,11 @@ class AppState extends ChangeNotifier {
       if (c.id == id) return c;
     }
     return null;
+  }
+
+  Future<void> reloadAccounts() async {
+    accounts = await accountRepo.all();
+    changed();
   }
 
   /// Call after any insert/update/delete.

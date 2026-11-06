@@ -22,6 +22,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
   late final TextEditingController _amount;
   late final TextEditingController _desc;
   late int _categoryId;
+  int? _accountId;
   late DateTime _date;
 
   bool get _editing => widget.expense != null;
@@ -36,6 +37,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
     );
     _desc = TextEditingController(text: e?.description ?? '');
     _categoryId = e?.categoryId ?? state.categoryByName('Other').id;
+    _accountId = e?.accountId;
     _date = e?.date ?? Fmt.dateOnly(DateTime.now());
   }
 
@@ -62,8 +64,13 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
       snack(context, 'Enter a valid amount greater than 0.');
       return;
     }
+    if (!_editing && _accountId == null) {
+      snack(context, 'Choose where you paid from.');
+      return;
+    }
     final state = context.read<AppState>();
     final e = Expense(
+      accountId: _accountId,
       id: widget.expense?.id,
       amount: amount,
       categoryId: _categoryId,
@@ -123,6 +130,12 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
           CategoryDropdown(
             value: _categoryId,
             onChanged: (v) => setState(() => _categoryId = v ?? _categoryId),
+          ),
+          const SizedBox(height: 16),
+          AccountDropdown(
+            value: _accountId,
+            allowNone: _editing && widget.expense!.accountId == null,
+            onChanged: (v) => setState(() => _accountId = v),
           ),
           const SizedBox(height: 16),
           OutlinedButton.icon(

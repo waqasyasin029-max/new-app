@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/account_style.dart';
 import '../core/category_style.dart';
 import '../core/format.dart';
 import '../core/theme.dart';
@@ -55,8 +56,14 @@ class ExpenseTile extends StatelessWidget {
         style: const TextStyle(fontWeight: FontWeight.w600),
       ),
       subtitle: Text(
-        showDate ? '$cat • ${Fmt.dayShort(expense.date)}' : cat,
+        [
+          cat,
+          if (showDate) Fmt.dayShort(expense.date),
+          if (expense.accountName != null) expense.accountName!,
+        ].join(' • '),
         style: const TextStyle(color: AppColors.muted, fontSize: 12.5),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -270,4 +277,91 @@ void snack(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
     ..showSnackBar(SnackBar(content: Text(message)));
+}
+
+/// "Paid from" selector. [value] null = nothing chosen yet.
+class AccountDropdown extends StatelessWidget {
+  final int? value;
+  final ValueChanged<int?> onChanged;
+  final String label;
+  final String? errorText;
+  final int? excludeId;
+  final bool allowNone;
+  const AccountDropdown({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    this.label = 'Paid from',
+    this.errorText,
+    this.excludeId,
+    this.allowNone = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final accounts = context
+        .read<AppState>()
+        .accounts
+        .where((a) => a.id != excludeId)
+        .toList();
+    final valid = accounts.any((a) => a.id == value);
+    return DropdownButtonFormField<int?>(
+      value: valid || (allowNone && value == null) ? value : null,
+      isExpanded: true,
+      decoration: InputDecoration(labelText: label, errorText: errorText),
+      items: [
+        if (allowNone)
+          const DropdownMenuItem<int?>(
+            value: null,
+            child: Text('Not linked to an account'),
+          ),
+        for (final a in accounts)
+          DropdownMenuItem<int?>(
+            value: a.id,
+            child: Row(
+              children: [
+                Icon(
+                  AccountStyle.icon(a.type),
+                  size: 18,
+                  color: AppColors.muted,
+                ),
+                const SizedBox(width: 8),
+                Flexible(child: Text(a.name, overflow: TextOverflow.ellipsis)),
+              ],
+            ),
+          ),
+      ],
+      onChanged: onChanged,
+    );
+  }
+}
+
+/// Tap-to-choose account chips (used to set one account for many items).
+class AccountChips extends StatelessWidget {
+  final int? selectedId;
+  final ValueChanged<int> onSelected;
+  const AccountChips({
+    super.key,
+    required this.selectedId,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final accounts = context.watch<AppState>().accounts;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 6,
+      children: [
+        for (final a in accounts)
+          ChoiceChip(
+            avatar: Icon(AccountStyle.icon(a.type), size: 16),
+            label: Text(a.name),
+            selected: selectedId == a.id,
+            selectedColor: AccountStyle.tint(a.type),
+            onSelected: (_) => onSelected(a.id),
+          ),
+      ],
+    );
+  }
 }

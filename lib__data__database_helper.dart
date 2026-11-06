@@ -16,6 +16,15 @@ class DatabaseHelper {
     'Other',
   ];
 
+  /// name, type (cash | wallet | bank)
+  static const defaultAccounts = [
+    ('Cash', 'cash'),
+    ('JazzCash', 'wallet'),
+    ('Naya Pay', 'wallet'),
+    ('Easypaisa', 'wallet'),
+    ('Meezan Bank', 'bank'),
+  ];
+
   Database? _db;
 
   Future<Database> get database async => _db ??= await _open();
@@ -24,7 +33,7 @@ class DatabaseHelper {
     final path = p.join(await getDatabasesPath(), 'kharcha.db');
     return openDatabase(
       path,
-      version: 1,
+      version: 2,
       onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
       onCreate: (db, v) async {
         await db.execute('''
@@ -41,6 +50,7 @@ class DatabaseHelper {
             date TEXT NOT NULL,
             source TEXT NOT NULL DEFAULT 'manual',
             raw_text TEXT,
+            account_id INTEGER,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY(category_id) REFERENCES categories(id))''');
         await db.execute('CREATE INDEX idx_expenses_date ON expenses(date)');
@@ -52,6 +62,7 @@ class DatabaseHelper {
             date TEXT NOT NULL,
             month TEXT NOT NULL,
             is_salary INTEGER NOT NULL DEFAULT 0,
+            account_id INTEGER,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)''');
         await db.execute('CREATE INDEX idx_incomes_month ON incomes(month)');
         final batch = db.batch();
@@ -59,7 +70,48 @@ class DatabaseHelper {
           batch.insert('categories', {'name': name, 'is_default': 1});
         }
         await batch.commit(noResult: true);
+        await _createAccountTables(db);
+      },
+      onUpgrade: (db, oldV, newV) async {
+        if (oldV < 2) {
+          await db.execute(
+            'ALTER TABLE expenses ADD COLUMN account_id INTEGER',
+          );
+          await db.execute('ALTER TABLE incomes ADD COLUMN account_id INTEGER');
+          await _createAccountTables(db);
+        }
       },
     );
+  }
+
+  Future<void> _createAccountTables(Database db) async {
+    await db.execute('''
+      CREATE TABLE accounts(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        type TEXT NOT NULL,
+        opening_balance REAL NOT NULL DEFAULT 0,
+        sort INTEGER NOT NULL DEFAULT 0)''');
+    await db.execute('''
+      CREATE TABLE transfers(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_id INTEGER NOT NULL,
+        to_id INTEGER NOT NULL,
+        amount REAL NOT NULL,
+        fee REAL NOT NULL DEFAULT 0,
+        date TEXT NOT NULL,
+        note TEXT NOT NULL DEFAULT '',
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)''');
+    final batch = db.batch();
+    var i = 0;
+    for (final a in defaultAccounts) {
+      batch.insert('accounts', {
+        'name': a.$1,
+        'type': a.$2,
+        'opening_balance': 0,
+        'sort': i++,
+      });
+    }
+    await batch.commit(noResult: true);
   }
 }

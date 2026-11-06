@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../core/account_style.dart';
 import '../core/category_style.dart';
 import '../core/format.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
+import 'accounts_screen.dart';
+import 'account_detail_screen.dart';
 import 'expense_edit_screen.dart';
 import 'history_screen.dart';
 import 'income_screen.dart';
+import 'settings_screen.dart';
 
 class _DashData {
   final SalaryInfo salary;
@@ -18,6 +22,7 @@ class _DashData {
   final List<Expense> today;
   final List<Expense> recent;
   final List<CategoryTotal> cats;
+  final List<AccountBalance> accounts;
   _DashData(
     this.salary,
     this.otherIncome,
@@ -26,9 +31,11 @@ class _DashData {
     this.today,
     this.recent,
     this.cats,
+    this.accounts,
   );
   double get income => salary.amount + otherIncome;
   double get remaining => income - monthExpenses;
+  double get inAccounts => accounts.fold<double>(0, (a, b) => a + b.balance);
 }
 
 class DashboardScreen extends StatelessWidget {
@@ -55,6 +62,7 @@ class DashboardScreen extends StatelessWidget {
             final todayList = await s.expenses.list(from: today, to: today);
             final recent = await s.expenses.list(limit: 8);
             final cats = await s.expenses.categoryTotals(month, end);
+            final accounts = await s.accountRepo.balances();
             return _DashData(
               salary,
               extras.fold<double>(0, (a, e) => a + e.amount),
@@ -63,6 +71,7 @@ class DashboardScreen extends StatelessWidget {
               todayList,
               recent,
               cats,
+              accounts,
             );
           },
           builder: (context, d) => _body(context, d, now),
@@ -73,17 +82,22 @@ class DashboardScreen extends StatelessWidget {
 
   Widget _body(BuildContext context, _DashData d, DateTime now) {
     final negative = d.remaining < 0;
-    final ratio = d.income > 0
-        ? (d.monthExpenses / d.income).clamp(0.0, 1.0).toDouble()
-        : 0.0;
-    final ringColor = ratio > 0.9 ? AppColors.danger : AppColors.primary;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(4, 8, 4, 16),
+          padding: const EdgeInsets.fromLTRB(2, 8, 2, 16),
           child: Row(
             children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.asset(
+                  'assets/icon/icon.png',
+                  width: 46,
+                  height: 46,
+                ),
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,105 +105,122 @@ class DashboardScreen extends StatelessWidget {
                     const Text(
                       'Overview',
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 24,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     Text(
-                      Fmt.month(now),
+                      Fmt.date(now),
                       style: const TextStyle(
                         color: AppColors.muted,
-                        fontSize: 14,
+                        fontSize: 13,
                       ),
                     ),
                   ],
                 ),
               ),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  'assets/icon/icon.png',
-                  width: 44,
-                  height: 44,
+              Material(
+                color: Colors.white,
+                shape: const CircleBorder(
+                  side: BorderSide(color: AppColors.line),
+                ),
+                child: IconButton(
+                  tooltip: 'Settings',
+                  icon: const Icon(Icons.settings_outlined),
+                  onPressed: () => _open(context, const SettingsScreen()),
                 ),
               ),
             ],
           ),
         ),
-        AppCard(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  ProgressRing(
-                    value: ratio,
-                    label: '${(ratio * 100).round()}%',
-                    caption: 'spent',
-                    color: ringColor,
-                  ),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Remaining balance',
-                          style: TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            Fmt.money(d.remaining),
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                              color: negative
-                                  ? AppColors.danger
-                                  : AppColors.ink,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          d.income > 0
-                              ? 'of ${Fmt.money(d.income)} income'
-                              : 'Set your salary to begin',
+        // Hero banner
+        GestureDetector(
+          onTap: () => _open(context, const AccountsScreen()),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.lavender,
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Money in your accounts',
+                        style: TextStyle(fontSize: 13),
+                      ),
+                      const SizedBox(height: 4),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          Fmt.money(d.inAccounts),
                           style: const TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 12.5,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white54,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Spent today ${Fmt.money(d.todayTotal)}',
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  _MiniStat(
-                    label: 'Monthly salary',
-                    value: Fmt.money(d.salary.amount),
-                    onTap: () => _open(context, const IncomeScreen()),
+                ),
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(
+                    color: Colors.white54,
+                    shape: BoxShape.circle,
                   ),
-                  Container(width: 1, height: 36, color: AppColors.line),
-                  _MiniStat(
-                    label: 'Spent this month',
-                    value: Fmt.money(d.monthExpenses),
-                    color: Colors.deepOrange,
-                  ),
-                ],
-              ),
-            ],
+                  child: const Icon(Icons.account_balance_wallet, size: 28),
+                ),
+              ],
+            ),
           ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _PastelTile(
+              label: 'Monthly salary',
+              value: Fmt.money(d.salary.amount),
+              color: AppColors.mint,
+              onTap: () => _open(context, const IncomeScreen()),
+            ),
+            const SizedBox(width: 10),
+            _PastelTile(
+              label: 'Spent this month',
+              value: Fmt.money(d.monthExpenses),
+              color: AppColors.peach,
+            ),
+            const SizedBox(width: 10),
+            _PastelTile(
+              label: 'Left of salary',
+              value: Fmt.money(d.remaining),
+              color: AppColors.sky,
+              valueColor: negative ? AppColors.danger : null,
+            ),
+          ],
         ),
         if (d.salary.amount == 0)
           AppCard(
@@ -204,10 +235,87 @@ class DashboardScreen extends StatelessWidget {
                 'Set your monthly salary',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: Text('Needed to calculate your remaining balance.'),
+              subtitle: Text(
+                'Needed to calculate what is left of your salary.',
+              ),
               trailing: Icon(Icons.chevron_right),
             ),
           ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 16, 0, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Your accounts',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              TextButton(
+                onPressed: () => _open(context, const AccountsScreen()),
+                child: const Text('See all'),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 112,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: d.accounts.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 10),
+            itemBuilder: (_, i) {
+              final b = d.accounts[i];
+              return SizedBox(
+                width: 150,
+                child: Material(
+                  color: AccountStyle.tint(b.account.type),
+                  borderRadius: BorderRadius.circular(22),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(22),
+                    onTap: () => _open(
+                      context,
+                      AccountDetailScreen(accountId: b.account.id),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(AccountStyle.icon(b.account.type), size: 24),
+                          const Spacer(),
+                          Text(
+                            b.account.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.5,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              Fmt.money(b.balance),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 15,
+                                color: b.balance < 0
+                                    ? AppColors.danger
+                                    : AppColors.ink,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
         const SectionTitle('Categories this month'),
         const SizedBox(height: 6),
         if (d.cats.isEmpty)
@@ -220,7 +328,7 @@ class DashboardScreen extends StatelessWidget {
           )
         else
           SizedBox(
-            height: 112,
+            height: 104,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: d.cats.length,
@@ -272,43 +380,54 @@ class DashboardScreen extends StatelessWidget {
       );
 }
 
-class _MiniStat extends StatelessWidget {
+class _PastelTile extends StatelessWidget {
   final String label;
   final String value;
-  final Color? color;
+  final Color color;
+  final Color? valueColor;
   final VoidCallback? onTap;
-  const _MiniStat({
+  const _PastelTile({
     required this.label,
     required this.value,
-    this.color,
+    required this.color,
+    this.valueColor,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) => Expanded(
-    child: InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Column(
-          children: [
-            Text(
-              label,
-              style: const TextStyle(color: AppColors.muted, fontSize: 12),
-            ),
-            const SizedBox(height: 4),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  color: color ?? AppColors.ink,
+    child: Material(
+      color: color,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: const TextStyle(fontSize: 11.5),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: valueColor ?? AppColors.ink,
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     ),

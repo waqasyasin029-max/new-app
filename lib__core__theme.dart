@@ -9,6 +9,12 @@ class AppColors {
   static const danger = Color(0xFFE5484D);
   static const bgTop = Color(0xFFEAF3F4);
   static const bgBottom = Color(0xFFFCEBEC);
+  static const mint = Color(0xFFCDEFD8);
+  static const sky = Color(0xFFC5E8F2);
+  static const peach = Color(0xFFFFD9A0);
+  static const lavender = Color(0xFFD3C8FF);
+  static const rose = Color(0xFFF9CDEF);
+  static const navy = Color(0xFF0B1220);
 }
 
 /// Soft pastel gradient behind every screen (like the reference design).
