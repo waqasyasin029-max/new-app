@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'core/i18n.dart' show L10n;
 import 'core/theme.dart';
-import 'screens/splash_screen.dart';
+import 'screens/onboarding_screen.dart';
 import 'screens/voice_entry_screen.dart';
 import 'services/notification_service.dart';
 import 'services/update_service.dart';
@@ -47,8 +47,7 @@ Future<void> main() async {
       final payload = await NotificationService.launchPayload();
       if (payload == NotificationService.payloadRecord) openRecordScreen();
     } catch (_) {}
-    // Wait for the splash to finish so the update dialog does not cover it.
-    Future.delayed(const Duration(milliseconds: 2400), _checkForUpdateOnLaunch);
+    _checkForUpdateOnLaunch();
   });
 }
 
@@ -134,7 +133,7 @@ class _KharchaAppState extends State<KharchaApp> with WidgetsBindingObserver {
           child: AppBackground(child: child),
         ),
       ),
-      home: const SplashGate(),
+      home: const OnboardingGate(),
     );
   }
 }

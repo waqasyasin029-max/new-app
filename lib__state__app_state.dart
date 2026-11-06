@@ -33,6 +33,7 @@ class AppState extends ChangeNotifier {
 
   /// 'en' | 'ur'
   String language = 'en';
+  bool onboardingDone = true;
 
   static const speechLocales = {
     'ur_PK': 'اردو (Urdu / Roman Urdu)',
@@ -62,6 +63,7 @@ class AppState extends ChangeNotifier {
     );
     themeMode = prefs.getString('theme_mode') ?? 'system';
     language = prefs.getString('language') ?? 'en';
+    onboardingDone = prefs.getBool('onboarding_done') ?? false;
     applyLook();
   }
 
@@ -71,6 +73,13 @@ class AppState extends ChangeNotifier {
     if (themeMode == 'light') return false;
     return WidgetsBinding.instance.platformDispatcher.platformBrightness ==
         Brightness.dark;
+  }
+
+  Future<void> finishOnboarding() async {
+    onboardingDone = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_done', true);
   }
 
   /// Pushes the chosen theme and language into the globals the UI reads.

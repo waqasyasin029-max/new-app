@@ -244,6 +244,17 @@ const Map<String, String> urExact = {
   'Developed by': 'تیار کردہ',
   'Waqas Yasin': 'وقاص یاسین',
   'Made in Pakistan': 'پاکستان میں بنائی گئی',
+  'Speak, don\'t type': 'ٹائپ نہیں، بولیں',
+  'Just say what you spent, in Roman Urdu, Urdu or English. The app writes it down for you.': 'بس بولیں کہ کیا خرچ کیا، رومن اردو، اردو یا انگلش میں۔ ایپ خود لکھ لے گی۔',
+  'Check before saving': 'محفوظ کرنے سے پہلے دیکھیں',
+  'Every expense appears on a confirmation screen first. Fix the amount, category or account, then save.': 'ہر خرچ پہلے تصدیقی اسکرین پر آتا ہے۔ رقم، زمرہ یا اکاؤنٹ درست کریں، پھر محفوظ کریں۔',
+  'All your accounts in one place': 'آپ کے تمام اکاؤنٹس ایک جگہ',
+  'Cash, JazzCash, Naya Pay, Easypaisa and Meezan Bank. Track balances, withdraw, transfer and match your real balance.': 'نقد، جاز کیش، نیا پے، ایزی پیسہ اور میزان بینک۔ بیلنس دیکھیں، رقم نکالیں، منتقل کریں اور اصل بیلنس سے ملائیں۔',
+  'Reports, salary and reminders': 'رپورٹس، تنخواہ اور یاد دہانی',
+  'See history and monthly reports, track your salary, and get friendly reminders at breakfast, dinner and 11 PM. Light or dark, English or Urdu, fully offline.': 'ہسٹری اور ماہانہ رپورٹس دیکھیں، تنخواہ کا حساب رکھیں، اور ناشتے، رات کے کھانے اور رات 11 بجے دوستانہ یاد دہانی پائیں۔ لائٹ یا ڈارک، انگلش یا اردو، مکمل آف لائن۔',
+  'Skip': 'چھوڑیں',
+  'Next': 'اگلا',
+  'Get started': 'شروع کریں',
 };
 
 const Map<String, String> urTemplates = {
