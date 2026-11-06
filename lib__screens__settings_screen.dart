@@ -8,6 +8,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
+import 'onboarding_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
 
@@ -334,6 +335,20 @@ class SettingsScreen extends StatelessWidget {
                     showUpdateDialog(context, r.update!);
                   }
                 },
+              ),
+              ListTile(
+                leading: const Icon(Icons.slideshow_rounded),
+                title: const Text(
+                  'Show intro again',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const OnboardingScreen(replay: true),
+                  ),
+                ),
               ),
               ListTile(
                 leading: const Icon(Icons.info_outline),

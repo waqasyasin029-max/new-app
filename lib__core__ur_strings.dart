@@ -302,6 +302,7 @@ const Map<String, String> urExact = {
       'قدرتی آواز کی حد پوری ہو گئی۔ فون کی آواز استعمال ہو رہی ہے۔',
   'Natural voice could not load. Using the phone voice.':
       'قدرتی آواز لوڈ نہیں ہو سکی۔ فون کی آواز استعمال ہو رہی ہے۔',
+  'Show intro again': 'تعارفی اسکرینیں دوبارہ دیکھیں',
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',

@@ -55,7 +55,9 @@ const _pages = <_Page>[
 ];
 
 class OnboardingScreen extends StatefulWidget {
-  const OnboardingScreen({super.key});
+  /// True when opened again from Settings: closing just goes back.
+  final bool replay;
+  const OnboardingScreen({super.key, this.replay = false});
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
@@ -73,9 +75,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   bool get _last => _index == _pages.length - 1;
 
+  void _finish() {
+    if (widget.replay) {
+      Navigator.of(context).pop();
+    } else {
+      context.read<AppState>().finishOnboarding();
+    }
+  }
+
   void _next() {
     if (_last) {
-      context.read<AppState>().finishOnboarding();
+      _finish();
     } else {
       _controller.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -111,7 +121,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     opacity: _last ? 0 : 1,
                     duration: const Duration(milliseconds: 200),
                     child: TextButton(
-                      onPressed: _last ? null : s.finishOnboarding,
+                      onPressed: _last ? null : _finish,
                       child: Text(
                         'Skip',
                         style: TextStyle(
