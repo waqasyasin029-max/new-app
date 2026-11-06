@@ -16,6 +16,20 @@ class NotificationService {
   static const String _bodyEn = 'Have you recorded your expenses today?';
   static String get body => tr(_bodyEn);
 
+  // Meal reminders (light-hearted on purpose).
+  static const int breakfastId = 1003;
+  static const int dinnerId = 1004;
+  static const String _breakfastTitle = 'Breakfast time';
+  static const String _breakfastBodyEn =
+      'Had breakfast? Add what it cost, your wallet wants to know! 😄';
+  static const String _dinnerTitle = 'Dinner time';
+  static const String _dinnerBodyEn =
+      'Dinner done? Belly is full, now fill the khata too! 😄';
+  static String get breakfastTitle => tr(_breakfastTitle);
+  static String get breakfastBody => tr(_breakfastBodyEn);
+  static String get dinnerTitle => tr(_dinnerTitle);
+  static String get dinnerBody => tr(_dinnerBodyEn);
+
   /// Called when the user taps a notification while the app is running.
   static void Function(String? payload)? onTap;
 
@@ -68,16 +82,29 @@ class NotificationService {
   /// Schedules (or re-schedules) the repeating daily reminder at [time] local time.
   /// The instant is expressed in UTC so no timezone database lookup is needed;
   /// the app re-schedules on every launch so it stays correct.
-  static Future<void> scheduleDaily(TimeOfDay time) async {
-    await _plugin.cancel(_dailyId);
+  static Future<void> scheduleDaily(TimeOfDay time) => scheduleAt(
+    id: _dailyId,
+    time: time,
+    title: 'Kharcha Tracker',
+    text: body,
+  );
+
+  /// Repeats every day at [time]; re-scheduling the same [id] replaces it.
+  static Future<void> scheduleAt({
+    required int id,
+    required TimeOfDay time,
+    required String title,
+    required String text,
+  }) async {
+    await _plugin.cancel(id);
     final now = DateTime.now();
     var next = DateTime(now.year, now.month, now.day, time.hour, time.minute);
     if (!next.isAfter(now)) next = next.add(const Duration(days: 1));
     final exact = await canScheduleExact();
     await _plugin.zonedSchedule(
-      _dailyId,
-      'Kharcha Tracker',
-      body,
+      id,
+      title,
+      text,
       tz.TZDateTime.from(next, tz.UTC),
       _details,
       androidScheduleMode: exact
@@ -89,6 +116,8 @@ class NotificationService {
       payload: payloadRecord,
     );
   }
+
+  static Future<void> cancelId(int id) => _plugin.cancel(id);
 
   static Future<void> cancel() => _plugin.cancel(_dailyId);
 

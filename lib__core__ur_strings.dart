@@ -214,6 +214,15 @@ const Map<String, String> urExact = {
   'Easypaisa': 'ایزی پیسہ',
   'Meezan Bank': 'میزان بینک',
   'Withdrawal': 'رقم نکلوانا',
+  'Had breakfast? Add what it cost, your wallet wants to know! 😄':
+      'ناشتہ کر لیا؟ بتا دیں کتنے کا پڑا، آپ کا بٹوہ جاننا چاہتا ہے! 😄',
+  'Dinner done? Belly is full, now fill the khata too! 😄':
+      'رات کا کھانا ہو گیا؟ پیٹ بھر گیا، اب کھاتا بھی بھر دیں! 😄',
+  'Breakfast time': 'ناشتے کا وقت',
+  'Dinner time': 'رات کے کھانے کا وقت',
+  'Meal reminders': 'کھانے کی یاد دہانی',
+  'Breakfast reminder': 'ناشتے کی یاد دہانی',
+  'Dinner reminder': 'رات کے کھانے کی یاد دہانی',
 };
 
 const Map<String, String> urTemplates = {

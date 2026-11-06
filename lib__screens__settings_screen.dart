@@ -156,6 +156,29 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SectionTitle('Meal reminders'),
+          TileGroup(
+            children: [
+              ..._mealTiles(
+                context,
+                s,
+                meal: 'breakfast',
+                title: 'Breakfast reminder',
+                icon: Icons.free_breakfast_outlined,
+                enabled: s.breakfastEnabled,
+                time: s.breakfastTime,
+              ),
+              ..._mealTiles(
+                context,
+                s,
+                meal: 'dinner',
+                title: 'Dinner reminder',
+                icon: Icons.dinner_dining_outlined,
+                enabled: s.dinnerEnabled,
+                time: s.dinnerTime,
+              ),
+            ],
+          ),
           const SectionTitle('Voice input'),
           TileGroup(
             children: [
@@ -225,5 +248,52 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// A switch row plus a time row for one meal reminder.
+  List<Widget> _mealTiles(
+    BuildContext context,
+    AppState s, {
+    required String meal,
+    required String title,
+    required IconData icon,
+    required bool enabled,
+    required TimeOfDay time,
+  }) {
+    return [
+      SwitchListTile(
+        secondary: Icon(icon),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(time.format(context)),
+        value: enabled,
+        onChanged: (v) => s.setMealReminder(meal, enabled: v),
+      ),
+      ListTile(
+        enabled: enabled,
+        leading: const Icon(Icons.access_time),
+        title: const Text(
+          'Reminder time',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        subtitle: Text(time.format(context)),
+        onTap: !enabled
+            ? null
+            : () async {
+                final t = await showTimePicker(
+                  context: context,
+                  initialTime: time,
+                );
+                if (t != null) {
+                  await s.setMealReminder(meal, time: t);
+                  if (context.mounted) {
+                    snack(
+                      context,
+                      'Reminder set for ${t.format(context)} daily.',
+                    );
+                  }
+                }
+              },
+      ),
+    ];
   }
 }
