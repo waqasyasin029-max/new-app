@@ -82,9 +82,12 @@ class GeminiApi {
           throw GeminiError('The Gemini key is not valid or not allowed.');
         }
         if (c == 429) {
-          throw GeminiError(
-            'Gemini free limit reached for now. Wait a minute or try tomorrow.',
+          // Each model has its own free limit: try the next one.
+          last = GeminiError(
+            'Gemini free limit reached for now ($m). Wait a while or try tomorrow.',
+            tryNext: true,
           );
+          break;
         }
         if (c == 400 && d.toLowerCase().contains('api key')) {
           throw GeminiError('The Gemini key is not valid.');

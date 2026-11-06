@@ -160,8 +160,10 @@ class GeminiTts {
         throw GeminiError('The Gemini key is not valid or not allowed.');
       }
       if (c == 429) {
+        // Each model has its own free limit: try the next one.
         throw GeminiError(
-          'Gemini free limit reached for now. Wait a minute or try tomorrow.',
+          'Gemini free voice limit reached for now ($model). Wait a while or try tomorrow.',
+          tryNext: true,
         );
       }
       throw GeminiError(
