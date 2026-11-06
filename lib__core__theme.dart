@@ -7,44 +7,53 @@ class AppColors {
   static bool dark = false;
 
   // Brand colours: identical in both themes.
-  static const primary = Color(0xFF0E9F78);
+  static const primary = Color(0xFFEE6F2B);
+  static const primaryDeep = Color(0xFFE8602C);
+  static const primarySoft = Color(0xFFF5A032);
   static const gold = Color(0xFFF5B301);
   static const danger = Color(0xFFE5484D);
 
+  /// Money coming in / everything is fine.
+  static const positive = Color(0xFF16A34A);
+
+  /// Orange gradient used for the main card, the mic button and highlights.
+  static const gradient = LinearGradient(
+    begin: AlignmentDirectional.centerStart,
+    end: AlignmentDirectional.centerEnd,
+    colors: [primaryDeep, primarySoft],
+  );
+
   // Everything below changes with the theme.
   static Color get ink =>
-      dark ? const Color(0xFFF2F5F9) : const Color(0xFF111827);
+      dark ? const Color(0xFFF4F4F6) : const Color(0xFF16161A);
   static Color get muted =>
-      dark ? const Color(0xFF9AA7B8) : const Color(0xFF6B7280);
+      dark ? const Color(0xFF9A9AA6) : const Color(0xFF8B8B95);
   static Color get line =>
-      dark ? const Color(0xFF283445) : const Color(0xFFE6ECEE);
-  static Color get surface => dark ? const Color(0xFF18212D) : Colors.white;
+      dark ? const Color(0xFF2C2D34) : const Color(0xFFE9E9ED);
+  static Color get surface => dark ? const Color(0xFF1A1B20) : Colors.white;
   static Color get bgTop =>
-      dark ? const Color(0xFF0C131C) : const Color(0xFFEAF3F4);
+      dark ? const Color(0xFF0E0F12) : const Color(0xFFF8F8FA);
   static Color get bgBottom =>
-      dark ? const Color(0xFF160F1B) : const Color(0xFFFCEBEC);
-  static Color get mint =>
-      dark ? const Color(0xFF1F4D3E) : const Color(0xFFCDEFD8);
-  static Color get sky =>
-      dark ? const Color(0xFF1F4759) : const Color(0xFFC5E8F2);
-  static Color get peach =>
-      dark ? const Color(0xFF5B4222) : const Color(0xFFFFD9A0);
-  static Color get lavender =>
-      dark ? const Color(0xFF3E3772) : const Color(0xFFD3C8FF);
-  static Color get rose =>
-      dark ? const Color(0xFF5B2E4F) : const Color(0xFFF9CDEF);
-  static Color get navy =>
-      dark ? const Color(0xFF2C3B57) : const Color(0xFF0B1220);
+      dark ? const Color(0xFF131418) : const Color(0xFFEFEFF3);
 
-  /// Translucent white chip on top of a coloured card.
-  static Color get softWhite =>
-      dark ? const Color(0x2EFFFFFF) : const Color(0x8AFFFFFF);
+  /// Small tiles and account cards: clean white (light) or a lifted grey (dark).
+  static Color get tile => dark ? const Color(0xFF1F2026) : Colors.white;
+  static Color get mint => tile;
+  static Color get sky => tile;
+  static Color get peach => tile;
+  static Color get lavender => tile;
+  static Color get rose => tile;
+  static Color get navy =>
+      dark ? const Color(0xFF2B2C34) : const Color(0xFF17181D);
+
+  /// Translucent white chip on top of the orange card.
+  static Color get softWhite => const Color(0x38FFFFFF);
   static Color get noteBg =>
-      dark ? const Color(0xFF3A3217) : const Color(0xFFFFF6DC);
+      dark ? const Color(0xFF3A2E1C) : const Color(0xFFFFF4E5);
   static Color get fieldFill =>
-      dark ? const Color(0xFF1F2937) : const Color(0xFFEFF4F5);
+      dark ? const Color(0xFF22232A) : const Color(0xFFF0F0F4);
   static Color get disabledBg =>
-      dark ? const Color(0xFF202A38) : const Color(0xFFF1F4F5);
+      dark ? const Color(0xFF23242B) : const Color(0xFFF3F3F6);
 }
 
 /// Soft gradient behind every screen (pastel in light, deep navy in dark).
@@ -358,6 +367,9 @@ class AppCard extends StatelessWidget {
       padding: margin,
       child: Material(
         color: color ?? AppColors.surface,
+        elevation: AppColors.dark ? 0 : 1.5,
+        shadowColor: const Color(0x26000000),
+        surfaceTintColor: Colors.transparent,
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),

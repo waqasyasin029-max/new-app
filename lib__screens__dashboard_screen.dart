@@ -135,7 +135,7 @@ class DashboardScreen extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.lavender,
+              gradient: AppColors.gradient,
               borderRadius: BorderRadius.circular(28),
             ),
             child: Row(
@@ -144,7 +144,10 @@ class DashboardScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Spent today', style: TextStyle(fontSize: 14)),
+                      Text(
+                        'Spent today',
+                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      ),
                       const SizedBox(height: 4),
                       FittedBox(
                         fit: BoxFit.scaleDown,
@@ -154,6 +157,7 @@ class DashboardScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 38,
                             fontWeight: FontWeight.w700,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -176,6 +180,7 @@ class DashboardScreen extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -189,7 +194,11 @@ class DashboardScreen extends StatelessWidget {
                     color: AppColors.softWhite,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.payments_outlined, size: 28),
+                  child: const Icon(
+                    Icons.payments_outlined,
+                    size: 28,
+                    color: Colors.white,
+                  ),
                 ),
               ],
             ),

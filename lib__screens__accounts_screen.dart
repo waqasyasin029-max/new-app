@@ -40,7 +40,7 @@ class AccountsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.lavender,
+                  gradient: AppColors.gradient,
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: Column(
@@ -48,7 +48,7 @@ class AccountsScreen extends StatelessWidget {
                   children: [
                     Text(
                       'Total money you have',
-                      style: TextStyle(fontSize: 13, color: AppColors.ink),
+                      style: const TextStyle(fontSize: 13, color: Colors.white),
                     ),
                     const SizedBox(height: 4),
                     FittedBox(
@@ -58,6 +58,7 @@ class AccountsScreen extends StatelessWidget {
                         style: const TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
                       ),
                     ),

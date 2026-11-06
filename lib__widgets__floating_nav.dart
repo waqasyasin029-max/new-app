@@ -84,7 +84,7 @@ class FloatingNav extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [Color(0xFFFFC83D), Color(0xFFF59E0B)],
+                        colors: [Color(0xFFE8602C), Color(0xFFF5A032)],
                       ),
                     ),
                     child: const Icon(Icons.mic, color: Colors.white, size: 28),

@@ -70,6 +70,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             label: 'Income',
                             value: Fmt.money(d.income),
                             icon: Icons.payments,
+                            color: AppColors.positive,
                           ),
                         ),
                         Expanded(
@@ -91,7 +92,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             icon: Icons.savings,
                             color: remaining < 0
                                 ? AppColors.danger
-                                : AppColors.primary,
+                                : AppColors.positive,
                           ),
                         ),
                         Expanded(

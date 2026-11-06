@@ -130,7 +130,7 @@ Future<void> showReconcileDialog(
           msg = const Text(
             'Matches. Everything is recorded correctly.',
             style: TextStyle(
-              color: AppColors.primary,
+              color: AppColors.positive,
               fontWeight: FontWeight.w600,
             ),
           );

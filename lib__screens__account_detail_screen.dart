@@ -263,7 +263,7 @@ class AccountDetailScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             color:
                                 (i.delta >= 0
-                                        ? AppColors.primary
+                                        ? AppColors.positive
                                         : AppColors.danger)
                                     .withOpacity(0.12),
                             shape: BoxShape.circle,
@@ -272,7 +272,7 @@ class AccountDetailScreen extends StatelessWidget {
                             i.delta >= 0 ? Icons.south_west : Icons.north_east,
                             size: 18,
                             color: i.delta >= 0
-                                ? AppColors.primary
+                                ? AppColors.positive
                                 : AppColors.danger,
                           ),
                         ),
@@ -300,7 +300,7 @@ class AccountDetailScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 color: i.delta >= 0
-                                    ? AppColors.primary
+                                    ? AppColors.positive
                                     : AppColors.ink,
                               ),
                             ),
