@@ -138,6 +138,7 @@ class _VoiceEntryScreenState extends State<VoiceEntryScreen>
       _tts.configure(
         key: app.elevenKey,
         voiceId: app.elevenVoiceId,
+        model: app.elevenModel,
         enabled: app.naturalVoice,
       );
       _tts.onNotice = (m) {

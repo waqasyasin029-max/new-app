@@ -12,7 +12,10 @@ import 'package:path_provider/path_provider.dart';
 /// internet / key / limit fails.
 class TtsService {
   static const defaultVoiceId = 'pNInz6obpgDQGcFmaJgB';
-  static const _models = ['eleven_v3', 'eleven_multilingual_v2'];
+  static const _autoModels = ['eleven_v3', 'eleven_multilingual_v2'];
+
+  /// The chosen model first, then the automatic ones as a safety net.
+  List<String> _models = _autoModels;
 
   final FlutterTts _tts = FlutterTts();
   final AudioPlayer _player = AudioPlayer();
@@ -35,12 +38,18 @@ class TtsService {
     required String key,
     required String voiceId,
     required bool enabled,
+    String model = '',
   }) {
     final k = enabled ? key.trim() : '';
-    if (k != _key) {
+    final m = model.trim();
+    final list = m.isEmpty
+        ? _autoModels
+        : [m, ..._autoModels.where((e) => e != m)];
+    if (k != _key || list.first != _models.first) {
       _cloudBroken = false;
       _modelIndex = 0;
     }
+    _models = list;
     _key = k;
     _voice = voiceId.trim().isEmpty ? defaultVoiceId : voiceId.trim();
   }

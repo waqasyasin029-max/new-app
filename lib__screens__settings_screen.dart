@@ -480,6 +480,7 @@ class SettingsScreen extends StatelessWidget {
     tts.configure(
       key: s.elevenKey,
       voiceId: s.elevenVoiceId,
+      model: s.elevenModel,
       enabled: s.naturalVoice,
     );
     final ok = await tts.init();
@@ -507,87 +508,141 @@ class SettingsScreen extends StatelessWidget {
     await tts.dispose();
   }
 
+  static const _voices = <(String, String)>[
+    ('Adam (male, deep)', 'pNInz6obpgDQGcFmaJgB'),
+    ('Josh (male, young)', 'TxGEqnHWrfWFTfGW9XjX'),
+    ('Antoni (male, soft)', 'ErXwobaYiN019PkySvjV'),
+    ('Arnold (male, strong)', 'VR6AewLTigWG4xSOukaG'),
+    ('Rachel (female, calm)', '21m00Tcm4TlvDq8ikWAM'),
+    ('Bella (female, soft)', 'EXAVITQu4vr4xnSDxMaL'),
+    ('Elli (female, young)', 'MF3mGyEYCl7XYWbV9V6O'),
+    ('Domi (female, strong)', 'AZnzlk1XvdvUeBnXmlld'),
+  ];
+
+  static const _models = <(String, String)>[
+    ('Automatic (best first)', ''),
+    ('Eleven v3 (most natural)', 'eleven_v3'),
+    ('Multilingual v2 (stable)', 'eleven_multilingual_v2'),
+    ('Turbo v2.5 (faster)', 'eleven_turbo_v2_5'),
+    ('Flash v2.5 (fastest)', 'eleven_flash_v2_5'),
+  ];
+
   Future<void> _editEleven(BuildContext context, AppState s) async {
     final key = TextEditingController(text: s.elevenKey);
-    final voice = TextEditingController(text: s.elevenVoiceId);
+    final custom = TextEditingController();
+    final known = _voices.any((v) => v.$2 == s.elevenVoiceId);
+    // '' means the default voice, 'custom' means the Voice ID box is used.
+    var voiceSel = s.elevenVoiceId.isEmpty
+        ? _voices.first.$2
+        : (known ? s.elevenVoiceId : 'custom');
+    if (voiceSel == 'custom') custom.text = s.elevenVoiceId;
+    var modelSel = _models.any((m) => m.$2 == s.elevenModel)
+        ? s.elevenModel
+        : '';
     final ok = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('ElevenLabs key and voice'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                '1. Sign in at elevenlabs.io.\n'
-                '2. Developers, API Keys: create a key and allow Text to Speech.\n'
-                '3. Paste it here.\n'
-                'Optional: paste a Voice ID from your Voices page to change the voice. Leave it empty for the default.',
-                style: TextStyle(fontSize: 13),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: key,
-                autocorrect: false,
-                enableSuggestions: false,
-                decoration: const InputDecoration(
-                  hintText: 'API key',
-                  isDense: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSt) => AlertDialog(
+          title: const Text('ElevenLabs key and voice'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  '1. Sign in at elevenlabs.io.\n'
+                  '2. Developers, API Keys: create a key and allow Text to Speech.\n'
+                  '3. Paste it here.',
+                  style: TextStyle(fontSize: 13),
                 ),
-              ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                children: [
-                  ActionChip(
-                    label: const Text('Male voice'),
-                    onPressed: () => voice.text = 'pNInz6obpgDQGcFmaJgB',
+                const SizedBox(height: 12),
+                TextField(
+                  controller: key,
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  decoration: const InputDecoration(
+                    hintText: 'API key',
+                    isDense: true,
                   ),
-                  ActionChip(
-                    label: const Text('Female voice'),
-                    onPressed: () => voice.text = '21m00Tcm4TlvDq8ikWAM',
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: voice,
-                autocorrect: false,
-                enableSuggestions: false,
-                decoration: const InputDecoration(
-                  hintText: 'Voice ID (optional)',
-                  isDense: true,
                 ),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          if (s.elevenKey.isNotEmpty)
-            TextButton(
-              onPressed: () {
-                key.clear();
-                voice.clear();
-                Navigator.pop(ctx, true);
-              },
-              child: const Text('Remove'),
+                const SizedBox(height: 14),
+                const Text(
+                  'Voice',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                DropdownButton<String>(
+                  isExpanded: true,
+                  value: voiceSel,
+                  items: [
+                    for (final v in _voices)
+                      DropdownMenuItem(value: v.$2, child: Text(v.$1)),
+                    const DropdownMenuItem(
+                      value: 'custom',
+                      child: Text('Other (paste Voice ID)'),
+                    ),
+                  ],
+                  onChanged: (v) => setSt(() => voiceSel = v ?? voiceSel),
+                ),
+                if (voiceSel == 'custom')
+                  TextField(
+                    controller: custom,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    decoration: const InputDecoration(
+                      hintText: 'Voice ID from your Voices page',
+                      isDense: true,
+                    ),
+                  ),
+                const SizedBox(height: 14),
+                const Text(
+                  'Model',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                DropdownButton<String>(
+                  isExpanded: true,
+                  value: modelSel,
+                  items: [
+                    for (final m in _models)
+                      DropdownMenuItem(value: m.$2, child: Text(m.$1)),
+                  ],
+                  onChanged: (v) => setSt(() => modelSel = v ?? modelSel),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'After saving, use "Hear the voice" to test it.',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
             ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Save'),
-          ),
-        ],
+          actions: [
+            if (s.elevenKey.isNotEmpty)
+              TextButton(
+                onPressed: () {
+                  key.clear();
+                  voiceSel = _voices.first.$2;
+                  modelSel = '';
+                  Navigator.pop(ctx, true);
+                },
+                child: const Text('Remove'),
+              ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
       ),
     );
-    final k = key.text, v = voice.text;
+    final k = key.text;
+    final v = voiceSel == 'custom' ? custom.text.trim() : voiceSel;
     key.dispose();
-    voice.dispose();
-    if (ok == true) await s.setEleven(key: k, voiceId: v);
+    custom.dispose();
+    if (ok == true) await s.setEleven(key: k, voiceId: v, model: modelSel);
   }
 
   Future<void> _editKey(BuildContext context, AppState s) async {
