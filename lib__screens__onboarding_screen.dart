@@ -32,9 +32,9 @@ class _Page {
 
 const _pages = <_Page>[
   _Page(
-    Icons.mic_rounded,
-    'Speak, don\'t type',
-    'Just say what you spent, in Roman Urdu, Urdu or English. The app writes it down for you.',
+    Icons.edit_note_rounded,
+    'Just write it',
+    'Write what you spent, in Roman Urdu, Urdu or English. The assistant sorts it out and you confirm.',
   ),
   _Page(
     Icons.fact_check_rounded,

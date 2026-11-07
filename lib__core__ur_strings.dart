@@ -107,8 +107,8 @@ const Map<String, String> urExact = {
   'Needed to calculate what is left of your salary.':
       'تنخواہ میں سے کتنا بچا، یہ نکالنے کے لیے ضروری ہے۔',
   'New update available': 'نئی اپ ڈیٹ دستیاب ہے',
-  'No expenses recorded today. Tap the mic and speak them.':
-      'آج کوئی خرچ درج نہیں ہوا۔ مائیک دبائیں اور بولیں۔',
+  'No expenses recorded today. Tap the write button and type them.':
+      'آج کوئی خرچ درج نہیں ہوا۔ لکھنے والا بٹن دبائیں اور لکھیں۔',
   'No expenses this month.': 'اس مہینے کوئی خرچ نہیں۔',
   'No expenses with amounts were recognised. Go back and correct the text, or add an expense below.': 'رقم والا کوئی خرچ نہیں پہچانا گیا۔ واپس جا کر متن درست کریں، یا نیچے خرچ شامل کریں۔',
   'No salary set yet.': 'ابھی تنخواہ مقرر نہیں۔',
@@ -228,8 +228,8 @@ const Map<String, String> urExact = {
   'About Kharcha Tracker': 'خرچہ ٹریکر کے بارے میں',
   'Your daily expense diary': 'آپ کی روزانہ خرچ کی ڈائری',
   'What it does': 'یہ کیا کرتی ہے',
-  'Speak your expenses in Roman Urdu, Urdu or English':
-      'اپنے خرچے رومن اردو، اردو یا انگلش میں بول کر درج کریں',
+  'Type your expenses in Roman Urdu, Urdu or English, or ask the assistant':
+      'اپنے خرچے رومن اردو، اردو یا انگلش میں لکھیں، یا اسسٹنٹ سے پوچھیں',
   'Check and fix everything before it is saved':
       'محفوظ ہونے سے پہلے ہر چیز دیکھیں اور درست کریں',
   'Cash, JazzCash, Naya Pay, Easypaisa and bank accounts with balances':
@@ -244,8 +244,8 @@ const Map<String, String> urExact = {
   'Developed by': 'تیار کردہ',
   'Waqas Yasin': 'وقاص یاسین',
   'Made in Pakistan': 'پاکستان میں بنائی گئی',
-  'Speak, don\'t type': 'ٹائپ نہیں، بولیں',
-  'Just say what you spent, in Roman Urdu, Urdu or English. The app writes it down for you.': 'بس بولیں کہ کیا خرچ کیا، رومن اردو، اردو یا انگلش میں۔ ایپ خود لکھ لے گی۔',
+  'Just write it': 'بس لکھ دیں',
+  'Write what you spent, in Roman Urdu, Urdu or English. The assistant sorts it out and you confirm.': 'رومن اردو، اردو یا انگلش میں لکھیں کہ کیا خرچ کیا۔ اسسٹنٹ ترتیب دے دے گا اور آپ تصدیق کریں گے۔',
   'Check before saving': 'محفوظ کرنے سے پہلے دیکھیں',
   'Every expense appears on a confirmation screen first. Fix the amount, category or account, then save.': 'ہر خرچ پہلے تصدیقی اسکرین پر آتا ہے۔ رقم، زمرہ یا اکاؤنٹ درست کریں، پھر محفوظ کریں۔',
   'All your accounts in one place': 'آپ کے تمام اکاؤنٹس ایک جگہ',
@@ -491,4 +491,26 @@ const Map<String, String> urTemplates = {
   'AI voice failed (HTTP {})': 'اے آئی وائس ناکام (HTTP {0})',
   'Voice error: {}': 'آواز کی خرابی: {0}',
   'Could not start the microphone: {}': 'مائیک شروع نہیں ہو سکا: {0}',
+  'Ready to save': 'محفوظ کرنے کے لیے تیار',
+  'Tell the assistant which account this was paid from.':
+      'اسسٹنٹ کو بتائیں کہ یہ کس اکاؤنٹ سے ادا ہوا۔',
+  'Add your free Gemini key to chat with the assistant. Quick entry works without it.': 'اسسٹنٹ سے بات کرنے کے لیے اپنی مفت جیمنائی کی ڈالیں۔ فوری اندراج اس کے بغیر بھی چلتا ہے۔',
+  'Type here, like: aaj 300 ka petrol': 'یہاں لکھیں، جیسے: آج 300 کا پیٹرول',
+  'Send': 'بھیجیں',
+  'Your expenses': 'آپ کے اخراجات',
+  'Works offline. Nothing is saved until you confirm it on the next screen.': 'انٹرنیٹ کے بغیر چلتا ہے۔ اگلی سکرین پر تصدیق سے پہلے کچھ محفوظ نہیں ہوتا۔',
+  'Assistant': 'اسسٹنٹ',
+  'New chat': 'نئی بات چیت',
+  'Chat': 'بات چیت',
+  'Quick entry': 'فوری اندراج',
+  'Type your expenses first.': 'پہلے اپنے اخراجات لکھیں۔',
+  'Gemini took too long (over 75 seconds). Try again.':
+      'جیمنائی نے بہت دیر لگائی (75 سیکنڈ سے زیادہ)۔ دوبارہ کوشش کریں۔',
+  'Add or ask': 'لکھیں یا پوچھیں',
+  'Gemini assistant (key)': 'جیمنائی اسسٹنٹ (کی)',
+  'Key saved. Tap to change it or test it':
+      'کی محفوظ ہے۔ بدلنے یا ٹیسٹ کرنے کے لیے دبائیں',
+  'Gemini assistant': 'جیمنائی اسسٹنٹ',
+  'Saved.': 'محفوظ ہو گیا۔',
+  '1. Open aistudio.google.com/apikey and create a free key.\n2. Paste it here and tap Save.\n3. Tap Check assistant to make sure it works.': '1. aistudio.google.com/apikey کھولیں اور مفت کی بنائیں۔\n2. اسے یہاں پیسٹ کریں اور محفوظ کریں دبائیں۔\n3. اسسٹنٹ چیک کریں دبا کر دیکھیں کہ چل رہا ہے۔',
 };

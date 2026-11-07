@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'core/i18n.dart' show L10n;
 import 'core/theme.dart';
 import 'screens/onboarding_screen.dart';
-import 'screens/voice_entry_screen.dart';
+import 'screens/assistant_screen.dart';
 import 'services/notification_service.dart';
 import 'services/update_service.dart';
 import 'widgets/update_dialog.dart';
@@ -15,7 +15,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void openRecordScreen() {
   navigatorKey.currentState?.push(
-    MaterialPageRoute(builder: (_) => const VoiceEntryScreen()),
+    MaterialPageRoute(builder: (_) => const AssistantScreen()),
   );
 }
 

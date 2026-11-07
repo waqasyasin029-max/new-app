@@ -10,8 +10,8 @@ class AboutScreen extends StatelessWidget {
 
   static const _features = <(IconData, String)>[
     (
-      Icons.mic_none_rounded,
-      'Speak your expenses in Roman Urdu, Urdu or English',
+      Icons.edit_note_rounded,
+      'Type your expenses in Roman Urdu, Urdu or English, or ask the assistant',
     ),
     (Icons.fact_check_outlined, 'Check and fix everything before it is saved'),
     (

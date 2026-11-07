@@ -5,7 +5,7 @@ import 'accounts_screen.dart';
 import 'dashboard_screen.dart';
 import 'history_screen.dart';
 import 'reports_screen.dart';
-import 'voice_entry_screen.dart';
+import 'assistant_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -33,7 +33,7 @@ class _HomeShellState extends State<HomeShell> {
         onTab: (i) => setState(() => _index = i),
         onMic: () => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const VoiceEntryScreen()),
+          MaterialPageRoute(builder: (_) => const AssistantScreen()),
         ),
       ),
     );

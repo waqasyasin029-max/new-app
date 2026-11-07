@@ -49,6 +49,29 @@ class ConfirmExpensesScreen extends StatefulWidget {
     required this.result,
   });
 
+  /// Opens the review as a pop-up sheet over the current screen instead of a
+  /// new page. Completes with true once the expenses were saved.
+  static Future<bool?> show(
+    BuildContext context, {
+    required String rawText,
+    required ParseResult result,
+  }) {
+    return showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      clipBehavior: Clip.antiAlias,
+      builder: (ctx) => SizedBox(
+        height: MediaQuery.of(ctx).size.height * 0.92,
+        child: ConfirmExpensesScreen(rawText: rawText, result: result),
+      ),
+    );
+  }
+
   @override
   State<ConfirmExpensesScreen> createState() => _ConfirmExpensesScreenState();
 }
@@ -171,7 +194,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
           if (used.contains(b.account.id))
             tr('${b.account.name} left ${Fmt.money(b.balance)}'),
       ].join(' • ');
-      nav.popUntil((r) => r.isFirst);
+      nav.pop(true);
       messenger.showSnackBar(
         SnackBar(
           duration: const Duration(seconds: 6),
@@ -194,7 +217,17 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
     final missingAmt = _included.where((d) => d.value == null).length;
     final missingAcc = _included.where((d) => d.accountId == null).length;
     return Scaffold(
-      appBar: AppBar(title: const Text('Confirm expenses')),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: const Text('Confirm expenses'),
+        actions: [
+          IconButton(
+            tooltip: tr('Close'),
+            icon: const Icon(Icons.close),
+            onPressed: () => Navigator.of(context).pop(false),
+          ),
+        ],
+      ),
       body: Column(
         children: [
           Expanded(
