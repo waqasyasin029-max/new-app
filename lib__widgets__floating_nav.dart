@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../core/i18n.dart' show tr;
 
-/// Dark floating pill navigation (selected tab = white circle) with a gold write button in the middle.
+/// Floating pill navigation that follows the theme: dark pill in dark mode,
+/// white pill in light mode (selected tab = contrasting circle) with a gold write button in the middle.
 class FloatingNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTab;
@@ -30,12 +31,16 @@ class FloatingNav extends StatelessWidget {
           height: 50,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: selected ? Colors.white : Colors.transparent,
+            color: selected
+                ? (AppColors.dark ? Colors.white : AppColors.navy)
+                : Colors.transparent,
           ),
           child: Icon(
             selected ? on : off,
             size: 24,
-            color: selected ? AppColors.navy : Colors.white70,
+            color: selected
+                ? (AppColors.dark ? AppColors.navy : Colors.white)
+                : (AppColors.dark ? Colors.white70 : AppColors.muted),
           ),
         ),
       ),
@@ -51,13 +56,16 @@ class FloatingNav extends StatelessWidget {
         child: Container(
           height: 68,
           decoration: BoxDecoration(
-            color: AppColors.navy,
+            color: AppColors.dark ? AppColors.navy : Colors.white,
             borderRadius: BorderRadius.circular(34),
-            boxShadow: const [
+            border: AppColors.dark ? null : Border.all(color: AppColors.line),
+            boxShadow: [
               BoxShadow(
                 blurRadius: 18,
-                offset: Offset(0, 6),
-                color: Colors.black26,
+                offset: const Offset(0, 6),
+                color: AppColors.dark
+                    ? Colors.black26
+                    : const Color(0x1A000000),
               ),
             ],
           ),
