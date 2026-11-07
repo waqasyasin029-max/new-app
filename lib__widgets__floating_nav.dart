@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../core/i18n.dart' show tr;
 
-/// Dark floating pill navigation (selected tab = white circle) with a gold mic in the middle.
+/// Dark floating pill navigation (selected tab = white circle) with a gold write button in the middle.
 class FloatingNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTab;
@@ -72,7 +72,7 @@ class FloatingNav extends StatelessWidget {
                 'History',
               ),
               Semantics(
-                label: 'Speak your expenses',
+                label: 'Add or ask',
                 button: true,
                 child: GestureDetector(
                   onTap: onMic,
@@ -87,7 +87,11 @@ class FloatingNav extends StatelessWidget {
                         colors: [Color(0xFFE8602C), Color(0xFFF5A032)],
                       ),
                     ),
-                    child: const Icon(Icons.mic, color: Colors.white, size: 28),
+                    child: const Icon(
+                      Icons.edit_note_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
                   ),
                 ),
               ),

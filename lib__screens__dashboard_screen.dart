@@ -353,7 +353,7 @@ class DashboardScreen extends StatelessWidget {
           AppCard(
             padding: EdgeInsets.all(18),
             child: Text(
-              'No expenses recorded today. Tap the mic and speak them.',
+              'No expenses recorded today. Tap the write button and type them.',
               style: TextStyle(color: AppColors.muted),
             ),
           )

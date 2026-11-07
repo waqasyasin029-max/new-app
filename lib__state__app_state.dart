@@ -21,7 +21,6 @@ class AppState extends ChangeNotifier {
 
   bool reminderEnabled = true;
   TimeOfDay reminderTime = const TimeOfDay(hour: 23, minute: 0);
-  String speechLocale = 'ur_PK';
 
   bool breakfastEnabled = true;
   TimeOfDay breakfastTime = const TimeOfDay(hour: 12, minute: 0);
@@ -34,34 +33,8 @@ class AppState extends ChangeNotifier {
   /// 'en' | 'ur'
   String language = 'en';
   bool onboardingDone = true;
-  String voiceEngine = 'cloud'; // 'cloud' (AI) or 'phone'
-  String groqKey = '';
-  bool assistantOn = true;
   String userName = 'وقاص';
-  String geminiTtsOk = '';
-  String upliftKey = '';
-  String upliftVoice = '';
   String geminiKey = '';
-  String geminiVoice = 'Kore';
-  String geminiModel = '';
-
-  /// Which service turns speech into text: Groq (Whisper) if its key is
-  /// there, otherwise Gemini, otherwise the phone's own recogniser.
-  String get sttProvider {
-    if (voiceEngine != 'cloud') return '';
-    if (groqKey.trim().isNotEmpty) return 'groq';
-    if (geminiKey.trim().isNotEmpty) return 'gemini';
-    return '';
-  }
-
-  String get sttKey => sttProvider == 'groq' ? groqKey : geminiKey;
-  bool get useCloudVoice => sttProvider.isNotEmpty;
-
-  static const speechLocales = {
-    'ur_PK': 'اردو (Urdu / Roman Urdu)',
-    'en_PK': 'English (Pakistan)',
-    'en_US': 'English (US)',
-  };
 
   Future<void> init() async {
     categories = await categoryRepo.all();
@@ -72,7 +45,6 @@ class AppState extends ChangeNotifier {
       hour: prefs.getInt('reminder_hour') ?? 23,
       minute: prefs.getInt('reminder_minute') ?? 0,
     );
-    speechLocale = prefs.getString('speech_locale') ?? 'ur_PK';
     breakfastEnabled = prefs.getBool('breakfast_enabled') ?? true;
     breakfastTime = TimeOfDay(
       hour: prefs.getInt('breakfast_hour') ?? 12,
@@ -86,16 +58,8 @@ class AppState extends ChangeNotifier {
     themeMode = prefs.getString('theme_mode') ?? 'system';
     language = prefs.getString('language') ?? 'en';
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
-    voiceEngine = prefs.getString('voice_engine') ?? 'cloud';
-    groqKey = prefs.getString('groq_key') ?? '';
-    assistantOn = prefs.getBool('assistant_on') ?? true;
     userName = prefs.getString('user_name') ?? 'وقاص';
-    geminiTtsOk = prefs.getString('gemini_tts_ok') ?? '';
-    upliftKey = prefs.getString('uplift_key') ?? '';
-    upliftVoice = prefs.getString('uplift_voice') ?? '';
     geminiKey = prefs.getString('gemini_key') ?? '';
-    geminiVoice = prefs.getString('gemini_voice') ?? 'Kore';
-    geminiModel = prefs.getString('gemini_model') ?? '';
     applyLook();
   }
 
@@ -230,36 +194,6 @@ class AppState extends ChangeNotifier {
     }
   }
 
-  Future<void> setSpeechLocale(String locale) async {
-    speechLocale = locale;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('speech_locale', locale);
-    notifyListeners();
-  }
-
-  Future<void> setVoiceEngine(String engine) async {
-    voiceEngine = engine;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('voice_engine', engine);
-    notifyListeners();
-  }
-
-  Future<void> setUplift({required String key, required String voice}) async {
-    upliftKey = key.trim();
-    upliftVoice = voice.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('uplift_key', upliftKey);
-    await prefs.setString('uplift_voice', upliftVoice);
-    notifyListeners();
-  }
-
-  Future<void> setAssistantOn(bool on) async {
-    assistantOn = on;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('assistant_on', on);
-    notifyListeners();
-  }
-
   Future<void> setUserName(String name) async {
     userName = name.trim();
     final prefs = await SharedPreferences.getInstance();
@@ -267,28 +201,10 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setGemini({
-    required String key,
-    required String voice,
-    required String model,
-    String ok = '',
-  }) async {
-    if (ok.isNotEmpty) geminiTtsOk = ok;
+  Future<void> setGeminiKey(String key) async {
     geminiKey = key.trim();
-    geminiVoice = voice;
-    geminiModel = model;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('gemini_key', geminiKey);
-    await prefs.setString('gemini_voice', geminiVoice);
-    await prefs.setString('gemini_model', geminiModel);
-    await prefs.setString('gemini_tts_ok', geminiTtsOk);
-    notifyListeners();
-  }
-
-  Future<void> setGroqKey(String key) async {
-    groqKey = key.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('groq_key', groqKey);
     notifyListeners();
   }
 }

@@ -9,8 +9,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
-import 'gemini_voice_screen.dart';
-import 'uplift_voice_screen.dart';
+import 'gemini_setup_screen.dart';
 import 'onboarding_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
@@ -222,56 +221,10 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SectionTitle('Voice input'),
+          const SectionTitle('Assistant'),
           TileGroup(
             children: [
               ListTile(
-                leading: const Icon(Icons.auto_awesome),
-                title: const Text(
-                  'Voice engine',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: SegmentedButton<String>(
-                    showSelectedIcon: false,
-                    segments: const [
-                      ButtonSegment(value: 'cloud', label: Text('AI (better)')),
-                      ButtonSegment(value: 'phone', label: Text('Phone')),
-                    ],
-                    selected: {s.voiceEngine},
-                    onSelectionChanged: (v) => s.setVoiceEngine(v.first),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.key_outlined),
-                title: const Text(
-                  'AI voice key',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  s.groqKey.trim().isEmpty
-                      ? 'Not added yet. Tap to add a free key'
-                      : 'Key saved on this phone',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _editKey(context, s),
-              ),
-              SwitchListTile(
-                secondary: const Icon(Icons.record_voice_over_outlined),
-                title: const Text(
-                  'Talking assistant',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: const Text(
-                  'Talks with you, saves your expenses and answers questions',
-                ),
-                value: s.assistantOn,
-                onChanged: (v) => s.setAssistantOn(v),
-              ),
-              ListTile(
-                enabled: s.assistantOn,
                 leading: const Icon(Icons.badge_outlined),
                 title: const Text(
                   'Assistant name',
@@ -282,58 +235,23 @@ class SettingsScreen extends StatelessWidget {
                   verbatim: true,
                 ),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: !s.assistantOn ? null : () => _editName(context, s),
+                onTap: () => _editName(context, s),
               ),
               ListTile(
                 leading: const Icon(Icons.auto_awesome),
                 title: const Text(
-                  'Gemini assistant (key and voice)',
+                  'Gemini assistant (key)',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
                   s.geminiKey.trim().isEmpty
                       ? 'Not added yet. Free key from Google AI Studio'
-                      : 'Key saved. Tap to change the voice or test it',
+                      : 'Key saved. Tap to change it or test it',
                 ),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const GeminiVoiceScreen()),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.graphic_eq),
-                title: const Text(
-                  'Uplift voice (Urdu)',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  s.upliftKey.trim().isEmpty
-                      ? 'Natural Urdu voices made in Pakistan. Add a key'
-                      : 'Key saved. The assistant speaks with it',
-                ),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const UpliftVoiceScreen()),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.language),
-                title: const Text(
-                  'Speaking language',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: DropdownButton<String>(
-                  borderRadius: BorderRadius.circular(16),
-                  value: s.speechLocale,
-                  isExpanded: true,
-                  underline: const SizedBox.shrink(),
-                  items: [
-                    for (final e in AppState.speechLocales.entries)
-                      DropdownMenuItem(value: e.key, child: Text(e.value)),
-                  ],
-                  onChanged: (v) => v == null ? null : s.setSpeechLocale(v),
+                  MaterialPageRoute(builder: (_) => const GeminiSetupScreen()),
                 ),
               ),
             ],
@@ -451,55 +369,6 @@ class SettingsScreen extends StatelessWidget {
     );
     c.dispose();
     if (result != null) await s.setUserName(result);
-  }
-
-  Future<void> _editKey(BuildContext context, AppState s) async {
-    final c = TextEditingController(text: s.groqKey);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('AI voice key'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '1. Open console.groq.com in your browser and sign in.\n'
-              '2. Go to API Keys and create a key (free).\n'
-              '3. Copy it and paste it here.',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: c,
-              autocorrect: false,
-              enableSuggestions: false,
-              decoration: const InputDecoration(
-                hintText: 'gsk_...',
-                isDense: true,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          if (s.groqKey.isNotEmpty)
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, ''),
-              child: const Text('Remove'),
-            ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, c.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    c.dispose();
-    if (result != null) await s.setGroqKey(result);
   }
 
   /// A switch row plus a time row for one meal reminder.

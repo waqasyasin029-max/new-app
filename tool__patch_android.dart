@@ -32,7 +32,6 @@ void _patchManifest(File f) {
   const perms =
       '''
     <!-- $marker -->
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
@@ -41,11 +40,6 @@ void _patchManifest(File f) {
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
-''';
-  const recog = '''
-        <intent>
-            <action android:name="android.speech.RecognitionService"/>
-        </intent>
 ''';
   const receivers = '''
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>
@@ -61,14 +55,6 @@ void _patchManifest(File f) {
 
   x = x.replaceFirst(RegExp(r'<application'), '$perms    <application');
   x = x.replaceFirst('</application>', '$receivers    </application>');
-  if (x.contains('<queries>')) {
-    x = x.replaceFirst('<queries>', '<queries>\n$recog');
-  } else {
-    x = x.replaceFirst(
-      '</manifest>',
-      '    <queries>\n$recog    </queries>\n</manifest>',
-    );
-  }
   x = x.replaceFirstMapped(
     RegExp(r'android:label="[^"]*"'),
     (_) => 'android:label="Kharcha Tracker"',
