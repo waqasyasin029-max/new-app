@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../core/format.dart';
 import '../core/i18n.dart';
+import '../core/account_style.dart';
 import '../core/theme.dart';
+import '../data/models.dart';
 import '../logic/expense_parser.dart';
 import '../services/agent_service.dart';
 import '../state/app_state.dart';
@@ -95,6 +97,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
       _sending = true;
     });
     _toBottom();
+    var askAccount = false;
     try {
       final turn = await agent
           .send(t)
@@ -106,6 +109,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
           );
       if (!mounted) return;
       setState(() => _msgs.add(_Msg(turn.text)));
+      askAccount = agent.hasPending && !agent.pendingReady;
     } on AgentError catch (e) {
       if (mounted) setState(() => _msgs.add(_Msg(e.message, error: true)));
     } catch (e) {
@@ -118,21 +122,58 @@ class _AssistantScreenState extends State<AssistantScreen> {
       if (mounted) setState(() => _sending = false);
       _toBottom();
     }
+    if (askAccount && mounted) await _pickAccount();
   }
 
-  void _analyzeQuick() {
+  Future<void> _analyzeQuick() async {
     final text = _quick.text.trim();
     if (text.isEmpty) {
       snack(context, 'Type your expenses first.');
       return;
     }
+    FocusScope.of(context).unfocus();
     final result = ExpenseParser.parse(text);
-    Navigator.push(
+    final saved = await ConfirmExpensesScreen.show(
       context,
-      MaterialPageRoute(
-        builder: (_) => ConfirmExpensesScreen(rawText: text, result: result),
+      rawText: text,
+      result: result,
+    );
+    if (saved == true && mounted) _quick.clear();
+  }
+
+  /// Pop-up list of accounts; the choice goes to the assistant as a message.
+  Future<void> _pickAccount() async {
+    final accounts = context.read<AppState>().accounts;
+    if (accounts.isEmpty || _sending) return;
+    FocusScope.of(context).unfocus();
+    final picked = await showModalBottomSheet<Account>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(8, 0, 8, 12),
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(
+                'Paid from',
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+              ),
+            ),
+            for (final a in accounts)
+              ListTile(
+                leading: Icon(AccountStyle.icon(a.type)),
+                title: Text(a.name, verbatim: true),
+                onTap: () => Navigator.pop(ctx, a),
+              ),
+          ],
+        ),
       ),
     );
+    if (picked != null && mounted) {
+      await _send('Ye ${picked.name} se paid hua', shown: picked.name);
+    }
   }
 
   Widget _bubble(_Msg m) {
@@ -209,9 +250,10 @@ class _AssistantScreenState extends State<AssistantScreen> {
           if (!agent.pendingReady)
             Padding(
               padding: const EdgeInsets.only(top: 6),
-              child: Text(
-                'Tell the assistant which account this was paid from.',
-                style: TextStyle(color: AppColors.muted, fontSize: 12),
+              child: OutlinedButton.icon(
+                onPressed: _sending ? null : _pickAccount,
+                icon: const Icon(Icons.account_balance_wallet_outlined),
+                label: const Text('Choose where you paid from'),
               ),
             ),
           const SizedBox(height: 10),
