@@ -77,7 +77,24 @@ jobs:
           name: kharcha-tracker-apk
           path: ${{ runner.temp }}/app/build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Publish release (the app checks this for updates)
+      # First the small public downloads repo: the app looks for updates
+      # there. If this fails, nothing is published in the code repo either.
+      - name: Publish release to the public downloads repo
+        env:
+          RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+        run: |
+          if [ -z "$RELEASES_TOKEN" ]; then
+            echo "RELEASES_TOKEN is not set; cannot publish to the downloads repo."
+            exit 1
+          fi
+          cp "$RUNNER_TEMP/app/build/app/outputs/flutter-apk/app-release.apk" kharcha-tracker.apk
+          export GH_TOKEN="$RELEASES_TOKEN"
+          NOTES="$(cat RELEASE_NOTES.txt 2>/dev/null || true)"
+          APP_VERSION="$(tr -d '[:space:]' < VERSION)"
+          gh release create "v${{ github.run_number }}" kharcha-tracker.apk --repo waqasyasin029-max/kharcha-tracker-releases --title "Version $APP_VERSION" --notes "$NOTES" --latest
+
+      # Older installed apps still look here for updates.
+      - name: Publish release in this repo (older installs check it)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
