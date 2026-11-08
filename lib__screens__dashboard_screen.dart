@@ -138,7 +138,7 @@ class DashboardScreen extends StatelessWidget {
                 ? '${Fmt.money(-left)} over budget'
                 : '${Fmt.money(left)} left of budget',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               color: over ? AppColors.danger : AppColors.ink,
             ),
