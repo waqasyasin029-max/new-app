@@ -1,46 +1,47 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme.dart';
 import '../core/i18n.dart' show tr;
+import '../core/theme.dart';
 
-/// Floating pill navigation that follows the theme: dark pill in dark mode,
-/// white pill in light mode (selected tab = contrasting circle) with a gold write button in the middle.
+/// Bottom bar with four tabs (icon over label). The selected tab is dark
+/// (light theme) or white (dark theme), the others are grey. The bar follows
+/// the theme. The plus button floats separately on the right.
 class FloatingNav extends StatelessWidget {
   final int index;
   final ValueChanged<int> onTab;
-  final VoidCallback onMic;
-  const FloatingNav({
-    super.key,
-    required this.index,
-    required this.onTab,
-    required this.onMic,
-  });
+  const FloatingNav({super.key, required this.index, required this.onTab});
 
   Widget _item(int i, IconData off, IconData on, String label) {
     final selected = index == i;
-    return Semantics(
-      label: tr(label),
-      button: true,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => onTab(i),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeOut,
-          width: 50,
-          height: 50,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: selected
-                ? (AppColors.dark ? Colors.white : AppColors.navy)
-                : Colors.transparent,
-          ),
-          child: Icon(
-            selected ? on : off,
-            size: 24,
-            color: selected
-                ? (AppColors.dark ? AppColors.navy : Colors.white)
-                : (AppColors.dark ? Colors.white70 : AppColors.muted),
+    final color = selected ? AppColors.ink : AppColors.muted;
+    return Expanded(
+      child: Semantics(
+        label: tr(label),
+        button: true,
+        selected: selected,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => onTab(i),
+          child: SizedBox(
+            height: 72,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(selected ? on : off, size: 26, color: color),
+                const SizedBox(height: 3),
+                Text(
+                  tr(label),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: 12,
+                    height: 1.2,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -49,70 +50,36 @@ class FloatingNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-        child: Container(
-          height: 68,
-          decoration: BoxDecoration(
-            color: AppColors.dark ? AppColors.navy : Colors.white,
-            borderRadius: BorderRadius.circular(34),
-            border: AppColors.dark ? null : Border.all(color: AppColors.line),
-            boxShadow: [
-              BoxShadow(
-                blurRadius: 18,
-                offset: const Offset(0, 6),
-                color: AppColors.dark
-                    ? Colors.black26
-                    : const Color(0x1A000000),
-              ),
-            ],
+    final bottom = MediaQuery.of(context).padding.bottom;
+    return Container(
+      height: 72 + bottom,
+      padding: EdgeInsets.only(bottom: bottom),
+      decoration: BoxDecoration(
+        color: AppColors.dark ? AppColors.surface : Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        border: Border(top: BorderSide(color: AppColors.line)),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 20,
+            offset: const Offset(0, -6),
+            color: AppColors.dark
+                ? Colors.black.withOpacity(0.35)
+                : const Color(0xFF8A8A99).withOpacity(0.16),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _item(0, Icons.home_outlined, Icons.home, 'Home'),
-              _item(
-                1,
-                Icons.receipt_long_outlined,
-                Icons.receipt_long,
-                'History',
-              ),
-              Semantics(
-                label: 'Add or ask',
-                button: true,
-                child: GestureDetector(
-                  onTap: onMic,
-                  child: Container(
-                    width: 54,
-                    height: 54,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0xFFE8602C), Color(0xFFF5A032)],
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.edit_note_rounded,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                ),
-              ),
-              _item(
-                2,
-                Icons.account_balance_wallet_outlined,
-                Icons.account_balance_wallet,
-                'Accounts',
-              ),
-              _item(3, Icons.pie_chart_outline, Icons.pie_chart, 'Reports'),
-            ],
+        ],
+      ),
+      child: Row(
+        children: [
+          _item(0, Icons.home_outlined, Icons.home_rounded, 'Home'),
+          _item(1, Icons.receipt_long_outlined, Icons.receipt_long, 'History'),
+          _item(
+            2,
+            Icons.account_balance_wallet_outlined,
+            Icons.account_balance_wallet,
+            'Accounts',
           ),
-        ),
+          _item(3, Icons.pie_chart_outline, Icons.pie_chart, 'Reports'),
+        ],
       ),
     );
   }

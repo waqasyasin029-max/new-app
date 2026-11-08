@@ -107,8 +107,8 @@ const Map<String, String> urExact = {
   'Needed to calculate what is left of your salary.':
       'تنخواہ میں سے کتنا بچا، یہ نکالنے کے لیے ضروری ہے۔',
   'New update available': 'نئی اپ ڈیٹ دستیاب ہے',
-  'No expenses recorded today. Tap the write button and type them.':
-      'آج کوئی خرچ درج نہیں ہوا۔ لکھنے والا بٹن دبائیں اور لکھیں۔',
+  'No expenses recorded today. Tap the plus button to add one.':
+      'آج کوئی خرچ درج نہیں ہوا۔ پلس بٹن دبا کر شامل کریں۔',
   'No expenses this month.': 'اس مہینے کوئی خرچ نہیں۔',
   'No expenses with amounts were recognised. Go back and correct the text, or add an expense below.': 'رقم والا کوئی خرچ نہیں پہچانا گیا۔ واپس جا کر متن درست کریں، یا نیچے خرچ شامل کریں۔',
   'No salary set yet.': 'ابھی تنخواہ مقرر نہیں۔',
@@ -440,6 +440,13 @@ const Map<String, String> urExact = {
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',
+  'Income and expenses for the last 6 months':
+      'پچھلے 6 مہینوں کی آمدنی اور اخراجات',
+  'Saved': 'بچت',
+  'Undo': 'واپس کریں',
+  'How much?': 'کتنا خرچ ہوا؟',
+  'Type the amount you spent': 'خرچ کی رقم لکھیں',
+  'What was it for?': 'کس چیز پر خرچ ہوا؟',
 };
 
 const Map<String, String> urTemplates = {
@@ -513,4 +520,9 @@ const Map<String, String> urTemplates = {
   'Gemini assistant': 'جیمنائی اسسٹنٹ',
   'Saved.': 'محفوظ ہو گیا۔',
   '1. Open aistudio.google.com/apikey and create a free key.\n2. Paste it here and tap Save.\n3. Tap Check assistant to make sure it works.': '1. aistudio.google.com/apikey کھولیں اور مفت کی بنائیں۔\n2. اسے یہاں پیسٹ کریں اور محفوظ کریں دبائیں۔\n3. اسسٹنٹ چیک کریں دبا کر دیکھیں کہ چل رہا ہے۔',
+  '{} per day': '{0} روزانہ',
+  '{} left this month': 'اس مہینے {0} باقی',
+  '{} over this month': 'اس مہینے {0} زیادہ',
+  'Saved {} · {}': 'محفوظ {0} · {1}',
+  '{} available': '{0} دستیاب',
 };

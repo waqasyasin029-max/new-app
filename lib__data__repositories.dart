@@ -11,6 +11,12 @@ class CategoryRepository {
 }
 
 class ExpenseRepository {
+  /// Adds one expense and returns its id (so it can be undone).
+  Future<int> insert(Expense e) async {
+    final db = await DatabaseHelper.instance.database;
+    return db.insert('expenses', e.toMap());
+  }
+
   Future<void> insertMany(List<Expense> list) async {
     final db = await DatabaseHelper.instance.database;
     final batch = db.batch();

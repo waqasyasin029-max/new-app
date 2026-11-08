@@ -6,6 +6,7 @@ import '../core/theme.dart';
 import '../data/models.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
+import '../widgets/report_charts.dart';
 import '../core/i18n.dart';
 
 class _ReportData {
@@ -13,7 +14,8 @@ class _ReportData {
   final double spent;
   final List<CategoryTotal> cats;
   final Map<String, double> daily;
-  _ReportData(this.income, this.spent, this.cats, this.daily);
+  final List<MonthPoint> months;
+  _ReportData(this.income, this.spent, this.cats, this.daily, this.months);
 }
 
 class ReportsScreen extends StatefulWidget {
@@ -42,11 +44,24 @@ class _ReportsScreenState extends State<ReportsScreen> {
               load: (s) async {
                 final from = _month;
                 final to = Fmt.lastOfMonth(_month);
+                // The selected month and the five before it, for the charts.
+                final months = <MonthPoint>[];
+                for (var i = 5; i >= 0; i--) {
+                  final m = DateTime(_month.year, _month.month - i, 1);
+                  months.add(
+                    MonthPoint(
+                      m,
+                      await s.incomes.totalIncome(m),
+                      await s.expenses.total(m, Fmt.lastOfMonth(m)),
+                    ),
+                  );
+                }
                 return _ReportData(
                   await s.incomes.totalIncome(_month),
                   await s.expenses.total(from, to),
                   await s.expenses.categoryTotals(from, to),
                   await s.expenses.dailyTotals(from, to),
+                  months,
                 );
               },
               builder: (context, d) {
@@ -63,47 +78,49 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 return ListView(
                   padding: const EdgeInsets.fromLTRB(12, 4, 12, 120),
                   children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: StatCard(
-                            label: 'Income',
-                            value: Fmt.money(d.income),
-                            icon: Icons.payments,
-                            color: AppColors.positive,
-                          ),
-                        ),
-                        Expanded(
-                          child: StatCard(
-                            label: 'Expenses',
-                            value: Fmt.money(d.spent),
-                            icon: Icons.trending_down,
-                            color: Colors.deepOrange,
-                          ),
-                        ),
-                      ],
+                    AppCard(
+                      margin: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
+                      child: IncomeExpenseChart(points: d.months),
                     ),
                     Row(
                       children: [
                         Expanded(
-                          child: StatCard(
-                            label: 'Remaining',
-                            value: Fmt.money(remaining),
-                            icon: Icons.savings,
-                            color: remaining < 0
-                                ? AppColors.danger
-                                : AppColors.positive,
+                          child: MiniStatTile(
+                            icon: Icons.trending_up,
+                            label: 'Income',
+                            value: Fmt.money(d.income),
+                            color: const Color(0xFF6C63F0),
+                            spark: [for (final p in d.months) p.income],
                           ),
                         ),
                         Expanded(
-                          child: StatCard(
-                            label: 'Avg per day',
-                            value: Fmt.money(d.spent / elapsed),
-                            icon: Icons.calendar_view_day,
-                            color: Colors.indigo,
+                          child: MiniStatTile(
+                            icon: Icons.trending_down,
+                            label: 'Expenses',
+                            value: Fmt.money(d.spent),
+                            color: const Color(0xFFE5385F),
+                            dotted: true,
+                            spark: [for (final p in d.months) p.spent],
+                            caption: '${Fmt.money(d.spent / elapsed)} per day',
                           ),
                         ),
                       ],
+                    ),
+                    MiniStatTile(
+                      wide: true,
+                      icon: Icons.savings_outlined,
+                      label: 'Saved',
+                      value: d.income > 0
+                          ? '${(remaining / d.income * 100).toStringAsFixed(0)}%'
+                          : '—',
+                      color: remaining < 0
+                          ? AppColors.danger
+                          : const Color(0xFF0E9F6E),
+                      spark: [for (final p in d.months) p.savedShare],
+                      caption: remaining < 0
+                          ? '${Fmt.money(-remaining)} over this month'
+                          : '${Fmt.money(remaining)} left this month',
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 4),
