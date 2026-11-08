@@ -123,7 +123,7 @@ class SettingsScreen extends StatelessWidget {
                       : 'Installed version: $kBuildNumber',
                 ),
                 onTap: () async {
-                  snackOk(context, 'Checking…');
+                  snackInfo(context, 'Checking…');
                   final r = await UpdateService.check();
                   if (!context.mounted) return;
                   if (r.failed) {

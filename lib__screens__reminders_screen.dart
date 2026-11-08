@@ -127,7 +127,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                       const Duration(minutes: 1),
                     );
                     if (context.mounted) {
-                      snackOk(
+                      snackInfo(
                         context,
                         'A test reminder will arrive in 1 minute.',
                       );

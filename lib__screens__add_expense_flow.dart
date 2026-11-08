@@ -48,13 +48,12 @@ class AddExpenseFlow {
           Text('Saved ${Fmt.money(saved.amount)} · ${saved.category}'),
           Text(
             '${saved.account} left ${Fmt.money(saved.left)}',
-            style: const TextStyle(fontSize: 12),
+            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
           ),
         ],
       ),
       action: SnackBarAction(
         label: tr('Undo'),
-        textColor: Colors.white,
         onPressed: () async {
           await state.expenses.delete(saved.id);
           state.changed();

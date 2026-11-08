@@ -323,13 +323,18 @@ double? parseAmount(String s) {
 OverlayEntry? _errorEntry;
 Timer? _errorTimer;
 
+void _closeError() {
+  _errorTimer?.cancel();
+  _errorEntry?.remove();
+  _errorEntry = null;
+}
+
 /// Red error message at the top of the screen for 3 seconds. No shadow. It
 /// sits above popups too, so a mistake made inside a dialog is visible.
 void snack(BuildContext context, String message) {
   final overlay = Overlay.maybeOf(context, rootOverlay: true);
   if (overlay == null) return;
-  _errorTimer?.cancel();
-  _errorEntry?.remove();
+  _closeError();
   final top = MediaQuery.of(context).padding.top;
   final entry = OverlayEntry(
     builder: (_) => Positioned(
@@ -348,19 +353,11 @@ void snack(BuildContext context, String message) {
           ),
         ),
         child: Material(
-          color: AppColors.danger,
-          elevation: 0,
-          borderRadius: BorderRadius.circular(16),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            child: Text(
-              message,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+          type: MaterialType.transparency,
+          child: ToastCard(
+            kind: ToastKind.error,
+            content: Text(message),
+            onClose: _closeError,
           ),
         ),
       ),
@@ -369,36 +366,170 @@ void snack(BuildContext context, String message) {
   _errorEntry = entry;
   overlay.insert(entry);
   _errorTimer = Timer(const Duration(seconds: 3), () {
-    if (_errorEntry == entry) {
-      entry.remove();
-      _errorEntry = null;
-    }
+    if (_errorEntry == entry) _closeError();
   });
 }
 
-/// Green confirmation (saved, added, deleted). It goes away by itself after
-/// 5 seconds, even when it has an Undo button.
+enum ToastKind { ok, error, info }
+
+/// Soft tinted message card: coloured icon, bold coloured text, close button.
+/// Used for every snackbar so they all look the same.
+class ToastCard extends StatelessWidget {
+  final ToastKind kind;
+  final Widget content;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final VoidCallback onClose;
+  const ToastCard({
+    super.key,
+    required this.kind,
+    required this.content,
+    required this.onClose,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  Color get _fg {
+    final d = AppColors.dark;
+    switch (kind) {
+      case ToastKind.ok:
+        return d ? const Color(0xFF4ADE80) : const Color(0xFF15803D);
+      case ToastKind.error:
+        return d ? const Color(0xFFFF8A8F) : const Color(0xFFC62828);
+      case ToastKind.info:
+        return d ? const Color(0xFF7DB4FF) : const Color(0xFF1D5FD1);
+    }
+  }
+
+  Color get _bg {
+    final d = AppColors.dark;
+    switch (kind) {
+      case ToastKind.ok:
+        return d ? const Color(0xFF14291D) : const Color(0xFFE9F8EF);
+      case ToastKind.error:
+        return d ? const Color(0xFF331618) : const Color(0xFFFDECEC);
+      case ToastKind.info:
+        return d ? const Color(0xFF14233A) : const Color(0xFFE8F2FE);
+    }
+  }
+
+  Widget _icon() {
+    switch (kind) {
+      case ToastKind.ok:
+        return Icon(AppIcons.check, size: 24, color: _fg);
+      case ToastKind.info:
+        return Icon(AppIcons.info, size: 24, color: _fg);
+      case ToastKind.error:
+        return Container(
+          width: 22,
+          height: 22,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: _fg, width: 2),
+          ),
+          child: Text(
+            '!',
+            verbatim: true,
+            style: TextStyle(
+              color: _fg,
+              fontSize: 13,
+              height: 1,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _fg.withOpacity(0.14)),
+      ),
+      child: Row(
+        children: [
+          _icon(),
+          const SizedBox(width: 12),
+          Expanded(
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: _fg,
+                fontSize: 14.5,
+                height: 1.3,
+                fontWeight: FontWeight.w700,
+              ),
+              child: content,
+            ),
+          ),
+          if (actionLabel != null)
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: _fg,
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                textStyle: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              onPressed: () {
+                onClose();
+                onAction?.call();
+              },
+              child: Text(actionLabel!, verbatim: true),
+            ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            icon: Icon(AppIcons.close, size: 18, color: _fg),
+            onPressed: onClose,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Bottom message (green by default). It goes away by itself after 5 seconds,
+/// even when it has an Undo button.
 void showOk(
   ScaffoldMessengerState messenger, {
   String? message,
   Widget? content,
   SnackBarAction? action,
+  ToastKind kind = ToastKind.ok,
 }) {
   messenger
     ..hideCurrentSnackBar()
     ..showSnackBar(
       SnackBar(
-        backgroundColor: AppColors.positive,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        padding: EdgeInsets.zero,
         duration: const Duration(seconds: 5),
         persist: false,
-        content: content ?? Text(message ?? ''),
-        action: action,
+        content: ToastCard(
+          kind: kind,
+          content: content ?? Text(message ?? ''),
+          actionLabel: action?.label,
+          onAction: action?.onPressed,
+          onClose: messenger.hideCurrentSnackBar,
+        ),
       ),
     );
 }
 
 void snackOk(BuildContext context, String message) =>
     showOk(ScaffoldMessenger.of(context), message: message);
+
+/// Blue neutral note ("Checking…", "A reminder will arrive…").
+void snackInfo(BuildContext context, String message) => showOk(
+  ScaffoldMessenger.of(context),
+  message: message,
+  kind: ToastKind.info,
+);
 
 /// "Paid from" selector. [value] null = nothing chosen yet.
 class AccountDropdown extends StatelessWidget {
