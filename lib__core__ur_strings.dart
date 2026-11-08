@@ -146,6 +146,7 @@ const Map<String, String> urExact = {
   'Welcome': 'خوش آمدید',
   'Your khata is ready. Let\'s begin!': 'آپ کا کھاتا تیار ہے۔ آئیے شروع کریں!',
   'To enjoy our newest features tap the button below': 'ہمارے نئے فیچرز سے لطف اٹھانے کے لیے نیچے دیا گیا بٹن دبائیں',
+  'Please enter your name.': 'براہ کرم اپنا نام لکھیں۔',
   'Close the app?': 'ایپ بند کریں؟',
   'The app will close. Your data is saved on this phone.':
       'ایپ بند ہو جائے گی۔ آپ کا ڈیٹا اسی فون میں محفوظ ہے۔',

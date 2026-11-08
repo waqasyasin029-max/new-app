@@ -3,12 +3,16 @@ import 'package:flutter/services.dart' show HapticFeedback;
 
 import '../core/i18n.dart' show tr;
 import '../core/theme.dart';
+import 'package:provider/provider.dart';
+
+import '../state/app_state.dart';
 import '../widgets/budget_dialog.dart';
 import '../widgets/common.dart' show confirmExit;
 import '../widgets/floating_nav.dart';
 import 'add_expense_flow.dart';
 import 'accounts_screen.dart';
 import 'dashboard_screen.dart';
+import 'welcome_screen.dart' show askRequiredName;
 import 'activity_screen.dart';
 import 'settings_screen.dart';
 import '../core/app_icons.dart';
@@ -59,7 +63,12 @@ class _HomeShellState extends State<HomeShell> {
   void initState() {
     super.initState();
     // Once a month, ask what this month's budget is.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      // People who installed before names existed are asked once.
+      if (context.read<AppState>().userName.isEmpty) {
+        await askRequiredName(context);
+      }
       if (mounted) maybeAskMonthlyBudget(context);
     });
   }

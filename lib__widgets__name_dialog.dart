@@ -5,7 +5,7 @@ import '../core/i18n.dart';
 import '../state/app_state.dart';
 import 'common.dart';
 
-/// Asks for the name shown on Home and saves it. An empty name removes it.
+/// Asks for the name shown on Home and saves it. A name is required.
 Future<void> askName(BuildContext context) async {
   final state = context.read<AppState>();
   final c = TextEditingController(text: state.userName);
@@ -26,7 +26,14 @@ Future<void> askName(BuildContext context) async {
           child: const Text('Cancel'),
         ),
         FilledButton(
-          onPressed: () => Navigator.pop(ctx, c.text.trim()),
+          onPressed: () {
+            final t = c.text.trim();
+            if (t.isEmpty) {
+              snack(ctx, 'Please enter your name.');
+              return;
+            }
+            Navigator.pop(ctx, t);
+          },
           child: const Text('Save'),
         ),
       ],
@@ -35,7 +42,5 @@ Future<void> askName(BuildContext context) async {
   c.dispose();
   if (v == null) return;
   await state.setUserName(v);
-  if (context.mounted) {
-    snackOk(context, v.isEmpty ? 'Name removed' : 'Name saved');
-  }
+  if (context.mounted) snackOk(context, 'Name saved');
 }

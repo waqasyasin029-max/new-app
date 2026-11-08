@@ -30,19 +30,7 @@ class _WelcomeFlowScreenState extends State<WelcomeFlowScreen> {
   }
 
   Future<void> _askName() async {
-    final v = await showModalBottomSheet<String>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: AppColors.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (_) => const _NameSheet(),
-    );
-    if (!mounted) return;
-    final name = (v ?? '').trim();
-    if (name.isNotEmpty) await context.read<AppState>().setUserName(name);
+    final name = await askRequiredName(context);
     if (!mounted) return;
     setState(() {
       _name = name;
@@ -96,6 +84,28 @@ class _WelcomeFlowScreenState extends State<WelcomeFlowScreen> {
   }
 }
 
+/// Shows the name popup. The name is required: the sheet cannot be closed
+/// without one. Saves it and returns it.
+Future<String> askRequiredName(BuildContext context) async {
+  final v = await showModalBottomSheet<String>(
+    context: context,
+    isScrollControlled: true,
+    isDismissible: false,
+    enableDrag: false,
+    useSafeArea: true,
+    backgroundColor: AppColors.surface,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    builder: (_) => const _NameSheet(),
+  );
+  final name = (v ?? '').trim();
+  if (name.isNotEmpty && context.mounted) {
+    await context.read<AppState>().setUserName(name);
+  }
+  return name;
+}
+
 class _NameSheet extends StatefulWidget {
   const _NameSheet();
 
@@ -112,11 +122,17 @@ class _NameSheetState extends State<_NameSheet> {
     super.dispose();
   }
 
-  void _done() => Navigator.pop(context, _c.text.trim());
+  bool get _ok => _c.text.trim().isNotEmpty;
+
+  void _done() {
+    if (_ok) Navigator.pop(context, _c.text.trim());
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return PopScope(
+      canPop: false,
+      child: Padding(
       padding: EdgeInsets.fromLTRB(
         16,
         0,
@@ -154,6 +170,7 @@ class _NameSheetState extends State<_NameSheet> {
             maxLength: 24,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.done,
+            onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _done(),
             decoration: InputDecoration(
               labelText: tr('Your name'),
@@ -165,18 +182,13 @@ class _NameSheetState extends State<_NameSheet> {
             width: double.infinity,
             height: 56,
             child: FilledButton(
-              onPressed: _done,
+              onPressed: _ok ? _done : null,
               child: const Text('Continue'),
-            ),
-          ),
-          Center(
-            child: TextButton(
-              onPressed: () => Navigator.pop(context, ''),
-              child: const Text('Skip'),
             ),
           ),
         ],
       ),
+    ),
     );
   }
 }
