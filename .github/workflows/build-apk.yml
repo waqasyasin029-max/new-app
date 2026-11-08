@@ -45,6 +45,8 @@ jobs:
       - name: Create Android scaffold, copy app, patch, build
         run: |
           APP="$RUNNER_TEMP/app"
+          APP_VERSION="$(tr -d '[:space:]' < VERSION)"
+          echo "Building version $APP_VERSION"
           flutter create --platforms=android --project-name kharcha_tracker --org com.personal "$APP"
           rm -rf "$APP/lib" "$APP/test"
           cp -r lib tool assets pubspec.yaml analysis_options.yaml "$APP/"
@@ -56,7 +58,7 @@ jobs:
           dart run tool/parser_check.dart
           dart run tool/account_check.dart
           flutter analyze --no-fatal-infos --no-fatal-warnings
-          flutter build apk --release --no-shrink --target-platform android-arm64 --obfuscate --split-debug-info=build/symbols --build-number=${{ github.run_number }} --dart-define=BUILD_NUMBER=${{ github.run_number }}
+          flutter build apk --release --no-shrink --target-platform android-arm64 --obfuscate --split-debug-info=build/symbols --build-name="$APP_VERSION" --build-number=${{ github.run_number }} --dart-define=BUILD_NUMBER=${{ github.run_number }} --dart-define=APP_VERSION="$APP_VERSION"
 
       - name: Show whether R8 ran (should say no mapping file)
         run: |
@@ -81,4 +83,7 @@ jobs:
         run: |
           cp "$RUNNER_TEMP/app/build/app/outputs/flutter-apk/app-release.apk" kharcha-tracker.apk
           NOTES="$(cat RELEASE_NOTES.txt 2>/dev/null || true)"
-          gh release create "v${{ github.run_number }}" kharcha-tracker.apk --title "Update ${{ github.run_number }}" --notes "$NOTES" --latest
+          APP_VERSION="$(tr -d '[:space:]' < VERSION)"
+          # The tag stays the build number (older installs compare it); the
+          # visible name carries the version.
+          gh release create "v${{ github.run_number }}" kharcha-tracker.apk --title "Version $APP_VERSION" --notes "$NOTES" --latest

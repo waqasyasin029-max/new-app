@@ -74,7 +74,7 @@ class AboutScreen extends StatelessWidget {
                   child: Text(
                     kBuildNumber == 0
                         ? 'Development build'
-                        : 'Version $kBuildNumber',
+                        : 'Version $appVersionLabel',
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
