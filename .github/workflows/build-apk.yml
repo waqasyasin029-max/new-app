@@ -87,3 +87,18 @@ jobs:
           # The tag stays the build number (older installs compare it); the
           # visible name carries the version.
           gh release create "v${{ github.run_number }}" kharcha-tracker.apk --title "Version $APP_VERSION" --notes "$NOTES" --latest
+
+      # Also publish to the small public downloads repo, when its token is set.
+      # The code repo can then be private while the app keeps finding updates.
+      - name: Publish release to the public downloads repo
+        env:
+          RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+        run: |
+          if [ -z "$RELEASES_TOKEN" ]; then
+            echo "RELEASES_TOKEN not set; skipping the downloads repo."
+            exit 0
+          fi
+          export GH_TOKEN="$RELEASES_TOKEN"
+          NOTES="$(cat RELEASE_NOTES.txt 2>/dev/null || true)"
+          APP_VERSION="$(tr -d '[:space:]' < VERSION)"
+          gh release create "v${{ github.run_number }}" kharcha-tracker.apk --repo waqasyasin029-max/kharcha-tracker-releases --title "Version $APP_VERSION" --notes "$NOTES" --latest
