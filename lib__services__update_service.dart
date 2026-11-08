@@ -15,7 +15,7 @@ String get appVersionLabel =>
     kAppVersion.isNotEmpty ? kAppVersion : '$kBuildNumber';
 
 /// GitHub repository that publishes the releases (owner/name).
-const String kUpdateRepo = 'waqasyasin029-max/kharcha-tracker-releases';
+const String kUpdateRepo = 'waqasyasin029-max/new-app';
 
 class UpdateInfo {
   final int build;
