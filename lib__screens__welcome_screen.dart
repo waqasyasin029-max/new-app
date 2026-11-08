@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 
 import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
@@ -245,8 +244,10 @@ class _NameSheetState extends State<_NameSheet> {
   }
 }
 
-/// The welcome animation: confetti falls, a white badge pops in with a waving
-/// hand, then "Welcome", the name and a line fade up. Tap to skip.
+/// The welcome animation (light, clean): an orange badge pops in and its tick
+/// draws itself, "Welcome" fades up, the name rises letter by letter, an
+/// orange line sweeps under it, then the tagline. Soft dots drift upwards.
+/// Tap to skip.
 class _WelcomeAnim extends StatefulWidget {
   final String name;
   final VoidCallback onDone;
@@ -260,7 +261,7 @@ class _WelcomeAnimState extends State<_WelcomeAnim>
     with SingleTickerProviderStateMixin {
   late final AnimationController _c = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 3200),
+    duration: const Duration(milliseconds: 3800),
   );
   bool _done = false;
 
@@ -268,7 +269,7 @@ class _WelcomeAnimState extends State<_WelcomeAnim>
   void initState() {
     super.initState();
     _c.forward().whenComplete(() async {
-      await Future<void>.delayed(const Duration(milliseconds: 500));
+      await Future<void>.delayed(const Duration(milliseconds: 600));
       _finish();
     });
   }
@@ -291,11 +292,46 @@ class _WelcomeAnimState extends State<_WelcomeAnim>
     return curve.transform(t);
   }
 
-  Widget _fadeUp(double a, double b, Widget child) {
+  Widget _fadeUp(double a, double b, Widget child, [double dy = 16]) {
     final t = _p(a, b);
     return Opacity(
       opacity: t,
-      child: Transform.translate(offset: Offset(0, (1 - t) * 24), child: child),
+      child: Transform.translate(offset: Offset(0, (1 - t) * dy), child: child),
+    );
+  }
+
+  /// The name, one letter at a time, each rising with a small overshoot.
+  Widget _nameLetters() {
+    final chars = widget.name.characters.toList();
+    final size = chars.length <= 10 ? 50.0 : (chars.length <= 16 ? 38.0 : 30.0);
+    return Wrap(
+      alignment: WrapAlignment.center,
+      children: [
+        for (var i = 0; i < chars.length; i++)
+          Builder(
+            builder: (_) {
+              final a = 0.38 + i * 0.025;
+              final t = _p(a, a + 0.14, Curves.easeOutBack);
+              final o = _p(a, a + 0.07, Curves.easeOut);
+              return Opacity(
+                opacity: o,
+                child: Transform.translate(
+                  offset: Offset(0, (1 - t) * 46),
+                  child: Text(
+                    chars[i] == ' ' ? '\u00A0' : chars[i],
+                    verbatim: true,
+                    style: TextStyle(
+                      fontSize: size,
+                      height: 1.15,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+      ],
     );
   }
 
@@ -307,46 +343,42 @@ class _WelcomeAnimState extends State<_WelcomeAnim>
       child: AnimatedBuilder(
         animation: _c,
         builder: (context, _) {
-          final pop = _p(0.0, 0.3, Curves.elasticOut);
-          // The hand waves a few times once the badge has landed.
-          final wt = ((_c.value - 0.3) / 0.25).clamp(0.0, 1.0);
-          final wave = math.sin(wt * math.pi * 4) * 0.35 * (1 - wt);
-          final ring = _p(0.0, 0.75, Curves.easeOut);
+          final pop = _p(0.0, 0.2, Curves.easeOutBack);
+          final tick = _p(0.14, 0.36, Curves.easeOut);
+          final ring = _p(0.1, 0.5, Curves.easeOut);
+          final sweep = _p(0.62, 0.78);
           final hasName = widget.name.isNotEmpty;
           return Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFFF5A032), Color(0xFFE8602C), Color(0xFFC2410C)],
-              ),
-            ),
+            color: AppColors.dark
+                ? const Color(0xFF111216)
+                : const Color(0xFFF8F8FA),
             child: Stack(
               children: [
                 Positioned.fill(
-                  child: CustomPaint(painter: _ConfettiPainter(_c.value)),
+                  child: CustomPaint(painter: _DotsPainter(_c.value)),
                 ),
-                Center(
+                Align(
+                  alignment: const Alignment(0, -0.22),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       SizedBox(
                         width: 200,
-                        height: 200,
+                        height: 130,
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
                             Opacity(
-                              opacity: (1 - ring) * 0.6,
+                              opacity: (1 - ring) * 0.5,
                               child: Transform.scale(
-                                scale: 0.6 + ring * 1.6,
+                                scale: 0.7 + ring * 1.6,
                                 child: Container(
-                                  width: 120,
-                                  height: 120,
+                                  width: 96,
+                                  height: 96,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                      color: Colors.white,
+                                      color: AppColors.primary,
                                       width: 3,
                                     ),
                                   ),
@@ -356,77 +388,72 @@ class _WelcomeAnimState extends State<_WelcomeAnim>
                             Transform.scale(
                               scale: pop,
                               child: Container(
-                                width: 120,
-                                height: 120,
-                                alignment: Alignment.center,
+                                width: 96,
+                                height: 96,
                                 decoration: const BoxDecoration(
-                                  color: Colors.white,
                                   shape: BoxShape.circle,
+                                  gradient: AppColors.gradient,
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Color(0x2E000000),
-                                      blurRadius: 34,
-                                      offset: Offset(0, 14),
+                                      color: Color(0x59EE6F2B),
+                                      blurRadius: 28,
+                                      offset: Offset(0, 12),
                                     ),
                                   ],
                                 ),
-                                child: Transform.rotate(
-                                  angle: wave,
-                                  alignment: const Alignment(0.4, 0.4),
-                                  child: const Text(
-                                    '👋',
-                                    verbatim: true,
-                                    style: TextStyle(fontSize: 58),
-                                  ),
-                                ),
+                                child: CustomPaint(painter: _TickPainter(tick)),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(height: 10),
                       _fadeUp(
-                        0.25,
-                        0.45,
-                        const Text(
+                        0.3,
+                        0.46,
+                        Text(
                           'Welcome',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
-                            color: Colors.white,
+                            color: AppColors.muted,
                           ),
                         ),
                       ),
                       if (hasName) ...[
-                        const SizedBox(height: 2),
-                        _fadeUp(
-                          0.35,
-                          0.6,
-                          Text(
-                            widget.name,
-                            verbatim: true,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 44,
-                              height: 1.15,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
+                        const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: _nameLetters(),
+                        ),
+                      ],
+                      const SizedBox(height: 10),
+                      Container(
+                        width: 120,
+                        height: 5,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: FractionallySizedBox(
+                          widthFactor: sweep,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(3),
                             ),
                           ),
                         ),
-                      ],
-                      const SizedBox(height: 14),
+                      ),
+                      const SizedBox(height: 18),
                       _fadeUp(
-                        0.5,
-                        0.72,
-                        const Text(
+                        0.7,
+                        0.88,
+                        Text(
                           'Your khata is ready. Let\'s begin!',
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: Colors.white,
+                            color: AppColors.muted,
                           ),
                         ),
+                        14,
                       ),
                     ],
                   ),
@@ -440,69 +467,74 @@ class _WelcomeAnimState extends State<_WelcomeAnim>
   }
 }
 
-class _Piece {
-  final double x; // 0..1 across the screen
-  final double delay; // 0..0.4 of the animation
-  final double size;
-  final double spin;
-  final bool round;
-  final Color color;
-  const _Piece(this.x, this.delay, this.size, this.spin, this.round, this.color);
-}
-
-final List<_Piece> _pieces = () {
-  final r = math.Random(7);
-  const colors = [
-    Color(0xFFFFFFFF),
-    Color(0xFFFFE3A3),
-    Color(0xFFFFD0B0),
-    Color(0xFFFFF3D6),
-    Color(0xFFFFB88A),
-  ];
-  return [
-    for (var i = 0; i < 26; i++)
-      _Piece(
-        0.04 + r.nextDouble() * 0.92,
-        r.nextDouble() * 0.35,
-        7 + r.nextDouble() * 6,
-        4 + r.nextDouble() * 6,
-        r.nextBool(),
-        colors[r.nextInt(colors.length)],
-      ),
-  ];
-}();
-
-class _ConfettiPainter extends CustomPainter {
-  final double t; // 0..1 of the whole animation
-  _ConfettiPainter(this.t);
+/// A white tick that draws itself inside the badge ([t] is 0..1).
+class _TickPainter extends CustomPainter {
+  final double t;
+  _TickPainter(this.t);
 
   @override
   void paint(Canvas canvas, Size size) {
-    for (final p in _pieces) {
-      final f = ((t - p.delay) / 0.65).clamp(0.0, 1.0);
+    final w = size.width;
+    final h = size.height;
+    final path = Path()
+      ..moveTo(w * 0.29, h * 0.52)
+      ..lineTo(w * 0.44, h * 0.67)
+      ..lineTo(w * 0.72, h * 0.37);
+    final metric = path.computeMetrics().first;
+    canvas.drawPath(
+      metric.extractPath(0, metric.length * t),
+      Paint()
+        ..color = Colors.white
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 7
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_TickPainter old) => old.t != t;
+}
+
+class _Dot {
+  final double x; // 0..1 across the screen
+  final double delay; // 0..0.5 of the animation
+  final double size;
+  final Color color;
+  const _Dot(this.x, this.delay, this.size, this.color);
+}
+
+const List<_Dot> _dots = [
+  _Dot(0.12, 0.00, 8, Color(0xFFF5A032)),
+  _Dot(0.28, 0.12, 6, Color(0xFFEE6F2B)),
+  _Dot(0.44, 0.24, 9, Color(0xFFFFD0B0)),
+  _Dot(0.62, 0.06, 7, Color(0xFFF5A032)),
+  _Dot(0.78, 0.18, 9, Color(0xFFEE6F2B)),
+  _Dot(0.90, 0.30, 6, Color(0xFFFFD0B0)),
+  _Dot(0.20, 0.36, 7, Color(0xFFFFD0B0)),
+  _Dot(0.70, 0.42, 6, Color(0xFFF5A032)),
+];
+
+/// Soft dots that drift up from the bottom and fade out.
+class _DotsPainter extends CustomPainter {
+  final double t; // 0..1 of the whole animation
+  _DotsPainter(this.t);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final d in _dots) {
+      final f = ((t - d.delay) / 0.6).clamp(0.0, 1.0);
       if (f <= 0 || f >= 1) continue;
-      final y = -30 + f * (size.height + 60);
-      final x = p.x * size.width + math.sin(f * 6 + p.x * 10) * 14;
-      final paint = Paint()
-        ..color = p.color.withOpacity(f > 0.85 ? (1 - f) / 0.15 : 1);
-      canvas.save();
-      canvas.translate(x, y);
-      canvas.rotate(f * p.spin);
-      if (p.round) {
-        canvas.drawCircle(Offset.zero, p.size / 2, paint);
-      } else {
-        canvas.drawRRect(
-          RRect.fromRectAndRadius(
-            Rect.fromCenter(center: Offset.zero, width: p.size, height: p.size),
-            const Radius.circular(3),
-          ),
-          paint,
-        );
-      }
-      canvas.restore();
+      final y = size.height - 60 - f * 320;
+      final a = f < 0.15 ? f / 0.15 : (1 - f);
+      canvas.drawCircle(
+        Offset(d.x * size.width, y),
+        d.size / 2,
+        Paint()..color = d.color.withOpacity((a * 0.9).clamp(0.0, 1.0)),
+      );
     }
   }
 
   @override
-  bool shouldRepaint(_ConfettiPainter old) => old.t != t;
+  bool shouldRepaint(_DotsPainter old) => old.t != t;
 }
