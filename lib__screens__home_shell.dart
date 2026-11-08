@@ -7,8 +7,8 @@ import '../widgets/floating_nav.dart';
 import 'add_expense_flow.dart';
 import 'accounts_screen.dart';
 import 'dashboard_screen.dart';
-import 'history_screen.dart';
-import 'reports_screen.dart';
+import 'activity_screen.dart';
+import 'settings_screen.dart';
 import '../core/app_icons.dart';
 
 class HomeShell extends StatefulWidget {
@@ -32,9 +32,9 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _pages = <Widget>[
     DashboardScreen(),
-    HistoryScreen(),
     AccountsScreen(),
-    ReportsScreen(),
+    ActivityScreen(),
+    SettingsScreen(),
   ];
 
   @override

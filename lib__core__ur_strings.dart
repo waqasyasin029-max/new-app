@@ -2,6 +2,7 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'Summary': 'خلاصہ',
   'How much can you spend this month?': 'اس مہینے آپ کتنا خرچ کر سکتے ہیں؟',
   'Budget and spending for the last 6 months':
       'پچھلے 6 مہینوں کا بجٹ اور اخراجات',

@@ -12,7 +12,7 @@ import 'account_detail_screen.dart';
 import 'expense_edit_screen.dart';
 import 'history_screen.dart';
 import '../widgets/budget_dialog.dart';
-import 'settings_screen.dart';
+import 'reminders_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
@@ -202,9 +202,9 @@ class DashboardScreen extends StatelessWidget {
                 color: AppColors.surface,
                 shape: CircleBorder(side: BorderSide(color: AppColors.line)),
                 child: IconButton(
-                  tooltip: tr('Settings'),
-                  icon: const Icon(AppIcons.settings),
-                  onPressed: () => _open(context, const SettingsScreen()),
+                  tooltip: tr('Reminders'),
+                  icon: const Icon(AppIcons.bellRinging),
+                  onPressed: () => _open(context, const RemindersScreen()),
                 ),
               ),
             ],

@@ -29,7 +29,9 @@ class _ReportData {
 }
 
 class ReportsScreen extends StatefulWidget {
-  const ReportsScreen({super.key});
+  /// True inside the Activity tab, which draws the title bar itself.
+  final bool embedded;
+  const ReportsScreen({super.key, this.embedded = false});
 
   @override
   State<ReportsScreen> createState() => _ReportsScreenState();
@@ -41,7 +43,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Reports')),
+      appBar: widget.embedded ? null : AppBar(title: const Text('Reports')),
       body: Column(
         children: [
           MonthSwitcher(

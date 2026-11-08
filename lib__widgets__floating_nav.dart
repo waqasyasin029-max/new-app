@@ -85,15 +85,15 @@ class FloatingNav extends StatelessWidget {
                 child: Row(
                   children: [
                     _item(0, AppIcons.home, AppIcons.homeFill, 'Home'),
-                    _item(1, AppIcons.receipt, AppIcons.receiptFill, 'History'),
+                    _item(1, AppIcons.wallet, AppIcons.walletFill, 'Accounts'),
                     const SizedBox(width: 92),
-                    _item(2, AppIcons.wallet, AppIcons.walletFill, 'Accounts'),
                     _item(
-                      3,
+                      2,
                       AppIcons.barChart,
                       AppIcons.barChartFill,
                       'Reports',
                     ),
+                    _item(3, AppIcons.settings, AppIcons.settings, 'Settings'),
                   ],
                 ),
               ),
