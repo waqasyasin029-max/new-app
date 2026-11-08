@@ -53,7 +53,7 @@ class _HomeShellState extends State<HomeShell> {
           FloatingActionButton(
             heroTag: 'add',
             tooltip: tr('Add expense'),
-            backgroundColor: const Color(0xFF9B6BF2),
+            backgroundColor: AppColors.primary,
             foregroundColor: Colors.white,
             shape: const CircleBorder(),
             onPressed: () => AddExpenseFlow.start(context),
