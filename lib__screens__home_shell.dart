@@ -52,12 +52,16 @@ class _HomeShellState extends State<HomeShell> {
     _drag = 0;
     final far = dx.abs() > 70;
     final fast = v.abs() > 500;
-    if (!far && !fast) return;
+    final activity = _index == 2 ? _activityKey.currentState : null;
+    if (!far && !fast) {
+      activity?.dragEnd(0); // not far enough: Summary / History glides back
+      return;
+    }
     final toLeft = (far ? dx : v) < 0;
     var step = toLeft ? 1 : -1;
     if (_rtl) step = -step;
     // On the Activity tab the swipe first switches Summary <-> History.
-    if (_index == 2 && _activityKey.currentState?.swipe(step) == true) return;
+    if (activity != null && activity.dragEnd(step)) return;
     final next = _index + step;
     if (next >= 0 && next < _pages.length) _go(next);
   }
@@ -103,7 +107,11 @@ class _HomeShellState extends State<HomeShell> {
         body: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onHorizontalDragStart: (_) => _drag = 0,
-          onHorizontalDragUpdate: (d) => _drag += d.delta.dx,
+          onHorizontalDragUpdate: (d) {
+            _drag += d.delta.dx;
+            // On the Activity tab the page follows the finger.
+            if (_index == 2) _activityKey.currentState?.dragUpdate(d.delta.dx);
+          },
           onHorizontalDragEnd: _swipeEnd,
           child: Stack(
             fit: StackFit.expand,
