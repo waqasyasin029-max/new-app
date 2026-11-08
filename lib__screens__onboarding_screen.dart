@@ -113,7 +113,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
-    return Scaffold(
+    // Back shows the previous page; only the first page leaves the screen.
+    return PopScope(
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        _controller.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      },
+      child: Scaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -230,6 +240,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

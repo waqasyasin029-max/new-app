@@ -638,7 +638,15 @@ class _FlowSheetState extends State<_FlowSheet> {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
-    return Padding(
+    // Back goes one step back (what was typed stays); only the first step
+    // closes the sheet.
+    return PopScope(
+      canPop: _step == 0 && !_saving,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop || _saving) return;
+        if (_step > 0) setState(() => _step -= 1);
+      },
+      child: Padding(
       padding: EdgeInsets.fromLTRB(
         16,
         0,
@@ -667,6 +675,7 @@ class _FlowSheetState extends State<_FlowSheet> {
           ],
         ),
       ),
+    ),
     );
   }
 }

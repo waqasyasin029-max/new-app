@@ -39,12 +39,19 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(index: _index, children: _pages),
-      bottomNavigationBar: FloatingNav(
-        index: _index,
-        onTab: (i) => setState(() => _index = i),
-        onAdd: () => AddExpenseFlow.start(context),
+    // Back from any other tab returns to Home first; only Home closes the app.
+    return PopScope(
+      canPop: _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) setState(() => _index = 0);
+      },
+      child: Scaffold(
+        body: IndexedStack(index: _index, children: _pages),
+        bottomNavigationBar: FloatingNav(
+          index: _index,
+          onTab: (i) => setState(() => _index = i),
+          onAdd: () => AddExpenseFlow.start(context),
+        ),
       ),
     );
   }
