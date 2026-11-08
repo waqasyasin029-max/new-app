@@ -83,7 +83,6 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _body(BuildContext context, _DashData d, DateTime now) {
-    final negative = d.remaining < 0;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
@@ -219,13 +218,6 @@ class DashboardScreen extends StatelessWidget {
               label: 'Spent this month',
               value: Fmt.money(d.monthExpenses),
               color: AppColors.peach,
-            ),
-            const SizedBox(width: 10),
-            _PastelTile(
-              label: 'Left of salary',
-              value: Fmt.money(d.remaining),
-              color: AppColors.sky,
-              valueColor: negative ? AppColors.danger : null,
             ),
           ],
         ),
