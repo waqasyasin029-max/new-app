@@ -139,6 +139,12 @@ const Map<String, String> urExact = {
   'Profile': 'پروفائل',
   'Not set': 'مقرر نہیں',
   'Name saved': 'نام محفوظ ہو گیا',
+  'You can change your name only once in 14 days. Try again in 1 day.':
+      'آپ اپنا نام 14 دن میں صرف ایک بار بدل سکتے ہیں۔ 1 دن بعد دوبارہ کوشش کریں۔',
+  'You can change it freely for 5 minutes. After that, once every 14 days.':
+      'آپ 5 منٹ تک نام جتنی بار چاہیں بدل سکتے ہیں۔ اس کے بعد 14 دن میں ایک بار۔',
+  'Your name is shown on Home. It stays on this phone. You can change it freely for 5 minutes; after that, once every 14 days.':
+      'آپ کا نام ہوم پر نظر آتا ہے۔ یہ اسی فون میں رہتا ہے۔ 5 منٹ تک آپ اسے جتنی بار چاہیں بدل سکتے ہیں، اس کے بعد 14 دن میں ایک بار۔',
   'Name removed': 'نام ہٹا دیا گیا',
   'What should we call you?': 'ہم آپ کو کس نام سے بلائیں؟',
   'Your name is shown on Home. It stays on this phone.': 'آپ کا نام ہوم پر دکھایا جائے گا۔ یہ اسی فون میں رہتا ہے۔',
@@ -555,6 +561,8 @@ const Map<String, String> urExact = {
 
 const Map<String, String> urTemplates = {
   'Hello, {}': 'ہیلو، {0}',
+  'You can change your name only once in 14 days. Try again in {} days.':
+      'آپ اپنا نام 14 دن میں صرف ایک بار بدل سکتے ہیں۔ {0} دن بعد دوبارہ کوشش کریں۔',
   'Category: {}': 'کیٹیگری: {0}',
   'Last budget was {}. Change it or keep it.':
       'پچھلا بجٹ {0} تھا۔ بدل لیں یا ویسا ہی رکھیں۔',
