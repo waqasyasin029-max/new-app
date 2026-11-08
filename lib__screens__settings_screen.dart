@@ -102,9 +102,7 @@ class SettingsScreen extends StatelessWidget {
                   'App lock',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: const Text(
-                  'Ask for your fingerprint or phone PIN when the app opens',
-                ),
+                subtitle: const Text('Fingerprint or phone PIN'),
                 value: s.appLock,
                 onChanged: (on) => _toggleLock(context, s, on),
               ),
@@ -125,7 +123,7 @@ class SettingsScreen extends StatelessWidget {
                       : 'Installed version: $kBuildNumber',
                 ),
                 onTap: () async {
-                  snack(context, 'Checking…');
+                  snackInfo(context, 'Checking…');
                   final r = await UpdateService.check();
                   if (!context.mounted) return;
                   if (r.failed) {
@@ -134,7 +132,7 @@ class SettingsScreen extends StatelessWidget {
                       'Could not check for updates. Is internet on?',
                     );
                   } else if (r.update == null) {
-                    snack(context, 'You are on the latest version.');
+                    snackOk(context, 'You are on the latest version.');
                   } else {
                     showUpdateDialog(context, r.update!);
                   }
@@ -172,9 +170,7 @@ class SettingsScreen extends StatelessWidget {
                   'Your data stays on this phone',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: Text(
-                  'Expenses and income are stored only in a local database on this phone. Nothing is sent anywhere.',
-                ),
+                subtitle: Text('Nothing is sent anywhere'),
               ),
             ],
           ),

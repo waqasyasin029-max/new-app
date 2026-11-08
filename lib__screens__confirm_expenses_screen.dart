@@ -196,13 +196,10 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
             tr('${b.account.name} left ${Fmt.money(b.balance)}'),
       ].join(' • ');
       nav.pop(true);
-      messenger.showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 6),
-          content: Text(
+      showOk(
+        messenger,
+        message:
             'Saved ${list.length} expense${list.length == 1 ? '' : 's'} • ${Fmt.money(total)}\n$left',
-          ),
-        ),
       );
     } catch (e) {
       if (mounted) {
@@ -408,6 +405,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: [AmountFormatter()],
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       labelText: tr('Amount (Rs)'),

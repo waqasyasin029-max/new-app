@@ -98,9 +98,12 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
     ))
       return;
     final state = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
     await state.expenses.delete(widget.expense!.id!);
     state.changed();
-    if (mounted) Navigator.pop(context);
+    if (!mounted) return;
+    Navigator.pop(context);
+    showOk(messenger, message: 'Expense deleted');
   }
 
   @override
@@ -120,6 +123,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
             controller: _amount,
             autofocus: !_editing,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(labelText: tr('Amount (Rs)')),
           ),
           const SizedBox(height: 16),

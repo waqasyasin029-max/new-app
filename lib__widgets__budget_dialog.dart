@@ -42,6 +42,7 @@ Future<void> askBudget(BuildContext context, {bool monthly = false}) async {
             controller: c,
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(
               labelText: tr('Amount (Rs)'),
               prefixText: 'Rs ',
@@ -72,6 +73,7 @@ Future<void> askBudget(BuildContext context, {bool monthly = false}) async {
   if (v == null) return;
   await state.incomes.setSalary(month, v);
   state.changed();
+  if (context.mounted) snackOk(context, 'Budget saved');
 }
 
 /// Once per month, when this month has no budget of its own yet, asks for it.

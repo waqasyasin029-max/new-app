@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
@@ -5,6 +8,7 @@ import '../core/account_style.dart';
 import '../core/category_style.dart';
 import '../core/format.dart';
 import '../core/theme.dart';
+import '../main.dart' show navigatorKey;
 import '../data/models.dart';
 import '../state/app_state.dart';
 import '../core/i18n.dart';
@@ -273,16 +277,259 @@ Future<bool> confirmDialog(
 }
 
 /// Returns a positive amount or null.
+/// Types amounts with thousands separators: 1,000 and 25,000.50.
+/// Only digits and one decimal point (two decimals at most) are accepted.
+class AmountFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final raw = newValue.text.replaceAll(',', '');
+    if (raw.isEmpty) return newValue.copyWith(text: '');
+    if (!RegExp(r'^\d*\.?\d*$').hasMatch(raw)) return oldValue;
+    final dot = raw.indexOf('.');
+    var whole = dot < 0 ? raw : raw.substring(0, dot);
+    final dec = dot < 0 ? '' : raw.substring(dot + 1);
+    if (dec.length > 2) return oldValue;
+    whole = whole.replaceFirst(RegExp(r'^0+(?=\d)'), '');
+    if (whole.isEmpty) whole = '0';
+    final sb = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      if (i > 0 && (whole.length - i) % 3 == 0) sb.write(',');
+      sb.write(whole[i]);
+    }
+    final text = '$sb${dot < 0 ? '' : '.$dec'}';
+    // Keep the cursor after the same number of digits as before.
+    final end = newValue.selection.end.clamp(0, newValue.text.length);
+    final before = newValue.text.substring(0, end).replaceAll(',', '').length;
+    var seen = 0;
+    var pos = 0;
+    while (pos < text.length && seen < before) {
+      if (text[pos] != ',') seen++;
+      pos++;
+    }
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: pos),
+    );
+  }
+}
+
 double? parseAmount(String s) {
   final v = double.tryParse(s.trim().replaceAll(',', ''));
   return (v != null && v > 0 && v.isFinite) ? v : null;
 }
 
-void snack(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+OverlayEntry? _toastEntry;
+Timer? _toastTimer;
+
+void _closeToast() {
+  _toastTimer?.cancel();
+  _toastEntry?.remove();
+  _toastEntry = null;
 }
+
+/// Every message in the app (error, saved, info) appears here: one card at
+/// the top of the screen, no shadow, above popups and the bottom bar. A new
+/// message replaces the old one.
+void _showToast(
+  ToastKind kind, {
+  required Widget content,
+  required Duration duration,
+  String? actionLabel,
+  VoidCallback? onAction,
+}) {
+  final overlay = navigatorKey.currentState?.overlay;
+  if (overlay == null) return;
+  _closeToast();
+  final entry = OverlayEntry(
+    builder: (ctx) => Positioned(
+      top: MediaQuery.of(ctx).padding.top + 12,
+      left: 16,
+      right: 16,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        builder: (_, v, child) => Opacity(
+          opacity: v,
+          child: Transform.translate(
+            offset: Offset(0, (v - 1) * 16),
+            child: child,
+          ),
+        ),
+        child: Material(
+          type: MaterialType.transparency,
+          child: ToastCard(
+            kind: kind,
+            content: content,
+            actionLabel: actionLabel,
+            onAction: onAction,
+            onClose: _closeToast,
+          ),
+        ),
+      ),
+    ),
+  );
+  _toastEntry = entry;
+  overlay.insert(entry);
+  _toastTimer = Timer(duration, () {
+    if (_toastEntry == entry) _closeToast();
+  });
+}
+
+/// Red error message, 3 seconds.
+void snack(BuildContext context, String message) => _showToast(
+  ToastKind.error,
+  content: Text(message),
+  duration: const Duration(seconds: 3),
+);
+
+enum ToastKind { ok, error, info }
+
+/// Soft tinted message card: coloured icon, bold coloured text, close button.
+/// Used for every snackbar so they all look the same.
+class ToastCard extends StatelessWidget {
+  final ToastKind kind;
+  final Widget content;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final VoidCallback onClose;
+  const ToastCard({
+    super.key,
+    required this.kind,
+    required this.content,
+    required this.onClose,
+    this.actionLabel,
+    this.onAction,
+  });
+
+  Color get _fg {
+    final d = AppColors.dark;
+    switch (kind) {
+      case ToastKind.ok:
+        return d ? const Color(0xFF4ADE80) : const Color(0xFF15803D);
+      case ToastKind.error:
+        return d ? const Color(0xFFFF8A8F) : const Color(0xFFC62828);
+      case ToastKind.info:
+        return d ? const Color(0xFF7DB4FF) : const Color(0xFF1D5FD1);
+    }
+  }
+
+  Color get _bg {
+    final d = AppColors.dark;
+    switch (kind) {
+      case ToastKind.ok:
+        return d ? const Color(0xFF14291D) : const Color(0xFFE9F8EF);
+      case ToastKind.error:
+        return d ? const Color(0xFF331618) : const Color(0xFFFDECEC);
+      case ToastKind.info:
+        return d ? const Color(0xFF14233A) : const Color(0xFFE8F2FE);
+    }
+  }
+
+  Widget _icon() {
+    switch (kind) {
+      case ToastKind.ok:
+        return Icon(AppIcons.check, size: 24, color: _fg);
+      case ToastKind.info:
+        return Icon(AppIcons.info, size: 24, color: _fg);
+      case ToastKind.error:
+        return Container(
+          width: 22,
+          height: 22,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: _fg, width: 2),
+          ),
+          child: Text(
+            '!',
+            verbatim: true,
+            style: TextStyle(
+              color: _fg,
+              fontSize: 13,
+              height: 1,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+      decoration: BoxDecoration(
+        color: _bg,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _fg.withOpacity(0.14)),
+      ),
+      child: Row(
+        children: [
+          _icon(),
+          const SizedBox(width: 12),
+          Expanded(
+            child: DefaultTextStyle.merge(
+              style: TextStyle(
+                color: _fg,
+                fontSize: 14.5,
+                height: 1.3,
+                fontWeight: FontWeight.w700,
+              ),
+              child: content,
+            ),
+          ),
+          if (actionLabel != null)
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: _fg,
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                textStyle: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              onPressed: () {
+                onClose();
+                onAction?.call();
+              },
+              child: Text(actionLabel!, verbatim: true),
+            ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            icon: Icon(AppIcons.close, size: 18, color: _fg),
+            onPressed: onClose,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Green message (saved, added, deleted), 5 seconds, optional Undo button.
+/// [messenger] is not needed any more; it is kept so older calls still work.
+void showOk(
+  Object? messenger, {
+  String? message,
+  Widget? content,
+  SnackBarAction? action,
+  ToastKind kind = ToastKind.ok,
+}) => _showToast(
+  kind,
+  content: content ?? Text(message ?? ''),
+  duration: const Duration(seconds: 5),
+  actionLabel: action?.label,
+  onAction: action?.onPressed,
+);
+
+void snackOk(BuildContext context, String message) =>
+    showOk(null, message: message);
+
+/// Blue neutral note ("Checking…", "A reminder will arrive…").
+void snackInfo(BuildContext context, String message) =>
+    showOk(null, message: message, kind: ToastKind.info);
 
 /// "Paid from" selector. [value] null = nothing chosen yet.
 class AccountDropdown extends StatelessWidget {

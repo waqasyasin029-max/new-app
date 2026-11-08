@@ -41,6 +41,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
           controller: c,
           autofocus: true,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [AmountFormatter()],
           decoration: InputDecoration(labelText: tr('Amount (Rs)')),
         ),
         actions: [
@@ -86,6 +87,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
+              inputFormatters: [AmountFormatter()],
               decoration: InputDecoration(labelText: tr('Amount (Rs)')),
             ),
             const SizedBox(height: 12),
@@ -258,6 +260,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
                                   final state = context.read<AppState>();
                                   await state.incomes.delete(i.id);
                                   state.changed();
+                                  if (context.mounted) {
+                                    snackOk(context, 'Income deleted');
+                                  }
                                 },
                               ),
                             ],

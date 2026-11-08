@@ -2,6 +2,18 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'Budget saved': 'بجٹ محفوظ ہو گیا',
+  'Changes saved': 'تبدیلیاں محفوظ ہو گئیں',
+  'Account added': 'اکاؤنٹ شامل ہو گیا',
+  'Income deleted': 'آمدنی حذف ہو گئی',
+  'Entry deleted': 'اندراج حذف ہو گیا',
+  'Account deleted': 'اکاؤنٹ حذف ہو گیا',
+  'Expense deleted': 'خرچ حذف ہو گیا',
+  'Rings in 1 minute': '1 منٹ میں بجے گی',
+  'Stops battery saver blocking it': 'بیٹری سیور اسے نہیں روکے گا',
+  'Reminder arrives on time': 'یاد دہانی وقت پر آتی ہے',
+  'Nothing is sent anywhere': 'کچھ بھی کہیں نہیں بھیجا جاتا',
+  'Fingerprint or phone PIN': 'فنگر پرنٹ یا فون پن',
   'Choose an account.': 'اکاؤنٹ چنیں۔',
   'Other (write the name)': 'کوئی اور (نام خود لکھیں)',
   'Choose an account': 'اکاؤنٹ چنیں',

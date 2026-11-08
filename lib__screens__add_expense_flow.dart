@@ -9,6 +9,7 @@ import '../core/theme.dart';
 import '../data/models.dart';
 import '../logic/lexicon.dart';
 import '../state/app_state.dart';
+import '../widgets/common.dart';
 import '../core/app_icons.dart';
 
 class _Saved {
@@ -38,32 +39,27 @@ class AddExpenseFlow {
       builder: (_) => const _FlowSheet(),
     );
     if (saved == null) return;
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 6),
-          behavior: SnackBarBehavior.floating,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Saved ${Fmt.money(saved.amount)} · ${saved.category}'),
-              Text(
-                '${saved.account} left ${Fmt.money(saved.left)}',
-                style: const TextStyle(fontSize: 12),
-              ),
-            ],
+    showOk(
+      messenger,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Saved ${Fmt.money(saved.amount)} · ${saved.category}'),
+          Text(
+            '${saved.account} left ${Fmt.money(saved.left)}',
+            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
           ),
-          action: SnackBarAction(
-            label: tr('Undo'),
-            onPressed: () async {
-              await state.expenses.delete(saved.id);
-              state.changed();
-            },
-          ),
-        ),
-      );
+        ],
+      ),
+      action: SnackBarAction(
+        label: tr('Undo'),
+        onPressed: () async {
+          await state.expenses.delete(saved.id);
+          state.changed();
+        },
+      ),
+    );
   }
 }
 
@@ -178,9 +174,7 @@ class _FlowSheetState extends State<_FlowSheet> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save: $e', verbatim: true)),
-      );
+      snack(context, 'Could not save: $e');
     }
   }
 

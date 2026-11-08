@@ -3,7 +3,9 @@ import 'package:open_filex/open_filex.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../services/update_service.dart';
+import '../core/app_icons.dart';
 import '../core/i18n.dart';
+import '../core/theme.dart';
 
 Future<void> showUpdateDialog(BuildContext context, UpdateInfo info) =>
     showDialog<void>(
@@ -70,49 +72,120 @@ class _UpdateDialogState extends State<_UpdateDialog> {
   Widget build(BuildContext context) {
     final notes = widget.info.notes;
     return AlertDialog(
-      title: const Text('New update available'),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Version ${widget.info.build}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            if (notes.isNotEmpty) ...[const SizedBox(height: 8), Text(notes)],
-            if (_busy) ...[
-              const SizedBox(height: 16),
-              LinearProgressIndicator(value: _progress > 0 ? _progress : null),
-              const SizedBox(height: 4),
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      icon: Container(
+        width: 64,
+        height: 64,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: AppColors.gradient,
+        ),
+        child: const Icon(AppIcons.systemUpdate, size: 30, color: Colors.white),
+      ),
+      title: const Text('New update available', textAlign: TextAlign.center),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.fieldFill,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  'Version ${widget.info.build}',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              if (notes.isNotEmpty) ...[
+                const SizedBox(height: 14),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.fieldFill,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    notes,
+                    verbatim: true,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                ),
+              ],
+              if (_busy) ...[
+                const SizedBox(height: 18),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: _progress > 0 ? _progress : null,
+                    minHeight: 8,
+                    color: AppColors.primary,
+                    backgroundColor: AppColors.line,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _progress > 0
+                      ? 'Downloading ${(_progress * 100).toStringAsFixed(0)}%'
+                      : 'Starting…',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.muted,
+                  ),
+                ),
+              ],
+              if (_message != null) ...[
+                const SizedBox(height: 14),
+                Text(
+                  _message!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 13, height: 1.4),
+                ),
+              ],
+              const SizedBox(height: 14),
               Text(
-                _progress > 0
-                    ? 'Downloading ${(_progress * 100).toStringAsFixed(0)}%'
-                    : 'Starting…',
+                'Your expenses and settings are kept.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.5, color: AppColors.muted),
+              ),
+              const SizedBox(height: 18),
+              SizedBox(
+                width: double.infinity,
+                height: 52,
+                child: FilledButton(
+                  onPressed: _busy ? null : _install,
+                  child: const Text('Update'),
+                ),
+              ),
+              const SizedBox(height: 4),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: _busy ? null : () => Navigator.pop(context),
+                  child: const Text('Later'),
+                ),
               ),
             ],
-            if (_message != null) ...[
-              const SizedBox(height: 12),
-              Text(_message!),
-            ],
-            const SizedBox(height: 8),
-            const Text(
-              'Your expenses and settings are kept.',
-              style: TextStyle(fontSize: 12),
-            ),
-          ],
+          ),
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: _busy ? null : () => Navigator.pop(context),
-          child: const Text('Later'),
-        ),
-        FilledButton(
-          onPressed: _busy ? null : _install,
-          child: const Text('Update'),
-        ),
-      ],
     );
   }
 }

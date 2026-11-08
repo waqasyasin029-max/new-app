@@ -113,13 +113,10 @@ class _TransferScreenState extends State<TransferScreen> {
       state.changed();
       final newTo = await state.accountRepo.balanceOf(_to!);
       nav.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 6),
-          content: Text(
+      showOk(
+        messenger,
+        message:
             '${Fmt.money(amount)} moved from $fromName to $toName.\n$toName now: ${Fmt.money(newTo)}',
-          ),
-        ),
       );
     } catch (e) {
       if (mounted) {
@@ -171,6 +168,7 @@ class _TransferScreenState extends State<TransferScreen> {
             controller: _amount,
             autofocus: w,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(
               labelText: tr(
                 w ? 'How much did you withdraw? (Rs)' : 'Amount (Rs)',
@@ -181,6 +179,7 @@ class _TransferScreenState extends State<TransferScreen> {
           TextField(
             controller: _fee,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(
               labelText: tr('Fee / charges (optional)'),
             ),

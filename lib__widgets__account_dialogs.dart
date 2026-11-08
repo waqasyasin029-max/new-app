@@ -114,6 +114,7 @@ Future<void> showAccountDialog(
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
+                      inputFormatters: [AmountFormatter()],
                       decoration: InputDecoration(
                         labelText: tr('Money in it right now (Rs)'),
                       ),
@@ -174,6 +175,9 @@ Future<void> showAccountDialog(
       await state.accountRepo.update(existing.id, n, type);
     }
     await state.reloadAccounts();
+    if (context.mounted) {
+      snackOk(context, existing == null ? 'Account added' : 'Changes saved');
+    }
   } catch (_) {
     if (context.mounted)
       snack(
@@ -249,6 +253,7 @@ Future<void> showReconcileDialog(
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [AmountFormatter()],
                 onChanged: (_) => setD(() {}),
                 decoration: InputDecoration(
                   labelText: tr(
@@ -304,7 +309,7 @@ Future<void> showReconcileDialog(
   }
   state.changed();
   if (context.mounted) {
-    snack(
+    snackOk(
       context,
       choice == 'expense'
           ? 'Added Rs ${Fmt.number(expected - actual)} as an expense.'
