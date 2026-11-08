@@ -235,7 +235,7 @@ class DashboardScreen extends StatelessWidget {
             child: const ListTile(
               leading: Icon(
                 Icons.account_balance_wallet,
-                color: AppColors.gold,
+                color: AppColors.primary,
               ),
               title: Text(
                 'Set your monthly salary',

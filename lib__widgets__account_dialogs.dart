@@ -146,7 +146,7 @@ Future<void> showReconcileDialog(
           msg = Text(
             'You have Rs ${Fmt.number(diff)} more than recorded. Some money received was not recorded.',
             style: const TextStyle(
-              color: AppColors.gold,
+              color: AppColors.primaryDeep,
               fontWeight: FontWeight.w600,
             ),
           );

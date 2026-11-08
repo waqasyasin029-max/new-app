@@ -90,7 +90,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             icon: Icons.trending_up,
                             label: 'Income',
                             value: Fmt.money(d.income),
-                            color: const Color(0xFF6C63F0),
+                            color: AppColors.positive,
                             spark: [for (final p in d.months) p.income],
                           ),
                         ),
@@ -99,7 +99,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                             icon: Icons.trending_down,
                             label: 'Expenses',
                             value: Fmt.money(d.spent),
-                            color: const Color(0xFFE5385F),
+                            color: AppColors.danger,
                             dotted: true,
                             spark: [for (final p in d.months) p.spent],
                             caption: '${Fmt.money(d.spent / elapsed)} per day',
@@ -116,7 +116,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           : '—',
                       color: remaining < 0
                           ? AppColors.danger
-                          : const Color(0xFF0E9F6E),
+                          : AppColors.primary,
                       spark: [for (final p in d.months) p.savedShare],
                       caption: remaining < 0
                           ? '${Fmt.money(-remaining)} over this month'
