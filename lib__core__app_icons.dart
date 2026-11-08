@@ -38,144 +38,160 @@ class AppIcons {
   static const barChart = IconData(
     0xe00c,
     fontFamily: _f,
-  ); // hugeicons:chart-bar-line
-  static const sparkle = IconData(0xe00d, fontFamily: _f); // hugeicons:sparkles
-  static const addCircle = IconData(
+  ); // hugeicons:custom:barChart
+  static const barChartFill = IconData(
+    0xe00d,
+    fontFamily: _f,
+  ); // hugeicons:custom:barChartFill
+  static const homeFill = IconData(
     0xe00e,
     fontFamily: _f,
-  ); // hugeicons:add-circle
-  static const refresh = IconData(0xe00f, fontFamily: _f); // hugeicons:refresh
-  static const bellRinging = IconData(
+  ); // hugeicons:custom:homeFill
+  static const receiptFill = IconData(
+    0xe00f,
+    fontFamily: _f,
+  ); // hugeicons:custom:receiptFill
+  static const walletFill = IconData(
     0xe010,
+    fontFamily: _f,
+  ); // hugeicons:custom:walletFill
+  static const sparkle = IconData(0xe011, fontFamily: _f); // hugeicons:sparkles
+  static const addCircle = IconData(
+    0xe012,
+    fontFamily: _f,
+  ); // hugeicons:add-circle
+  static const refresh = IconData(0xe013, fontFamily: _f); // hugeicons:refresh
+  static const bellRinging = IconData(
+    0xe014,
     fontFamily: _f,
   ); // hugeicons:bell-ring
   static const lock = IconData(
-    0xe011,
+    0xe015,
     fontFamily: _f,
   ); // hugeicons:square-lock-02
-  static const home = IconData(0xe012, fontFamily: _f); // hugeicons:home-01
+  static const home = IconData(0xe016, fontFamily: _f); // hugeicons:home-01
   static const edit = IconData(
-    0xe013,
+    0xe017,
     fontFamily: _f,
   ); // hugeicons:pencil-edit-02
   static const editNote = IconData(
-    0xe014,
+    0xe018,
     fontFamily: _f,
   ); // hugeicons:note-edit
-  static const atm = IconData(0xe015, fontFamily: _f); // hugeicons:atm-01
-  static const clock = IconData(0xe016, fontFamily: _f); // hugeicons:clock-01
+  static const atm = IconData(0xe019, fontFamily: _f); // hugeicons:atm-01
+  static const clock = IconData(0xe01a, fontFamily: _f); // hugeicons:clock-01
   static const wifiOff = IconData(
-    0xe017,
+    0xe01b,
     fontFamily: _f,
   ); // hugeicons:wifi-off-01
-  static const trendUp = IconData(0xe018, fontFamily: _f); // hugeicons:chart-up
+  static const trendUp = IconData(0xe01c, fontFamily: _f); // hugeicons:chart-up
   static const trendDown = IconData(
-    0xe019,
+    0xe01d,
     fontFamily: _f,
   ); // hugeicons:chart-down
   static const translate = IconData(
-    0xe01a,
+    0xe01e,
     fontFamily: _f,
   ); // hugeicons:translate
-  static const timer = IconData(0xe01b, fontFamily: _f); // hugeicons:timer-02
+  static const timer = IconData(0xe01f, fontFamily: _f); // hugeicons:timer-02
   static const systemUpdate = IconData(
-    0xe01c,
+    0xe020,
     fontFamily: _f,
   ); // hugeicons:download-01
   static const arrowDownLeft = IconData(
-    0xe01d,
+    0xe021,
     fontFamily: _f,
   ); // hugeicons:arrow-down-left-01
   static const slideshow = IconData(
-    0xe01e,
+    0xe022,
     fontFamily: _f,
   ); // hugeicons:presentation-01
   static const shoppingBag = IconData(
-    0xe01f,
+    0xe023,
     fontFamily: _f,
   ); // hugeicons:shopping-bag-01
   static const settings = IconData(
-    0xe020,
+    0xe024,
     fontFamily: _f,
   ); // hugeicons:settings-02
-  static const send = IconData(0xe021, fontFamily: _f); // hugeicons:sent
-  static const search = IconData(0xe022, fontFamily: _f); // hugeicons:search-01
+  static const send = IconData(0xe025, fontFamily: _f); // hugeicons:sent
+  static const search = IconData(0xe026, fontFamily: _f); // hugeicons:search-01
   static const savings = IconData(
-    0xe023,
+    0xe027,
     fontFamily: _f,
   ); // hugeicons:piggy-bank
   static const restaurant = IconData(
-    0xe024,
+    0xe028,
     fontFamily: _f,
   ); // hugeicons:restaurant-01
-  static const person = IconData(0xe025, fontFamily: _f); // hugeicons:user
+  static const person = IconData(0xe029, fontFamily: _f); // hugeicons:user
   static const bellAdd = IconData(
-    0xe026,
+    0xe02a,
     fontFamily: _f,
   ); // hugeicons:bell-plus
   static const arrowUpRight = IconData(
-    0xe027,
+    0xe02b,
     fontFamily: _f,
   ); // hugeicons:arrow-up-right-01
-  static const movie = IconData(0xe028, fontFamily: _f); // hugeicons:film-01
+  static const movie = IconData(0xe02c, fontFamily: _f); // hugeicons:film-01
   static const medical = IconData(
-    0xe029,
+    0xe02d,
     fontFamily: _f,
   ); // hugeicons:first-aid-kit
   static const grocery = IconData(
-    0xe02a,
+    0xe02e,
     fontFamily: _f,
   ); // hugeicons:shopping-cart-01
   static const insights = IconData(
-    0xe02b,
+    0xe02f,
     fontFamily: _f,
   ); // hugeicons:chart-line-data-01
   static const info = IconData(
-    0xe02c,
+    0xe030,
     fontFamily: _f,
   ); // hugeicons:information-circle
   static const healthSafety = IconData(
-    0xe02d,
+    0xe031,
     fontFamily: _f,
   ); // hugeicons:shield-01
-  static const coffee = IconData(0xe02e, fontFamily: _f); // hugeicons:coffee-01
-  static const car = IconData(0xe02f, fontFamily: _f); // hugeicons:car-01
+  static const coffee = IconData(0xe032, fontFamily: _f); // hugeicons:coffee-01
+  static const car = IconData(0xe033, fontFamily: _f); // hugeicons:car-01
   static const dinner = IconData(
-    0xe030,
+    0xe034,
     fontFamily: _f,
   ); // hugeicons:rice-bowl-01
   static const dateRange = IconData(
-    0xe031,
+    0xe035,
     fontFamily: _f,
   ); // hugeicons:calendar-02
   static const clear = IconData(
-    0xe032,
+    0xe036,
     fontFamily: _f,
   ); // hugeicons:cancel-circle
   static const category = IconData(
-    0xe033,
+    0xe037,
     fontFamily: _f,
   ); // hugeicons:dashboard-square-01
   static const brightness = IconData(
-    0xe034,
+    0xe038,
     fontFamily: _f,
   ); // hugeicons:contrast
   static const batterySaver = IconData(
-    0xe035,
+    0xe039,
     fontFamily: _f,
   ); // hugeicons:battery-charging-01
-  static const badge = IconData(0xe036, fontFamily: _f); // hugeicons:id-card
+  static const badge = IconData(0xe03a, fontFamily: _f); // hugeicons:id-card
   static const backspace = IconData(
-    0xe037,
+    0xe03b,
     fontFamily: _f,
   ); // hugeicons:arrow-left-02
   static const arrowForward = IconData(
-    0xe038,
+    0xe03c,
     fontFamily: _f,
   ); // hugeicons:arrow-right-02
   static const alarm = IconData(
-    0xe039,
+    0xe03d,
     fontFamily: _f,
   ); // hugeicons:alarm-clock
-  static const bank = IconData(0xe03a, fontFamily: _f); // hugeicons:bank
+  static const bank = IconData(0xe03e, fontFamily: _f); // hugeicons:bank
 }
