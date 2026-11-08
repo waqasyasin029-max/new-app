@@ -102,9 +102,7 @@ class SettingsScreen extends StatelessWidget {
                   'App lock',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: const Text(
-                  'Ask for your fingerprint or phone PIN when the app opens',
-                ),
+                subtitle: const Text('Fingerprint or phone PIN'),
                 value: s.appLock,
                 onChanged: (on) => _toggleLock(context, s, on),
               ),
@@ -172,9 +170,7 @@ class SettingsScreen extends StatelessWidget {
                   'Your data stays on this phone',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: Text(
-                  'Expenses and income are stored only in a local database on this phone. Nothing is sent anywhere.',
-                ),
+                subtitle: Text('Nothing is sent anywhere'),
               ),
             ],
           ),

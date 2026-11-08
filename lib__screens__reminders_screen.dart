@@ -38,9 +38,6 @@ class _RemindersScreenState extends State<RemindersScreen> {
                   'Remind me every day',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: const Text(
-                  '"Have you recorded your expenses today?"',
-                ),
                 value: s.reminderEnabled,
                 onChanged: (v) => s.setReminder(enabled: v),
               ),
@@ -95,9 +92,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                     'Allow exact alarms',
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  subtitle: const Text(
-                    'Makes the reminder arrive on the minute (Android 12+)',
-                  ),
+                  subtitle: const Text('Reminder arrives on time'),
                   onTap: () async {
                     await NotificationService.requestExactAlarmPermission();
                     await s.applyReminder();
@@ -109,9 +104,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                     'Allow background running',
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  subtitle: const Text(
-                    'Stops the phone battery saver from blocking reminders',
-                  ),
+                  subtitle: const Text('Stops battery saver blocking it'),
                   onTap: () => Permission.ignoreBatteryOptimizations.request(),
                 ),
                 ListTile(
@@ -120,9 +113,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                     'Test reminder in 1 minute',
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
-                  subtitle: const Text(
-                    'Tap, then lock the phone and wait. It should ring on time.',
-                  ),
+                  subtitle: const Text('Rings in 1 minute'),
                   onTap: () async {
                     final ok = await NotificationService.requestPermission();
                     if (!ok && context.mounted) {
