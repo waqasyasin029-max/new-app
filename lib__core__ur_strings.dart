@@ -440,6 +440,9 @@ const Map<String, String> urExact = {
   'Skip': 'چھوڑیں',
   'Next': 'اگلا',
   'Get started': 'شروع کریں',
+  'Income and expenses for the last 6 months':
+      'پچھلے 6 مہینوں کی آمدنی اور اخراجات',
+  'Saved': 'بچت',
 };
 
 const Map<String, String> urTemplates = {
@@ -513,4 +516,7 @@ const Map<String, String> urTemplates = {
   'Gemini assistant': 'جیمنائی اسسٹنٹ',
   'Saved.': 'محفوظ ہو گیا۔',
   '1. Open aistudio.google.com/apikey and create a free key.\n2. Paste it here and tap Save.\n3. Tap Check assistant to make sure it works.': '1. aistudio.google.com/apikey کھولیں اور مفت کی بنائیں۔\n2. اسے یہاں پیسٹ کریں اور محفوظ کریں دبائیں۔\n3. اسسٹنٹ چیک کریں دبا کر دیکھیں کہ چل رہا ہے۔',
+  '{} per day': '{0} روزانہ',
+  '{} left this month': 'اس مہینے {0} باقی',
+  '{} over this month': 'اس مہینے {0} زیادہ',
 };
