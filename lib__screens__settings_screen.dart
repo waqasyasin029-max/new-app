@@ -11,7 +11,6 @@ import '../widgets/lock_gate.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import 'onboarding_screen.dart';
-import 'reminders_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
@@ -66,29 +65,6 @@ class SettingsScreen extends StatelessWidget {
                     selected: {s.language},
                     onSelectionChanged: (v) => s.setLanguage(v.first),
                   ),
-                ),
-              ),
-            ],
-          ),
-          const SectionTitle('Reminders'),
-          TileGroup(
-            children: [
-              ListTile(
-                leading: const Icon(AppIcons.bellRinging),
-                title: const Text(
-                  'Reminders',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  s.reminderEnabled
-                      ? '${tr('Daily at')} ${s.reminderTime.format(context)}'
-                      : tr('Off'),
-                  verbatim: true,
-                ),
-                trailing: const Icon(AppIcons.chevronRight),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RemindersScreen()),
                 ),
               ),
             ],

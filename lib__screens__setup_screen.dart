@@ -499,15 +499,28 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: _step == 0
-            ? _accountsStep()
-            : _step == 1
-            ? _amountsStep()
-            : _step == 2
-            ? _reminderStep()
-            : _lockStep(),
+    // Back goes one step back; from the first step it returns to the intro
+    // pages instead of closing the app.
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop || _busy) return;
+        if (_step > 0) {
+          setState(() => _step -= 1);
+        } else {
+          context.read<AppState>().backToOnboarding();
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: _step == 0
+              ? _accountsStep()
+              : _step == 1
+              ? _amountsStep()
+              : _step == 2
+              ? _reminderStep()
+              : _lockStep(),
+        ),
       ),
     );
   }

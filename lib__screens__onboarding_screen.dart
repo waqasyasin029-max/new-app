@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
+import '../widgets/common.dart' show confirmExit;
 import 'home_shell.dart';
 import 'setup_screen.dart';
 import '../core/app_icons.dart';
@@ -16,10 +17,14 @@ class OnboardingGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final done = context.select<AppState, bool>((s) => s.onboardingDone);
     final setup = context.select<AppState, bool>((s) => s.setupDone);
+    final fromSetup = context.read<AppState>().returnedFromSetup;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 350),
       child: !done
-          ? const OnboardingScreen(key: ValueKey('onboarding'))
+          ? OnboardingScreen(
+              key: const ValueKey('onboarding'),
+              startAtEnd: fromSetup,
+            )
           : !setup
           ? const FirstSetupScreen(key: ValueKey('setup'))
           : const HomeShell(key: ValueKey('home')),
@@ -60,15 +65,24 @@ const _pages = <_Page>[
 class OnboardingScreen extends StatefulWidget {
   /// True when opened again from Settings: closing just goes back.
   final bool replay;
-  const OnboardingScreen({super.key, this.replay = false});
+
+  /// Opens on the last page (when coming back from the first setup).
+  final bool startAtEnd;
+  const OnboardingScreen({
+    super.key,
+    this.replay = false,
+    this.startAtEnd = false,
+  });
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final _controller = PageController();
-  int _index = 0;
+  late final _controller = PageController(
+    initialPage: widget.startAtEnd ? _pages.length - 1 : 0,
+  );
+  late int _index = widget.startAtEnd ? _pages.length - 1 : 0;
 
   @override
   void dispose() {
@@ -100,7 +114,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
-    return Scaffold(
+    // Back shows the previous page; only the first page leaves the screen.
+    return PopScope(
+      canPop: widget.replay && _index == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) return;
+        if (_index > 0) {
+          _controller.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        } else {
+          confirmExit(context);
+        }
+      },
+      child: Scaffold(
       body: SafeArea(
         child: Column(
           children: [
@@ -217,6 +245,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

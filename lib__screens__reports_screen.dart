@@ -96,49 +96,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
                       child: IncomeExpenseChart(points: d.months),
                     ),
-                    IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: MiniStatTile(
-                              icon: AppIcons.trendUp,
-                              label: 'Budget',
-                              value: Fmt.money(d.income),
-                              color: AppColors.positive,
-                              spark: [for (final p in d.months) p.income],
-                              caption: 'Your plan for the month',
-                            ),
-                          ),
-                          Expanded(
-                            child: MiniStatTile(
-                              icon: AppIcons.trendDown,
-                              label: 'Expenses',
-                              value: Fmt.money(d.spent),
-                              color: AppColors.danger,
-                              dotted: true,
-                              spark: [for (final p in d.months) p.spent],
-                              caption:
-                                  '${Fmt.money(d.spent / elapsed)} per day',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    MiniStatTile(
-                      wide: true,
-                      icon: AppIcons.savings,
-                      label: 'Left of budget',
-                      value: d.income > 0
-                          ? '${(remaining / d.income * 100).toStringAsFixed(0)}%'
-                          : '—',
-                      color: remaining < 0
-                          ? AppColors.danger
-                          : AppColors.primary,
-                      spark: [for (final p in d.months) p.savedShare],
-                      caption: remaining < 0
-                          ? '${Fmt.money(-remaining)} over budget'
-                          : '${Fmt.money(remaining)} left of budget',
+                    _SummaryCard(
+                      budget: d.income,
+                      spent: d.spent,
+                      perDay: d.spent / elapsed,
                     ),
                     AppCard(
                       margin: const EdgeInsets.all(4),
@@ -290,6 +251,122 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ],
                 );
               },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Budget, expenses and what is left, together in one short card.
+class _SummaryCard extends StatelessWidget {
+  final double budget;
+  final double spent;
+  final double perDay;
+  const _SummaryCard({
+    required this.budget,
+    required this.spent,
+    required this.perDay,
+  });
+
+  Widget _col(IconData icon, String label, String value, Color color,
+      String caption) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.muted,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              value,
+              verbatim: true,
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            caption,
+            style: TextStyle(fontSize: 11.5, color: AppColors.muted),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final remaining = budget - spent;
+    final over = remaining < 0;
+    final used = budget > 0 ? (spent / budget).clamp(0.0, 1.0) : 0.0;
+    final barColor = over ? AppColors.danger : AppColors.primary;
+    return AppCard(
+      margin: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _col(
+                  AppIcons.trendUp,
+                  'Budget',
+                  Fmt.money(budget),
+                  AppColors.positive,
+                  'Your plan for the month',
+                ),
+                VerticalDivider(width: 24, thickness: 1, color: AppColors.line),
+                _col(
+                  AppIcons.trendDown,
+                  'Expenses',
+                  Fmt.money(spent),
+                  AppColors.danger,
+                  '${Fmt.money(perDay)} per day',
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          LinearProgressIndicator(
+            value: used,
+            minHeight: 8,
+            borderRadius: BorderRadius.circular(4),
+            backgroundColor: barColor.withOpacity(0.12),
+            color: barColor,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            over
+                ? '${Fmt.money(-remaining)} over budget'
+                : '${Fmt.money(remaining)} left of budget',
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w600,
+              color: over ? AppColors.danger : AppColors.muted,
             ),
           ),
         ],

@@ -70,16 +70,42 @@ class _HistoryScreenState extends State<HistoryScreen> {
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
             child: Column(
               children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child:
                 TextField(
-                  decoration: InputDecoration(
-                    prefixIcon: const Icon(AppIcons.search),
-                    hintText: tr('Search'),
-                    fillColor: AppColors.fieldFill,
-                    border: pillBorder(),
-                    enabledBorder: pillBorder(),
-                    focusedBorder: pillBorder(),
-                  ),
-                  onChanged: (v) => setState(() => _search = v),
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(AppIcons.search),
+                          hintText: tr('Search'),
+                          fillColor: AppColors.fieldFill,
+                          border: pillBorder(),
+                          enabledBorder: pillBorder(),
+                          focusedBorder: pillBorder(),
+                        ),
+                        onChanged: (v) => setState(() => _search = v),
+                      ),
+                    ),
+                    if (widget.embedded) ...[
+                      const SizedBox(width: 8),
+                      Material(
+                        color: AppColors.surface,
+                        shape: CircleBorder(
+                          side: BorderSide(color: AppColors.line),
+                        ),
+                        child: IconButton(
+                          tooltip: tr('Add manually'),
+                          icon: const Icon(AppIcons.addCircle),
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const ExpenseEditScreen(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
                 const SizedBox(height: 10),
                 Row(
