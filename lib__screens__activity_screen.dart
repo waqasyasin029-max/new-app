@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart' show HapticFeedback;
 
 import '../core/i18n.dart';
+import '../widgets/fade_slide_page.dart';
 import 'history_screen.dart';
 import 'reports_screen.dart';
 
@@ -17,6 +18,20 @@ class ActivityScreen extends StatefulWidget {
 class ActivityScreenState extends State<ActivityScreen> {
   int _tab = 0;
 
+  /// Which side the page slides in from (1 = right, -1 = left); flips in
+  /// Urdu, which mirrors the layout.
+  int _dir = 1;
+
+  bool get _rtl => Directionality.of(context) == TextDirection.rtl;
+
+  void _select(int next) {
+    if (next == _tab) return;
+    setState(() {
+      _dir = (next > _tab ? 1 : -1) * (_rtl ? -1 : 1);
+      _tab = next;
+    });
+  }
+
   /// A sideways swipe on this tab first moves between Summary and History.
   /// [step] is +1 toward the next tab in reading direction, -1 toward the
   /// previous. Returns true when it was used here; false at either end, so
@@ -25,7 +40,7 @@ class ActivityScreenState extends State<ActivityScreen> {
     final next = _tab + step;
     if (next < 0 || next > 1) return false;
     HapticFeedback.selectionClick();
-    setState(() => _tab = next);
+    _select(next);
     return true;
   }
 
@@ -44,15 +59,23 @@ class ActivityScreenState extends State<ActivityScreen> {
               ButtonSegment(value: 1, label: Text('History')),
             ],
             selected: {_tab},
-            onSelectionChanged: (v) => setState(() => _tab = v.first),
+            onSelectionChanged: (v) => _select(v.first),
           ),
         ),
       ),
-      body: IndexedStack(
-        index: _tab,
-        children: const [
-          ReportsScreen(embedded: true),
-          HistoryScreen(embedded: true),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          FadeSlidePage(
+            active: _tab == 0,
+            dir: _dir,
+            child: const ReportsScreen(embedded: true),
+          ),
+          FadeSlidePage(
+            active: _tab == 1,
+            dir: _dir,
+            child: const HistoryScreen(embedded: true),
+          ),
         ],
       ),
     );

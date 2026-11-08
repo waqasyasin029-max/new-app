@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../state/app_state.dart';
 import '../widgets/budget_dialog.dart';
 import '../widgets/common.dart' show confirmExit;
+import '../widgets/fade_slide_page.dart';
 import '../widgets/floating_nav.dart';
 import 'add_expense_flow.dart';
 import 'accounts_screen.dart';
@@ -108,7 +109,7 @@ class _HomeShellState extends State<HomeShell> {
             fit: StackFit.expand,
             children: [
               for (var i = 0; i < _pages.length; i++)
-                _TabPage(active: i == _index, dir: _dir, child: _pages[i]),
+                FadeSlidePage(active: i == _index, dir: _dir, child: _pages[i]),
             ],
           ),
         ),
@@ -118,79 +119,6 @@ class _HomeShellState extends State<HomeShell> {
           onAdd: () => AddExpenseFlow.start(context),
         ),
       ),
-    );
-  }
-}
-
-/// One tab's page. All pages stay alive (so scroll position and typed text
-/// are kept); the page being left fades out while the new one fades in and
-/// slides a little from the side the tab is on.
-class _TabPage extends StatefulWidget {
-  final bool active;
-  final int dir;
-  final Widget child;
-  const _TabPage({
-    required this.active,
-    required this.dir,
-    required this.child,
-  });
-
-  @override
-  State<_TabPage> createState() => _TabPageState();
-}
-
-class _TabPageState extends State<_TabPage>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 280),
-    reverseDuration: const Duration(milliseconds: 160),
-    value: widget.active ? 1 : 0,
-  );
-  late final Animation<double> _fade = CurvedAnimation(
-    parent: _c,
-    curve: Curves.easeOutCubic,
-  );
-
-  @override
-  void didUpdateWidget(_TabPage old) {
-    super.didUpdateWidget(old);
-    if (widget.active && !old.active) {
-      _c.forward();
-    } else if (!widget.active && old.active) {
-      _c.reverse();
-    }
-  }
-
-  @override
-  void dispose() {
-    _c.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _c,
-      child: widget.child,
-      builder: (context, child) {
-        return Offstage(
-          offstage: _c.isDismissed,
-          child: IgnorePointer(
-            ignoring: !widget.active,
-            child: FadeTransition(
-              opacity: _fade,
-              child: Transform.translate(
-                offset: Offset(
-                  widget.active ? (1 - _fade.value) * 28 * widget.dir : 0,
-                  0,
-                ),
-                child: child,
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
