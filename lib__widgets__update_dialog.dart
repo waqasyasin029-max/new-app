@@ -70,7 +70,12 @@ class _UpdateDialogState extends State<_UpdateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final notes = widget.info.notes;
+    // One point per line of the release notes. Old releases only carried a
+    // git message ("Merge branch ..."): that is not shown.
+    final points = [
+      for (final l in widget.info.notes.split('\n'))
+        l.trim().replaceFirst(RegExp(r'^[-•*]\s*'), ''),
+    ].where((l) => l.isNotEmpty && !l.startsWith('Merge ')).take(6).toList();
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       icon: Container(
@@ -106,25 +111,57 @@ class _UpdateDialogState extends State<_UpdateDialog> {
                   ),
                 ),
               ),
-              if (notes.isNotEmpty) ...[
+              if (points.isNotEmpty) ...[
                 const SizedBox(height: 14),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
                   decoration: BoxDecoration(
                     color: AppColors.fieldFill,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(18),
                   ),
-                  child: Text(
-                    notes,
-                    verbatim: true,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      height: 1.4,
-                      color: AppColors.muted,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'What is new',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.muted,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      for (final p in points)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 1),
+                                child: Icon(
+                                  AppIcons.check,
+                                  size: 18,
+                                  color: AppColors.positive,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  p,
+                                  verbatim: true,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ],

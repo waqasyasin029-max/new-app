@@ -131,6 +131,7 @@ const Map<String, String> urExact = {
   'Choose where you paid from.': 'منتخب کریں کہ ادائیگی کہاں سے کی۔',
   'Clear filters': 'فلٹر ہٹائیں',
   'Close': 'بند کریں',
+  'What is new': 'نیا کیا ہے',
   'Close the app?': 'ایپ بند کریں؟',
   'The app will close. Your data is saved on this phone.':
       'ایپ بند ہو جائے گی۔ آپ کا ڈیٹا اسی فون میں محفوظ ہے۔',

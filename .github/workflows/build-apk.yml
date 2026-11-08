@@ -80,5 +80,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp "$RUNNER_TEMP/app/build/app/outputs/flutter-apk/app-release.apk" kharcha-tracker.apk
-          NOTES="$(git log -1 --pretty=%s)"
+          NOTES="$(cat RELEASE_NOTES.txt 2>/dev/null || true)"
           gh release create "v${{ github.run_number }}" kharcha-tracker.apk --title "Update ${{ github.run_number }}" --notes "$NOTES" --latest

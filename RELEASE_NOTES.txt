@@ -1,0 +1,4 @@
+Smoother tab animation in the bottom bar
+"Developed by" credit at the end of Settings
+Smaller "left of budget" text on Home
+This update popup now lists what is new
