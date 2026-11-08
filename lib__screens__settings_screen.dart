@@ -12,7 +12,6 @@ import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import 'onboarding_screen.dart';
 import 'reminders_screen.dart';
-import 'income_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
@@ -27,23 +26,6 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
         children: [
-          TileGroup(
-            children: [
-              ListTile(
-                leading: const Icon(AppIcons.payments),
-                title: const Text(
-                  'Budget & income',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: const Text('Set how much you can spend this month'),
-                trailing: const Icon(AppIcons.chevronRight),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const IncomeScreen()),
-                ),
-              ),
-            ],
-          ),
           const SectionTitle('Appearance'),
           TileGroup(
             children: [

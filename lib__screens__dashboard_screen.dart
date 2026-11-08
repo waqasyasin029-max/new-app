@@ -11,7 +11,7 @@ import 'accounts_screen.dart';
 import 'account_detail_screen.dart';
 import 'expense_edit_screen.dart';
 import 'history_screen.dart';
-import 'income_screen.dart';
+import '../widgets/budget_dialog.dart';
 import 'settings_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
@@ -78,6 +78,87 @@ class DashboardScreen extends StatelessWidget {
           },
           builder: (context, d) => _body(context, d, now),
         ),
+      ),
+    );
+  }
+
+  /// This month's budget: how much is left, with a bar. Tap to change it.
+  Widget _budgetCard(BuildContext context, _DashData d) {
+    final budget = d.salary.amount;
+    if (budget <= 0) {
+      return AppCard(
+        color: AppColors.noteBg,
+        onTap: () => askBudget(context),
+        child: const ListTile(
+          leading: Icon(AppIcons.wallet, color: AppColors.gold),
+          title: Text(
+            'Set your monthly budget',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          subtitle: Text('Needed to see how much of your budget is left.'),
+          trailing: Icon(AppIcons.chevronRight),
+        ),
+      );
+    }
+    final left = budget - d.monthExpenses;
+    final over = left < 0;
+    final used = (d.monthExpenses / budget).clamp(0.0, 1.0);
+    return AppCard(
+      margin: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
+      onTap: () => askBudget(context),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                'Monthly budget',
+                style: TextStyle(
+                  color: AppColors.muted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                Fmt.money(budget),
+                verbatim: true,
+                style: TextStyle(
+                  color: AppColors.muted,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            over
+                ? '${Fmt.money(-left)} over budget'
+                : '${Fmt.money(left)} left of budget',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w800,
+              color: over ? AppColors.danger : AppColors.ink,
+            ),
+          ),
+          const SizedBox(height: 12),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: LinearProgressIndicator(
+              value: used,
+              minHeight: 10,
+              backgroundColor: AppColors.line,
+              color: over ? AppColors.danger : AppColors.primary,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${Fmt.money(d.monthExpenses)} spent this month',
+            style: TextStyle(color: AppColors.muted, fontSize: 12.5),
+          ),
+        ],
       ),
     );
   }
@@ -204,20 +285,7 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
         ),
-        if (d.salary.amount == 0)
-          AppCard(
-            color: AppColors.noteBg,
-            onTap: () => _open(context, const IncomeScreen()),
-            child: const ListTile(
-              leading: Icon(AppIcons.wallet, color: AppColors.gold),
-              title: Text(
-                'Set your monthly budget',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              subtitle: Text('Needed to see how much of your budget is left.'),
-              trailing: Icon(AppIcons.chevronRight),
-            ),
-          ),
+        _budgetCard(context, d),
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 16, 0, 0),
           child: Row(

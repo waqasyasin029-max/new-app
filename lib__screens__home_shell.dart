@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/i18n.dart' show tr;
 import '../core/theme.dart';
+import '../widgets/budget_dialog.dart';
 import '../widgets/floating_nav.dart';
 import 'add_expense_flow.dart';
 import 'accounts_screen.dart';
@@ -19,6 +20,15 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Once a month, ask what this month's budget is.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) maybeAskMonthlyBudget(context);
+    });
+  }
 
   static const _pages = <Widget>[
     DashboardScreen(),
