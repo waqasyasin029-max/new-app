@@ -20,11 +20,11 @@ class AppState extends ChangeNotifier {
   int revision = 0;
 
   bool reminderEnabled = true;
-  TimeOfDay reminderTime = const TimeOfDay(hour: 23, minute: 0);
+  TimeOfDay reminderTime = const TimeOfDay(hour: 22, minute: 0);
 
-  bool breakfastEnabled = true;
+  bool breakfastEnabled = false;
   TimeOfDay breakfastTime = const TimeOfDay(hour: 12, minute: 0);
-  bool dinnerEnabled = true;
+  bool dinnerEnabled = false;
   TimeOfDay dinnerTime = const TimeOfDay(hour: 21, minute: 30);
 
   /// 'system' | 'light' | 'dark'
@@ -44,17 +44,20 @@ class AppState extends ChangeNotifier {
     categories = await categoryRepo.all();
     accounts = await accountRepo.all();
     final prefs = await SharedPreferences.getInstance();
+    // People who already used the app keep the old reminder defaults; new
+    // installs get one reminder a day at 10 PM.
+    final old = prefs.getBool('onboarding_done') ?? false;
     reminderEnabled = prefs.getBool('reminder_enabled') ?? true;
     reminderTime = TimeOfDay(
-      hour: prefs.getInt('reminder_hour') ?? 23,
+      hour: prefs.getInt('reminder_hour') ?? (old ? 23 : 22),
       minute: prefs.getInt('reminder_minute') ?? 0,
     );
-    breakfastEnabled = prefs.getBool('breakfast_enabled') ?? true;
+    breakfastEnabled = prefs.getBool('breakfast_enabled') ?? old;
     breakfastTime = TimeOfDay(
       hour: prefs.getInt('breakfast_hour') ?? 12,
       minute: prefs.getInt('breakfast_minute') ?? 0,
     );
-    dinnerEnabled = prefs.getBool('dinner_enabled') ?? true;
+    dinnerEnabled = prefs.getBool('dinner_enabled') ?? old;
     dinnerTime = TimeOfDay(
       hour: prefs.getInt('dinner_hour') ?? 21,
       minute: prefs.getInt('dinner_minute') ?? 30,

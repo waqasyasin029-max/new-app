@@ -8,6 +8,7 @@ import '../core/pk_accounts.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../services/notification_service.dart';
 import '../widgets/lock_gate.dart';
 
 /// Shown once, right after the intro on a fresh install:
@@ -132,6 +133,24 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
     setState(() {
       _busy = false;
       _step = 2;
+    });
+  }
+
+  bool _remind = true;
+  TimeOfDay _remindTime = const TimeOfDay(hour: 22, minute: 0);
+
+  Future<void> _saveReminder() async {
+    final s = context.read<AppState>();
+    setState(() => _busy = true);
+    // One reminder a day; the breakfast and dinner ones stay off.
+    await s.setMealReminder('breakfast', enabled: false);
+    await s.setMealReminder('dinner', enabled: false);
+    await s.setReminder(enabled: _remind, time: _remindTime);
+    if (_remind) await NotificationService.requestPermission();
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _step = 3;
     });
   }
 
@@ -323,6 +342,104 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
     );
   }
 
+  Widget _reminderStep() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              children: [
+                const SizedBox(height: 24),
+                Center(
+                  child: Container(
+                    width: 104,
+                    height: 104,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: AppColors.gradient,
+                    ),
+                    child: const Icon(
+                      AppIcons.bellRinging,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                const Text(
+                  'Daily reminder',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'The app reminds you once a day, at 10 PM, to write down today\'s expenses. You can change the time or turn it off whenever you like, in Settings.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppColors.muted,
+                    fontSize: 16,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TileGroup(
+                  children: [
+                    SwitchListTile(
+                      secondary: const Icon(AppIcons.bellRinging),
+                      title: const Text(
+                        'Remind me every day',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      value: _remind,
+                      onChanged: (v) => setState(() => _remind = v),
+                    ),
+                    ListTile(
+                      enabled: _remind,
+                      leading: const Icon(AppIcons.clock),
+                      title: const Text(
+                        'Reminder time',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(_remindTime.format(context)),
+                      onTap: !_remind
+                          ? null
+                          : () async {
+                              final t = await showTimePicker(
+                                context: context,
+                                initialTime: _remindTime,
+                              );
+                              if (t != null) setState(() => _remindTime = t);
+                            },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              TextButton(
+                onPressed: () => setState(() => _step = 1),
+                child: const Text('Back'),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 54,
+                  child: FilledButton(
+                    onPressed: _busy ? null : _saveReminder,
+                    child: const Text('Next'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _lockStep() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(28, 0, 28, 20),
@@ -390,6 +507,8 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
             ? _accountsStep()
             : _step == 1
             ? _amountsStep()
+            : _step == 2
+            ? _reminderStep()
             : _lockStep(),
       ),
     );

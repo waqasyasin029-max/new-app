@@ -54,7 +54,7 @@ const _pages = <_Page>[
   _Page(
     AppIcons.insights,
     'Reports, salary and reminders',
-    'See history and monthly reports, track your salary, and get friendly reminders at breakfast, dinner and 11 PM. Light or dark, English or Urdu, fully offline.',
+    'See history and monthly reports, track your salary, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.',
     creator: true,
   ),
 ];
