@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
@@ -318,16 +320,60 @@ double? parseAmount(String s) {
   return (v != null && v > 0 && v.isFinite) ? v : null;
 }
 
+OverlayEntry? _errorEntry;
+Timer? _errorTimer;
+
+/// Red error message at the top of the screen for 3 seconds. No shadow. It
+/// sits above popups too, so a mistake made inside a dialog is visible.
 void snack(BuildContext context, String message) {
-  ScaffoldMessenger.of(context)
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 4),
-        persist: false,
+  final overlay = Overlay.maybeOf(context, rootOverlay: true);
+  if (overlay == null) return;
+  _errorTimer?.cancel();
+  _errorEntry?.remove();
+  final top = MediaQuery.of(context).padding.top;
+  final entry = OverlayEntry(
+    builder: (_) => Positioned(
+      top: top + 12,
+      left: 16,
+      right: 16,
+      child: TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        builder: (_, v, child) => Opacity(
+          opacity: v,
+          child: Transform.translate(
+            offset: Offset(0, (v - 1) * 16),
+            child: child,
+          ),
+        ),
+        child: Material(
+          color: AppColors.danger,
+          elevation: 0,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ),
       ),
-    );
+    ),
+  );
+  _errorEntry = entry;
+  overlay.insert(entry);
+  _errorTimer = Timer(const Duration(seconds: 3), () {
+    if (_errorEntry == entry) {
+      entry.remove();
+      _errorEntry = null;
+    }
+  });
 }
 
 /// Green confirmation (saved, added, deleted). It goes away by itself after

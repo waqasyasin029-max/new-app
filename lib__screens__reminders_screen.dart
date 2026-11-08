@@ -59,7 +59,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                         if (t != null) {
                           await s.setReminder(time: t);
                           if (context.mounted)
-                            snack(
+                            snackOk(
                               context,
                               'Reminder set for ${t.format(context)} daily.',
                             );
@@ -127,7 +127,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
                       const Duration(minutes: 1),
                     );
                     if (context.mounted) {
-                      snack(
+                      snackOk(
                         context,
                         'A test reminder will arrive in 1 minute.',
                       );

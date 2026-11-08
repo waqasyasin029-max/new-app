@@ -123,7 +123,7 @@ class SettingsScreen extends StatelessWidget {
                       : 'Installed version: $kBuildNumber',
                 ),
                 onTap: () async {
-                  snack(context, 'Checking…');
+                  snackOk(context, 'Checking…');
                   final r = await UpdateService.check();
                   if (!context.mounted) return;
                   if (r.failed) {
@@ -132,7 +132,7 @@ class SettingsScreen extends StatelessWidget {
                       'Could not check for updates. Is internet on?',
                     );
                   } else if (r.update == null) {
-                    snack(context, 'You are on the latest version.');
+                    snackOk(context, 'You are on the latest version.');
                   } else {
                     showUpdateDialog(context, r.update!);
                   }

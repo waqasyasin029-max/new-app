@@ -309,7 +309,7 @@ Future<void> showReconcileDialog(
   }
   state.changed();
   if (context.mounted) {
-    snack(
+    snackOk(
       context,
       choice == 'expense'
           ? 'Added Rs ${Fmt.number(expected - actual)} as an expense.'
