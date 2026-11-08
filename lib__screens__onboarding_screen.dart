@@ -192,24 +192,24 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: [
                   Text(
                     'Developed by',
-                    verbatim: true,
-                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                    urdu: true,
+                    style: TextStyle(color: AppColors.muted, fontSize: 13),
                   ),
                   const SizedBox(height: 2),
                   const Text(
                     'Waqas Yasin',
-                    verbatim: true,
+                    urdu: true,
                     style: TextStyle(
                       color: AppColors.primary,
-                      fontSize: 18,
+                      fontSize: 22,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Made in Pakistan',
-                    verbatim: true,
-                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                    urdu: true,
+                    style: TextStyle(color: AppColors.muted, fontSize: 13),
                   ),
                 ],
               ),
