@@ -174,9 +174,7 @@ class _FlowSheetState extends State<_FlowSheet> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save: $e', verbatim: true)),
-      );
+      snack(context, 'Could not save: $e');
     }
   }
 

@@ -8,6 +8,7 @@ import '../core/account_style.dart';
 import '../core/category_style.dart';
 import '../core/format.dart';
 import '../core/theme.dart';
+import '../main.dart' show navigatorKey;
 import '../data/models.dart';
 import '../state/app_state.dart';
 import '../core/i18n.dart';
@@ -320,25 +321,31 @@ double? parseAmount(String s) {
   return (v != null && v > 0 && v.isFinite) ? v : null;
 }
 
-OverlayEntry? _errorEntry;
-Timer? _errorTimer;
+OverlayEntry? _toastEntry;
+Timer? _toastTimer;
 
-void _closeError() {
-  _errorTimer?.cancel();
-  _errorEntry?.remove();
-  _errorEntry = null;
+void _closeToast() {
+  _toastTimer?.cancel();
+  _toastEntry?.remove();
+  _toastEntry = null;
 }
 
-/// Red error message at the top of the screen for 3 seconds. No shadow. It
-/// sits above popups too, so a mistake made inside a dialog is visible.
-void snack(BuildContext context, String message) {
-  final overlay = Overlay.maybeOf(context, rootOverlay: true);
+/// Every message in the app (error, saved, info) appears here: one card at
+/// the top of the screen, no shadow, above popups and the bottom bar. A new
+/// message replaces the old one.
+void _showToast(
+  ToastKind kind, {
+  required Widget content,
+  required Duration duration,
+  String? actionLabel,
+  VoidCallback? onAction,
+}) {
+  final overlay = navigatorKey.currentState?.overlay;
   if (overlay == null) return;
-  _closeError();
-  final top = MediaQuery.of(context).padding.top;
+  _closeToast();
   final entry = OverlayEntry(
-    builder: (_) => Positioned(
-      top: top + 12,
+    builder: (ctx) => Positioned(
+      top: MediaQuery.of(ctx).padding.top + 12,
       left: 16,
       right: 16,
       child: TweenAnimationBuilder<double>(
@@ -355,20 +362,29 @@ void snack(BuildContext context, String message) {
         child: Material(
           type: MaterialType.transparency,
           child: ToastCard(
-            kind: ToastKind.error,
-            content: Text(message),
-            onClose: _closeError,
+            kind: kind,
+            content: content,
+            actionLabel: actionLabel,
+            onAction: onAction,
+            onClose: _closeToast,
           ),
         ),
       ),
     ),
   );
-  _errorEntry = entry;
+  _toastEntry = entry;
   overlay.insert(entry);
-  _errorTimer = Timer(const Duration(seconds: 3), () {
-    if (_errorEntry == entry) _closeError();
+  _toastTimer = Timer(duration, () {
+    if (_toastEntry == entry) _closeToast();
   });
 }
+
+/// Red error message, 3 seconds.
+void snack(BuildContext context, String message) => _showToast(
+  ToastKind.error,
+  content: Text(message),
+  duration: const Duration(seconds: 3),
+);
 
 enum ToastKind { ok, error, info }
 
@@ -492,44 +508,28 @@ class ToastCard extends StatelessWidget {
   }
 }
 
-/// Bottom message (green by default). It goes away by itself after 5 seconds,
-/// even when it has an Undo button.
+/// Green message (saved, added, deleted), 5 seconds, optional Undo button.
+/// [messenger] is not needed any more; it is kept so older calls still work.
 void showOk(
-  ScaffoldMessengerState messenger, {
+  Object? messenger, {
   String? message,
   Widget? content,
   SnackBarAction? action,
   ToastKind kind = ToastKind.ok,
-}) {
-  messenger
-    ..hideCurrentSnackBar()
-    ..showSnackBar(
-      SnackBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        padding: EdgeInsets.zero,
-        duration: const Duration(seconds: 5),
-        persist: false,
-        content: ToastCard(
-          kind: kind,
-          content: content ?? Text(message ?? ''),
-          actionLabel: action?.label,
-          onAction: action?.onPressed,
-          onClose: messenger.hideCurrentSnackBar,
-        ),
-      ),
-    );
-}
+}) => _showToast(
+  kind,
+  content: content ?? Text(message ?? ''),
+  duration: const Duration(seconds: 5),
+  actionLabel: action?.label,
+  onAction: action?.onPressed,
+);
 
 void snackOk(BuildContext context, String message) =>
-    showOk(ScaffoldMessenger.of(context), message: message);
+    showOk(null, message: message);
 
 /// Blue neutral note ("Checking…", "A reminder will arrive…").
-void snackInfo(BuildContext context, String message) => showOk(
-  ScaffoldMessenger.of(context),
-  message: message,
-  kind: ToastKind.info,
-);
+void snackInfo(BuildContext context, String message) =>
+    showOk(null, message: message, kind: ToastKind.info);
 
 /// "Paid from" selector. [value] null = nothing chosen yet.
 class AccountDropdown extends StatelessWidget {
