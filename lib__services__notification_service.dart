@@ -18,9 +18,58 @@ class NotificationService {
   /// Last scheduling error, shown in Settings so a failure is never silent.
   static String? lastError;
   static const int _dailyId = 1001;
+
+  /// The daily reminder is scheduled as one notification per day for the next
+  /// [_rotationDays] days (ids [_rotationBase] and up), each with a different
+  /// light-hearted line. The app re-schedules on every launch, so the window
+  /// always moves forward.
+  static const int _rotationBase = 2000;
+  static const int _rotationDays = 30;
   static const String _channelId = 'daily_reminder';
   static const String _bodyEn = 'Have you recorded your expenses today?';
   static String get body => tr(_bodyEn);
+
+  static const List<String> _dailyLines = [
+    'آج کتنے پیسے اڑائے؟ ذرا حساب تو لکھ دیں! 😄',
+    'بٹوہ پوچھ رہا ہے: آج مجھے کہاں کہاں لے کر گئے تھے؟ 👛',
+    'کھاتا خالی رہا تو بجٹ رو دے گا، جلدی سے خرچے لکھ دیں! 😅',
+    'چائے، سموسے، رکشہ... سب لکھ لیا یا کچھ بھول گئے؟ 🫖',
+    'آج کا خرچہ آج ہی لکھ دیں، کل آپ کو کچھ یاد نہیں رہے گا! 🤭',
+    'پیسے تو ہنس کے خرچ کر دیے، اب حساب بھی ہنس کے لکھ دیں! 😁',
+    'بس ایک منٹ کا کام ہے! خرچے لکھیں اور سکون سے سوئیں۔ 😴',
+    'سنیں! آپ کا کھاتا اداس بیٹھا ہے، اسے آج کے خرچے سنا دیں۔ 🥺',
+    'سنا ہے آج بازار گئے تھے؟ رسید نکالیں اور لکھ دیں! 🧾',
+    'آج جیب ہلکی ہوئی؟ وجہ لکھ دیں تاکہ کل سمجھ آ جائے۔ 🤔',
+    'بریکنگ نیوز: آج کے خرچے ابھی تک درج نہیں ہوئے! 📰',
+    'پیسے کہاں گئے؟ خرچہ ٹریکر کو بتا دیں، یہ کسی کو نہیں بتائے گا! 🕵️',
+    'بریانی کی پلیٹ تو یاد ہے، اس کا بل بھی لکھ دیں! 🍛',
+    'آج کوئی شاپنگ کی؟ بٹوے کی آہیں سنائی دے رہی ہیں۔ 🛍️',
+    'خرچے لکھ لیں، مہینے کے آخر میں حیران ہونے سے بچ جائیں گے! 😮',
+    'ایک چھوٹا سا کام: آج کے خرچے لکھ دیں۔ انعام: بے فکر نیند! 🎁',
+    'کھاتے والے انکل پوچھ رہے ہیں: بیٹا، آج کا حساب؟ 👴',
+    'رکشے والے کو تو پیسے دے دیے، ایپ کو بھی خبر دے دیں! 🛺',
+    'آپ کی جیب کا سی سی ٹی وی کہتا ہے: آج کچھ خرچ ہوا ہے! 📹',
+    'چائے ٹھنڈی ہونے سے پہلے خرچے لکھ دیں! ☕',
+    'آج کا حساب ابھی لکھ لیں، ورنہ رات کو خواب میں رسیدیں آئیں گی! 👻',
+    'پیسہ آتا جاتا رہتا ہے، پر لکھا ہوا حساب ہمیشہ رہتا ہے! 📒',
+    'آج کتنی بار "بس ایک اور" کہہ کر خرچ کیا؟ لکھ دیں، شرمانا نہیں! 😆',
+    'موبائل ہاتھ میں ہے ہی، تو دو منٹ خرچے بھی لکھ لیں! 📱',
+    'بٹوہ کہہ رہا ہے: میں نے آج بہت محنت کی، اب آپ حساب لکھ دیں! 💪',
+    'آج کے خرچے لکھ کر خود کو شاباش دیں، آپ تو بجٹ کے ہیرو ہیں! 🦸',
+    'کوئی چھوٹا خرچہ بھول تو نہیں گئے؟ چھوٹے چھوٹے خرچے ہی بڑا بل بنتے ہیں! 🔍',
+    'ٹِک ٹِک! دن ختم ہونے والا ہے اور خرچے ابھی تک نہیں لکھے! ⏰',
+    'آج بچت ہوئی یا جیب نے الوداع کہہ دیا؟ جو بھی ہو، لکھ دیں! 👋',
+    'آج دوستوں کو چائے پلائی؟ حساب لکھ لیں، دل بڑا رکھیں! 🫶',
+  ];
+
+  /// The line for a given day: a fixed rotation, so every day reads
+  /// differently and the same date always gets the same line.
+  static String _lineFor(DateTime day) {
+    final n = DateTime.utc(day.year, day.month, day.day)
+        .difference(DateTime.utc(2024, 1, 1))
+        .inDays;
+    return _dailyLines[n % _dailyLines.length];
+  }
 
   // Meal reminders (light-hearted on purpose).
   static const int breakfastId = 1003;
@@ -85,15 +134,60 @@ class NotificationService {
     ),
   );
 
-  /// Schedules (or re-schedules) the repeating daily reminder at [time] local time.
-  /// The instant is expressed in UTC so no timezone database lookup is needed;
-  /// the app re-schedules on every launch so it stays correct.
-  static Future<void> scheduleDaily(TimeOfDay time) => scheduleAt(
-    id: _dailyId,
-    time: time,
-    title: tr('Kharcha Tracker'),
-    text: body,
+  /// Same look as [_details], with the whole line readable when expanded.
+  static NotificationDetails _detailsFor(String line) => NotificationDetails(
+    android: AndroidNotificationDetails(
+      _channelId,
+      'Daily reminder',
+      channelDescription: 'Reminds you to record your daily expenses',
+      importance: Importance.high,
+      priority: Priority.high,
+      icon: 'ic_notification',
+      styleInformation: BigTextStyleInformation(line),
+    ),
   );
+
+  /// Schedules (or re-schedules) the daily reminder at [time] local time:
+  /// one notification for each of the next [_rotationDays] days, each with
+  /// its own funny line. The instant is expressed in UTC so no timezone
+  /// database lookup is needed.
+  static Future<void> scheduleDaily(TimeOfDay time) async {
+    await cancel();
+    final now = DateTime.now();
+    var first = DateTime(now.year, now.month, now.day, time.hour, time.minute);
+    if (!first.isAfter(now)) {
+      first = DateTime(now.year, now.month, now.day + 1, time.hour, time.minute);
+    }
+    final exact = await canScheduleExact();
+    try {
+      for (var i = 0; i < _rotationDays; i++) {
+        final when = DateTime(
+          first.year,
+          first.month,
+          first.day + i,
+          time.hour,
+          time.minute,
+        );
+        final line = _lineFor(when);
+        await _plugin.zonedSchedule(
+          _rotationBase + i,
+          tr('Kharcha Tracker'),
+          line,
+          tz.TZDateTime.from(when, tz.UTC),
+          _detailsFor(line),
+          androidScheduleMode: exact
+              ? AndroidScheduleMode.exactAllowWhileIdle
+              : AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          payload: payloadRecord,
+        );
+      }
+    } catch (e) {
+      lastError = '$e';
+      rethrow;
+    }
+  }
 
   /// Repeats every day at [time]; re-scheduling the same [id] replaces it.
   static Future<void> scheduleAt({
@@ -166,9 +260,14 @@ class NotificationService {
     String count;
     try {
       final pending = await _plugin.pendingNotificationRequests();
-      final ids = {for (final p in pending) p.id};
-      count =
-          '${ids.where((i) => i == _dailyId || i == breakfastId || i == dinnerId).length}';
+      final days = pending
+          .where(
+            (p) =>
+                p.id == _dailyId ||
+                (p.id >= _rotationBase && p.id < _rotationBase + _rotationDays),
+          )
+          .length;
+      count = days == 0 ? '0' : '1 daily ($days days ahead)';
     } catch (e) {
       count = 'unknown ($e)';
     }
@@ -180,13 +279,18 @@ class NotificationService {
 
   static Future<void> cancelId(int id) => _plugin.cancel(id);
 
-  static Future<void> cancel() => _plugin.cancel(_dailyId);
+  static Future<void> cancel() async {
+    await _plugin.cancel(_dailyId);
+    for (var i = 0; i < _rotationDays; i++) {
+      await _plugin.cancel(_rotationBase + i);
+    }
+  }
 
   static Future<void> showTest() => _plugin.show(
     1002,
     tr('Kharcha Tracker'),
-    body,
-    _details,
+    _lineFor(DateTime.now()),
+    _detailsFor(_lineFor(DateTime.now())),
     payload: payloadRecord,
   );
 }
