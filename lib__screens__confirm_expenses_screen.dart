@@ -223,7 +223,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
         actions: [
           IconButton(
             tooltip: tr('Close'),
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close_rounded),
             onPressed: () => Navigator.of(context).pop(false),
           ),
         ],
@@ -293,14 +293,14 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                 ),
                 OutlinedButton.icon(
                   onPressed: _pickDate,
-                  icon: const Icon(Icons.calendar_today, size: 18),
+                  icon: const Icon(Icons.calendar_today_rounded, size: 18),
                   label: Text('Date for all: ${Fmt.date(_date)}'),
                 ),
                 const SizedBox(height: 8),
                 for (var i = 0; i < _drafts.length; i++) _draftCard(i, scheme),
                 TextButton.icon(
                   onPressed: _addBlank,
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(Icons.add_rounded),
                   label: const Text('Add another expense'),
                 ),
               ],
@@ -350,7 +350,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                   ),
                   FilledButton.icon(
                     onPressed: _canSave && !_saving ? _save : null,
-                    icon: const Icon(Icons.check),
+                    icon: const Icon(Icons.check_rounded),
                     label: const Text('Save'),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(130, 52),
@@ -391,7 +391,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close),
+                icon: const Icon(Icons.close_rounded),
                 tooltip: tr('Remove'),
                 onPressed: () => setState(() => _drafts.removeAt(i).dispose()),
               ),

@@ -13,9 +13,9 @@ class AboutScreen extends StatelessWidget {
       Icons.edit_note_rounded,
       'Type your expenses in Roman Urdu, Urdu or English, or ask the assistant',
     ),
-    (Icons.fact_check_outlined, 'Check and fix everything before it is saved'),
+    (Icons.fact_check_rounded, 'Check and fix everything before it is saved'),
     (
-      Icons.account_balance_wallet_outlined,
+      Icons.account_balance_wallet_rounded,
       'Cash, JazzCash, Naya Pay, Easypaisa and bank accounts with balances',
     ),
     (
@@ -24,7 +24,7 @@ class AboutScreen extends StatelessWidget {
     ),
     (Icons.bar_chart_rounded, 'History, reports and monthly salary tracking'),
     (
-      Icons.notifications_active_outlined,
+      Icons.notifications_active_rounded,
       'Daily, breakfast and dinner reminders',
     ),
     (Icons.wifi_off_rounded, 'Works offline, no sign-up'),
@@ -110,7 +110,7 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 4),
           AppCard(
             child: ListTile(
-              leading: const Icon(Icons.lock_outline, color: AppColors.primary),
+              leading: const Icon(Icons.lock_rounded, color: AppColors.primary),
               title: const Text(
                 'Your data stays on this phone',
                 style: TextStyle(fontWeight: FontWeight.w600),

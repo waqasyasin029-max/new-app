@@ -187,7 +187,7 @@ class _TransferScreenState extends State<TransferScreen> {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _pickDate,
-            icon: const Icon(Icons.calendar_today, size: 18),
+            icon: const Icon(Icons.calendar_today_rounded, size: 18),
             label: Text(
               w ? 'Withdrawn on: ${Fmt.date(_date)}' : Fmt.date(_date),
             ),
@@ -200,7 +200,7 @@ class _TransferScreenState extends State<TransferScreen> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: _saving ? null : _save,
-            icon: const Icon(Icons.check),
+            icon: const Icon(Icons.check_rounded),
             label: Text(w ? 'Save withdrawal' : 'Save transfer'),
           ),
         ],

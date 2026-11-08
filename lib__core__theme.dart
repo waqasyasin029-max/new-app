@@ -7,20 +7,20 @@ class AppColors {
   static bool dark = false;
 
   // Brand colours: identical in both themes.
-  static const primary = Color(0xFF8B5CF6);
-  static const primaryDeep = Color(0xFF6D3FD0);
-  static const primarySoft = Color(0xFFA78BFA);
+  static const primary = Color(0xFFEE6F2B);
+  static const primaryDeep = Color(0xFFE8602C);
+  static const primarySoft = Color(0xFFF5A032);
   static const gold = Color(0xFFF5B301);
   static const danger = Color(0xFFE5484D);
 
   /// Money coming in / everything is fine.
   static const positive = Color(0xFF16A34A);
 
-  /// Purple gradient used for the main card and highlights.
+  /// Orange gradient used for the main card, the mic button and highlights.
   static const gradient = LinearGradient(
     begin: AlignmentDirectional.centerStart,
     end: AlignmentDirectional.centerEnd,
-    colors: [primaryDeep, primary],
+    colors: [primaryDeep, primarySoft],
   );
 
   // Everything below changes with the theme.
@@ -49,7 +49,7 @@ class AppColors {
   /// Translucent white chip on top of the orange card.
   static Color get softWhite => const Color(0x38FFFFFF);
   static Color get noteBg =>
-      dark ? const Color(0xFF2B2342) : const Color(0xFFF3EEFE);
+      dark ? const Color(0xFF3A2E1C) : const Color(0xFFFFF4E5);
   static Color get fieldFill =>
       dark ? const Color(0xFF22232A) : const Color(0xFFF0F0F4);
   static Color get disabledBg =>
@@ -192,7 +192,7 @@ ThemeData buildAppTheme() {
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
       backgroundColor: AppColors.navy,
-      actionTextColor: AppColors.primarySoft,
+      actionTextColor: AppColors.gold,
       contentTextStyle: TextStyle(
         fontFamily: 'Manrope',
         fontFamilyFallback: L10n.fallbackFonts,

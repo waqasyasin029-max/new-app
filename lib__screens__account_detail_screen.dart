@@ -213,7 +213,7 @@ class AccountDetailScreen extends StatelessWidget {
                       backgroundColor: AppColors.navy,
                     ),
                     onPressed: () => showReconcileDialog(context, a, d.balance),
-                    icon: const Icon(Icons.fact_check_outlined, size: 18),
+                    icon: const Icon(Icons.fact_check_rounded, size: 18),
                     label: const Text('Check balance'),
                   ),
                   OutlinedButton.icon(
@@ -225,7 +225,7 @@ class AccountDetailScreen extends StatelessWidget {
                       ),
                     ),
                     icon: Icon(
-                      a.isCash ? Icons.swap_horiz : Icons.atm,
+                      a.isCash ? Icons.swap_horiz_rounded : Icons.atm_rounded,
                       size: 18,
                     ),
                     label: Text(
@@ -234,7 +234,7 @@ class AccountDetailScreen extends StatelessWidget {
                   ),
                   OutlinedButton.icon(
                     onPressed: () => _addMoney(context, a),
-                    icon: const Icon(Icons.add, size: 18),
+                    icon: const Icon(Icons.add_rounded, size: 18),
                     label: const Text('Add money'),
                   ),
                 ],
@@ -269,7 +269,9 @@ class AccountDetailScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                           ),
                           child: Icon(
-                            i.delta >= 0 ? Icons.south_west : Icons.north_east,
+                            i.delta >= 0
+                                ? Icons.south_west_rounded
+                                : Icons.north_east_rounded,
                             size: 18,
                             color: i.delta >= 0
                                 ? AppColors.positive
@@ -307,7 +309,7 @@ class AccountDetailScreen extends StatelessWidget {
                             if (i.kind != 'expense')
                               IconButton(
                                 icon: Icon(
-                                  Icons.delete_outline,
+                                  Icons.delete_rounded,
                                   color: AppColors.muted,
                                 ),
                                 onPressed: () async {

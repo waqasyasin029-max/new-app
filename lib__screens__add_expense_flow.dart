@@ -197,7 +197,7 @@ class _FlowSheetState extends State<_FlowSheet> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.edit_outlined, size: 14),
+                          const Icon(Icons.edit_rounded, size: 14),
                         ],
                       ),
                     ),
@@ -213,7 +213,7 @@ class _FlowSheetState extends State<_FlowSheet> {
           backgroundColor: AppColors.fieldFill,
           minimumSize: const Size(44, 44),
         ),
-        icon: const Icon(Icons.close, size: 20),
+        icon: const Icon(Icons.close_rounded, size: 20),
         onPressed: () => Navigator.pop(context),
       ),
     ],
@@ -239,7 +239,7 @@ class _FlowSheetState extends State<_FlowSheet> {
                 height: 54,
                 child: Center(
                   child: back
-                      ? const Icon(Icons.backspace_outlined, size: 24)
+                      ? const Icon(Icons.backspace_rounded, size: 24)
                       : Text(
                           k,
                           verbatim: true,

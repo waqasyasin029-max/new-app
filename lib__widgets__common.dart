@@ -77,7 +77,7 @@ class ExpenseTile extends StatelessWidget {
           ),
           if (onDelete != null)
             IconButton(
-              icon: Icon(Icons.delete_outline, color: AppColors.muted),
+              icon: Icon(Icons.delete_rounded, color: AppColors.muted),
               tooltip: tr('Delete'),
               onPressed: onDelete,
             ),
@@ -216,7 +216,7 @@ class MonthSwitcher extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.chevron_left),
+              icon: const Icon(Icons.chevron_left_rounded),
               onPressed: () =>
                   onChanged(DateTime(month.year, month.month - 1, 1)),
             ),
@@ -229,7 +229,7 @@ class MonthSwitcher extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.chevron_right),
+              icon: const Icon(Icons.chevron_right_rounded),
               onPressed: canNext
                   ? () => onChanged(DateTime(month.year, month.month + 1, 1))
                   : null,

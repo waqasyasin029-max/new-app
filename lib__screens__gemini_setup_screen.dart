@@ -165,7 +165,7 @@ class _GeminiSetupScreenState extends State<GeminiSetupScreen> {
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: _save,
-            icon: const Icon(Icons.check),
+            icon: const Icon(Icons.check_rounded),
             label: const Text('Save'),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
@@ -174,7 +174,7 @@ class _GeminiSetupScreenState extends State<GeminiSetupScreen> {
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: _checking ? null : _check,
-            icon: const Icon(Icons.health_and_safety_outlined),
+            icon: const Icon(Icons.health_and_safety_rounded),
             label: Text(_checking ? 'Checking…' : 'Check assistant'),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(48),

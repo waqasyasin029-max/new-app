@@ -109,7 +109,10 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
         title: Text(_editing ? 'Edit expense' : 'Add expense'),
         actions: [
           if (_editing)
-            IconButton(icon: const Icon(Icons.delete), onPressed: _delete),
+            IconButton(
+              icon: const Icon(Icons.delete_rounded),
+              onPressed: _delete,
+            ),
         ],
       ),
       body: ListView(
@@ -141,13 +144,13 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _pickDate,
-            icon: const Icon(Icons.calendar_today),
+            icon: const Icon(Icons.calendar_today_rounded),
             label: Text(Fmt.date(_date)),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: _save,
-            icon: const Icon(Icons.check),
+            icon: const Icon(Icons.check_rounded),
             label: Text(_editing ? 'Save changes' : 'Add expense'),
           ),
         ],

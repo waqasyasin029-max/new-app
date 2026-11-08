@@ -44,7 +44,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         actions: [
           IconButton(
             tooltip: tr('Add manually'),
-            icon: const Icon(Icons.add_circle_outline),
+            icon: const Icon(Icons.add_circle_rounded),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const ExpenseEditScreen()),
@@ -60,7 +60,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               children: [
                 TextField(
                   decoration: InputDecoration(
-                    prefixIcon: const Icon(Icons.search),
+                    prefixIcon: const Icon(Icons.search_rounded),
                     hintText: tr('Search'),
                     fillColor: AppColors.fieldFill,
                     border: pillBorder(),
@@ -75,7 +75,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: _pickRange,
-                        icon: const Icon(Icons.date_range, size: 18),
+                        icon: const Icon(Icons.date_range_rounded, size: 18),
                         label: Text(
                           _range == null
                               ? 'Any date'
@@ -107,7 +107,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         _categoryId = null;
                         _search = '';
                       }),
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: const Icon(Icons.clear_rounded, size: 18),
                       label: const Text('Clear filters'),
                     ),
                   ),
