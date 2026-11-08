@@ -43,6 +43,8 @@ src, out = sys.argv[1], sys.argv[2]
 data = json.load(open(src))["icons"]
 S = 1024          # font units per em
 K = S / 24.0      # icons are drawn on a 24 grid
+SCALE = 0.84      # glyph size inside the em box (smaller = smaller icons everywhere)
+OFF = S * (1 - SCALE) / 2
 STROKE_DEFAULT = 1.5
 CAPS = {"butt": pathops.LineCap.BUTT_CAP, "round": pathops.LineCap.ROUND_CAP, "square": pathops.LineCap.SQUARE_CAP}
 JOINS = {"miter": pathops.LineJoin.MITER_JOIN, "round": pathops.LineJoin.ROUND_JOIN, "bevel": pathops.LineJoin.BEVEL_JOIN}
@@ -101,7 +103,7 @@ def build_path(body):
         if float(attrs.get("opacity", 1)) < 0.5:
             return  # skip faint duotone layers
         p = pathops.Path()
-        parse_path(d, TransformPen(p.getPen(), (K, 0, 0, -K, 0, S)))
+        parse_path(d, TransformPen(p.getPen(), (K * SCALE, 0, 0, -K * SCALE, OFF, S * SCALE + OFF)))
         fill = attrs.get("fill", "currentColor")
         stroke = attrs.get("stroke", "none")
         if fill != "none":
@@ -112,7 +114,7 @@ def build_path(body):
             result = union(result, q)
         if stroke != "none":
             q = pathops.Path(p)
-            w = float(attrs.get("stroke-width", STROKE_DEFAULT)) * K
+            w = float(attrs.get("stroke-width", STROKE_DEFAULT)) * K * SCALE
             q.stroke(w, CAPS[attrs.get("stroke-linecap", "butt")], JOINS[attrs.get("stroke-linejoin", "miter")], 4)
             q.convertConicsToQuads(0.1)
             q.simplify(fix_winding=True)
@@ -126,6 +128,7 @@ def build_path(body):
 glyphs = {".notdef": TTGlyphPen(None).glyph()}
 order = [".notdef"]
 cmap = {}
+lsb = {".notdef": 0}
 code = 0xE000
 for dart, ph in ICONS.items():
     p = build_path(data[ph]["body"])
@@ -133,6 +136,8 @@ for dart, ph in ICONS.items():
     p.draw(Cu2QuPen(tt, 2.0, reverse_direction=True))
     name = "i_" + dart
     glyphs[name] = tt.glyph()
+    bx = p.bounds
+    lsb[name] = int(round(bx[0])) if bx else 0
     order.append(name)
     cmap[code] = name
     code += 1
@@ -141,7 +146,11 @@ fb = FontBuilder(S, isTTF=True)
 fb.setupGlyphOrder(order)
 fb.setupCharacterMap(cmap)
 fb.setupGlyf(glyphs)
-fb.setupHorizontalMetrics({n: (S, 0) for n in order})
+glyf = fb.font["glyf"]
+for n in order:
+    glyf[n].recalcBounds(glyf)
+    lsb[n] = getattr(glyf[n], "xMin", 0)
+fb.setupHorizontalMetrics({n: (S, lsb[n]) for n in order})
 fb.setupHorizontalHeader(ascent=S, descent=0)
 fb.setupNameTable({"familyName": "KIcons", "styleName": "Regular"})
 fb.setupOS2(sTypoAscender=S, sTypoDescender=0, usWinAscent=S, usWinDescent=0)
