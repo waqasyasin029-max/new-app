@@ -61,8 +61,7 @@ class AppState extends ChangeNotifier {
     );
     themeMode = prefs.getString('theme_mode') ?? 'system';
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
-    // New installs start in Urdu; people who already used the app keep English.
-    language = prefs.getString('language') ?? (onboardingDone ? 'en' : 'ur');
+    language = prefs.getString('language') ?? 'en';
     // People who already used the app skip the new first-time setup.
     setupDone = prefs.getBool('setup_done') ?? onboardingDone;
     appLock = prefs.getBool('app_lock') ?? false;

@@ -110,16 +110,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
               child: Row(
                 children: [
-                  _LangChip(
-                    label: 'English',
-                    selected: s.language == 'en',
-                    onTap: () => s.setLanguage('en'),
-                  ),
-                  const SizedBox(width: 8),
-                  _LangChip(
-                    label: 'اردو',
-                    selected: s.language == 'ur',
-                    onTap: () => s.setLanguage('ur'),
+                  _LangSwitch(
+                    urdu: s.language == 'ur',
+                    onChanged: (v) => s.setLanguage(v ? 'ur' : 'en'),
                   ),
                   const Spacer(),
                   AnimatedOpacity(
@@ -129,6 +122,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: _last ? null : _finish,
                       child: Text(
                         'Skip',
+                        urdu: true,
                         style: TextStyle(
                           color: AppColors.muted,
                           fontWeight: FontWeight.w600,
@@ -183,6 +177,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     child: Text(
                       _last ? 'Get started' : 'Next',
+                      urdu: true,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
@@ -201,11 +196,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     Text(
                       'Developed by',
+                      urdu: true,
                       style: TextStyle(color: AppColors.muted, fontSize: 12),
                     ),
                     const SizedBox(width: 5),
                     const Text(
                       'Waqas Yasin',
+                      urdu: true,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 13,
@@ -252,6 +249,7 @@ class _PageView extends StatelessWidget {
           const SizedBox(height: 44),
           Text(
             page.title,
+            urdu: true,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.ink,
@@ -262,6 +260,7 @@ class _PageView extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             page.text,
+            urdu: true,
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.muted, fontSize: 16, height: 1.5),
           ),
@@ -275,40 +274,26 @@ class _PageView extends StatelessWidget {
   }
 }
 
-class _LangChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _LangChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+/// English  [switch]  اردو: one switch instead of two buttons.
+class _LangSwitch extends StatelessWidget {
+  final bool urdu;
+  final ValueChanged<bool> onChanged;
+  const _LangSwitch({required this.urdu, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? AppColors.primary : AppColors.line,
-          ),
-        ),
-        child: Text(
-          label,
-          verbatim: true,
-          style: TextStyle(
-            color: selected ? Colors.white : AppColors.muted,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          ),
-        ),
-      ),
+    TextStyle st(bool on) => TextStyle(
+      color: on ? AppColors.primary : AppColors.muted,
+      fontWeight: on ? FontWeight.w800 : FontWeight.w600,
+      fontSize: 14,
+    );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('English', verbatim: true, style: st(!urdu)),
+        Switch(value: urdu, onChanged: onChanged),
+        Text('اردو', verbatim: true, style: st(urdu)),
+      ],
     );
   }
 }
@@ -344,10 +329,12 @@ class _CreatorCard extends StatelessWidget {
             children: [
               Text(
                 'Developed by',
+                urdu: true,
                 style: TextStyle(color: AppColors.muted, fontSize: 12),
               ),
               const Text(
                 'Waqas Yasin',
+                urdu: true,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 17,
