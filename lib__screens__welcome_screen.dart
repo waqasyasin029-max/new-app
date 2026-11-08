@@ -169,7 +169,7 @@ class _NameSheetState extends State<_NameSheet> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Your name is shown on Home. It stays on this phone. You can change it freely for 5 minutes; after that, once every 14 days.',
+            'Shown on Home. Stays on this phone.',
             style: TextStyle(color: AppColors.muted, height: 1.4),
           ),
           const SizedBox(height: 18),
@@ -225,6 +225,18 @@ class _NameSheetState extends State<_NameSheet> {
             child: FilledButton(
               onPressed: _ok ? _done : null,
               child: const Text('Continue'),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Center(
+            child: Text(
+              'Free to change for 5 minutes, then once every 14 days',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: AppColors.muted,
+              ),
             ),
           ),
         ],
