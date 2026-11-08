@@ -86,11 +86,19 @@ class UpdateService {
       }
       final total = res.contentLength;
       var got = 0;
+      var lastPercent = -1;
       final sink = file.openWrite();
       await for (final chunk in res) {
         got += chunk.length;
         sink.add(chunk);
-        if (total > 0) onProgress(got / total);
+        // Redraw only when the percentage changes, not for every small chunk.
+        if (total > 0) {
+          final percent = got * 100 ~/ total;
+          if (percent != lastPercent) {
+            lastPercent = percent;
+            onProgress(got / total);
+          }
+        }
       }
       await sink.flush();
       await sink.close();

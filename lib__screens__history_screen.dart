@@ -13,7 +13,14 @@ import '../core/app_icons.dart';
 
 class HistoryScreen extends StatefulWidget {
   final int? initialCategoryId;
-  const HistoryScreen({super.key, this.initialCategoryId});
+
+  /// True inside the Activity tab, which draws the title bar itself.
+  final bool embedded;
+  const HistoryScreen({
+    super.key,
+    this.initialCategoryId,
+    this.embedded = false,
+  });
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -40,19 +47,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('History'),
-        actions: [
-          IconButton(
-            tooltip: tr('Add manually'),
-            icon: const Icon(AppIcons.addCircle),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ExpenseEditScreen()),
+      appBar: widget.embedded
+          ? null
+          : AppBar(
+              title: const Text('History'),
+              actions: [
+                IconButton(
+                  tooltip: tr('Add manually'),
+                  icon: const Icon(AppIcons.addCircle),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ExpenseEditScreen(),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
       body: Column(
         children: [
           Padding(
