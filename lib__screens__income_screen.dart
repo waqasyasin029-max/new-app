@@ -260,6 +260,9 @@ class _IncomeScreenState extends State<IncomeScreen> {
                                   final state = context.read<AppState>();
                                   await state.incomes.delete(i.id);
                                   state.changed();
+                                  if (context.mounted) {
+                                    snackOk(context, 'Income deleted');
+                                  }
                                 },
                               ),
                             ],

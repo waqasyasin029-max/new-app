@@ -321,8 +321,38 @@ double? parseAmount(String s) {
 void snack(BuildContext context, String message) {
   ScaffoldMessenger.of(context)
     ..hideCurrentSnackBar()
-    ..showSnackBar(SnackBar(content: Text(message)));
+    ..showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 4),
+        persist: false,
+      ),
+    );
 }
+
+/// Green confirmation (saved, added, deleted). It goes away by itself after
+/// 5 seconds, even when it has an Undo button.
+void showOk(
+  ScaffoldMessengerState messenger, {
+  String? message,
+  Widget? content,
+  SnackBarAction? action,
+}) {
+  messenger
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.positive,
+        duration: const Duration(seconds: 5),
+        persist: false,
+        content: content ?? Text(message ?? ''),
+        action: action,
+      ),
+    );
+}
+
+void snackOk(BuildContext context, String message) =>
+    showOk(ScaffoldMessenger.of(context), message: message);
 
 /// "Paid from" selector. [value] null = nothing chosen yet.
 class AccountDropdown extends StatelessWidget {

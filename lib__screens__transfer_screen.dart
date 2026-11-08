@@ -113,13 +113,10 @@ class _TransferScreenState extends State<TransferScreen> {
       state.changed();
       final newTo = await state.accountRepo.balanceOf(_to!);
       nav.pop();
-      messenger.showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 6),
-          content: Text(
+      showOk(
+        messenger,
+        message:
             '${Fmt.money(amount)} moved from $fromName to $toName.\n$toName now: ${Fmt.money(newTo)}',
-          ),
-        ),
       );
     } catch (e) {
       if (mounted) {

@@ -73,6 +73,7 @@ Future<void> askBudget(BuildContext context, {bool monthly = false}) async {
   if (v == null) return;
   await state.incomes.setSalary(month, v);
   state.changed();
+  if (context.mounted) snackOk(context, 'Budget saved');
 }
 
 /// Once per month, when this month has no budget of its own yet, asks for it.

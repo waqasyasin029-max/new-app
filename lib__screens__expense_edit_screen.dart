@@ -98,9 +98,12 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
     ))
       return;
     final state = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
     await state.expenses.delete(widget.expense!.id!);
     state.changed();
-    if (mounted) Navigator.pop(context);
+    if (!mounted) return;
+    Navigator.pop(context);
+    showOk(messenger, message: 'Expense deleted');
   }
 
   @override

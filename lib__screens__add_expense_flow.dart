@@ -9,6 +9,7 @@ import '../core/theme.dart';
 import '../data/models.dart';
 import '../logic/lexicon.dart';
 import '../state/app_state.dart';
+import '../widgets/common.dart';
 import '../core/app_icons.dart';
 
 class _Saved {
@@ -38,32 +39,28 @@ class AddExpenseFlow {
       builder: (_) => const _FlowSheet(),
     );
     if (saved == null) return;
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          duration: const Duration(seconds: 6),
-          behavior: SnackBarBehavior.floating,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Saved ${Fmt.money(saved.amount)} · ${saved.category}'),
-              Text(
-                '${saved.account} left ${Fmt.money(saved.left)}',
-                style: const TextStyle(fontSize: 12),
-              ),
-            ],
+    showOk(
+      messenger,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Saved ${Fmt.money(saved.amount)} · ${saved.category}'),
+          Text(
+            '${saved.account} left ${Fmt.money(saved.left)}',
+            style: const TextStyle(fontSize: 12),
           ),
-          action: SnackBarAction(
-            label: tr('Undo'),
-            onPressed: () async {
-              await state.expenses.delete(saved.id);
-              state.changed();
-            },
-          ),
-        ),
-      );
+        ],
+      ),
+      action: SnackBarAction(
+        label: tr('Undo'),
+        textColor: Colors.white,
+        onPressed: () async {
+          await state.expenses.delete(saved.id);
+          state.changed();
+        },
+      ),
+    );
   }
 }
 

@@ -212,6 +212,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 final state = context.read<AppState>();
                                 await state.expenses.delete(e.id!);
                                 state.changed();
+                                if (context.mounted) {
+                                  snackOk(context, 'Expense deleted');
+                                }
                               },
                             ),
                         ],

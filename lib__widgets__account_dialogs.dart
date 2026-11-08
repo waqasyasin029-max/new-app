@@ -175,6 +175,9 @@ Future<void> showAccountDialog(
       await state.accountRepo.update(existing.id, n, type);
     }
     await state.reloadAccounts();
+    if (context.mounted) {
+      snackOk(context, existing == null ? 'Account added' : 'Changes saved');
+    }
   } catch (_) {
     if (context.mounted)
       snack(

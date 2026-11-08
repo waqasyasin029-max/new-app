@@ -83,6 +83,7 @@ class AccountDetailScreen extends StatelessWidget {
       accountId: a.id,
     );
     state.changed();
+    if (context.mounted) snackOk(context, 'Money added');
   }
 
   Future<void> _delete(BuildContext context, Account a) async {
@@ -102,9 +103,12 @@ class AccountDetailScreen extends StatelessWidget {
       'This account has no transactions.',
     ))
       return;
+    final messenger = ScaffoldMessenger.of(context);
     await state.accountRepo.delete(a.id);
     await state.reloadAccounts();
-    if (context.mounted) Navigator.pop(context);
+    if (!context.mounted) return;
+    Navigator.pop(context);
+    showOk(messenger, message: 'Account deleted');
   }
 
   @override
@@ -328,6 +332,9 @@ class AccountDetailScreen extends StatelessWidget {
                                     await s.incomes.delete(i.id);
                                   }
                                   s.changed();
+                                  if (context.mounted) {
+                                    snackOk(context, 'Entry deleted');
+                                  }
                                 },
                               ),
                           ],
