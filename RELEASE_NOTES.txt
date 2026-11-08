@@ -1,5 +1,3 @@
-Pehla versioned release: 1.0.0
-Naam: 5 minute tak free change, phir 14 din mein ek baar
-Reports mein swipe se Summary aur History badalte hain
-Home par date card ke right kinare par
-Extra security: app data ka backup band
+Naam wale popup mein naam bada, lamba naam khud chhota hota hai
+Welcome animation naya, saaf aur light
+Naam badalne ka rule samjhane wali line neeche

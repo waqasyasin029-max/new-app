@@ -556,6 +556,9 @@ const Map<String, String> urExact = {
   'Undo': 'واپس کریں',
   'How much?': 'کتنا خرچ ہوا؟',
   'Type the amount you spent': 'خرچ کی رقم لکھیں',
+  'Type your name': 'اپنا نام لکھیں',
+  'Shown on Home. Stays on this phone.': 'ہوم پر نظر آتا ہے۔ اسی فون میں رہتا ہے۔',
+  'Free to change for 5 minutes, then once every 14 days': '5 منٹ تک بدلنا مفت، پھر 14 دن میں ایک بار',
   'What was it for?': 'کس چیز پر خرچ ہوا؟',
 };
 
