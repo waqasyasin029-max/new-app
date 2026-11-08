@@ -111,6 +111,18 @@ class _UpdateDialogState extends State<_UpdateDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              if (widget.info.version.isNotEmpty) ...[
+                Text(
+                  'Version ${widget.info.version}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
               Text(
                 'To enjoy our newest features tap the button below',
                 textAlign: TextAlign.center,
@@ -121,17 +133,6 @@ class _UpdateDialogState extends State<_UpdateDialog> {
                   color: AppColors.muted,
                 ),
               ),
-              if (widget.info.version.isNotEmpty) ...[
-                const SizedBox(height: 10),
-                Text(
-                  'Version ${widget.info.version}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
-                  ),
-                ),
-              ],
               if (_busy) ...[
                 const SizedBox(height: 18),
                 ClipRRect(
