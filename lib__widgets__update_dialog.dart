@@ -72,6 +72,7 @@ class _UpdateDialogState extends State<_UpdateDialog> {
   Widget build(BuildContext context) {
     final notes = widget.info.notes;
     return AlertDialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       icon: Container(
         width: 64,
         height: 64,
