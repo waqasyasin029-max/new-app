@@ -152,7 +152,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: _last ? null : _finish,
                       child: Text(
                         'Skip',
-                        urdu: true,
                         style: TextStyle(
                           color: AppColors.muted,
                           fontWeight: FontWeight.w600,
@@ -207,7 +206,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     child: Text(
                       _last ? 'Get started' : 'Next',
-                      urdu: true,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
