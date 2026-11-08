@@ -36,7 +36,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
     final v = await showDialog<double>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Salary for ${Fmt.month(_month)}'),
+        title: Text('Budget for ${Fmt.month(_month)}'),
         content: TextField(
           controller: c,
           autofocus: true,
@@ -144,7 +144,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Salary & income')),
+      appBar: AppBar(title: const Text('Budget & income')),
       body: Column(
         children: [
           MonthSwitcher(
@@ -168,7 +168,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Monthly salary',
+                            'Monthly budget',
                             style: Theme.of(context).textTheme.labelLarge,
                           ),
                           const SizedBox(height: 4),
@@ -189,7 +189,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                             Padding(
                               padding: const EdgeInsets.only(top: 4),
                               child: Text(
-                                'No salary set yet.',
+                                'No budget set yet.',
                                 style: Theme.of(context).textTheme.bodySmall,
                               ),
                             ),
@@ -199,8 +199,8 @@ class _IncomeScreenState extends State<IncomeScreen> {
                             icon: const Icon(AppIcons.edit),
                             label: Text(
                               d.salary.amount == 0
-                                  ? 'Set salary'
-                                  : 'Update salary',
+                                  ? 'Set budget'
+                                  : 'Update budget',
                             ),
                           ),
                         ],

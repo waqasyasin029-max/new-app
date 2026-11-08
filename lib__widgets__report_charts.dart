@@ -73,7 +73,7 @@ class IncomeExpenseChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final last = points.isEmpty ? DateTime.now() : points.last.month;
     return Semantics(
-      label: tr('Income and expenses for the last 6 months'),
+      label: tr('Budget and spending for the last 6 months'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -91,7 +91,7 @@ class IncomeExpenseChart extends StatelessWidget {
               ),
               Row(
                 children: [
-                  _legend(AppColors.muted, 'Income', striped: true),
+                  _legend(AppColors.muted, 'Budget', striped: true),
                   const SizedBox(width: 12),
                   _legend(AppColors.ink, 'Expenses', striped: false),
                 ],

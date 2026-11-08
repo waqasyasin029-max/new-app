@@ -32,10 +32,10 @@ class SettingsScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(AppIcons.payments),
                 title: const Text(
-                  'Salary & income',
+                  'Budget & income',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: const Text('Set or update your monthly salary'),
+                subtitle: const Text('Set how much you can spend this month'),
                 trailing: const Icon(AppIcons.chevronRight),
                 onTap: () => Navigator.push(
                   context,

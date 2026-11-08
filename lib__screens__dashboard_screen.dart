@@ -211,12 +211,10 @@ class DashboardScreen extends StatelessWidget {
             child: const ListTile(
               leading: Icon(AppIcons.wallet, color: AppColors.gold),
               title: Text(
-                'Set your monthly salary',
+                'Set your monthly budget',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              subtitle: Text(
-                'Needed to calculate what is left of your salary.',
-              ),
+              subtitle: Text('Needed to see how much of your budget is left.'),
               trailing: Icon(AppIcons.chevronRight),
             ),
           ),
