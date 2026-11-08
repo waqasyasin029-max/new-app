@@ -23,17 +23,36 @@ class HomeShell extends StatefulWidget {
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
 
-  /// Which way the last tab change went (1 = to the right), so the new
-  /// page slides in from that side.
+  /// Which side the new page slides in from (1 = right, -1 = left): the side
+  /// its tab is on. Urdu mirrors the bar, so it flips there.
   int _dir = 1;
+
+  bool get _rtl => Directionality.of(context) == TextDirection.rtl;
 
   void _go(int i) {
     if (i == _index) return;
     HapticFeedback.selectionClick();
     setState(() {
-      _dir = i > _index ? 1 : -1;
+      _dir = (i > _index ? 1 : -1) * (_rtl ? -1 : 1);
       _index = i;
     });
+  }
+
+  double _drag = 0;
+
+  /// Swiping the page sideways moves to the neighbouring tab.
+  void _swipeEnd(DragEndDetails d) {
+    final dx = _drag;
+    final v = d.primaryVelocity ?? 0;
+    _drag = 0;
+    final far = dx.abs() > 70;
+    final fast = v.abs() > 500;
+    if (!far && !fast) return;
+    final toLeft = (far ? dx : v) < 0;
+    var step = toLeft ? 1 : -1;
+    if (_rtl) step = -step;
+    final next = _index + step;
+    if (next >= 0 && next < _pages.length) _go(next);
   }
 
   @override
@@ -67,12 +86,18 @@ class _HomeShellState extends State<HomeShell> {
         }
       },
       child: Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          children: [
-            for (var i = 0; i < _pages.length; i++)
-              _TabPage(active: i == _index, dir: _dir, child: _pages[i]),
-          ],
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onHorizontalDragStart: (_) => _drag = 0,
+          onHorizontalDragUpdate: (d) => _drag += d.delta.dx,
+          onHorizontalDragEnd: _swipeEnd,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              for (var i = 0; i < _pages.length; i++)
+                _TabPage(active: i == _index, dir: _dir, child: _pages[i]),
+            ],
+          ),
         ),
         bottomNavigationBar: FloatingNav(
           index: _index,

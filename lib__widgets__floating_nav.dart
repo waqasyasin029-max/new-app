@@ -115,13 +115,18 @@ class FloatingNav extends StatelessWidget {
                   builder: (context, box) {
                     final item = (box.maxWidth - _gap) / 4;
                     const pillW = 64.0;
+                    // Urdu mirrors the bar, so the pill is measured from the right.
+                    final rtl = Directionality.of(context) == TextDirection.rtl;
+                    final tabLeft = rtl
+                        ? box.maxWidth - _left(index, box.maxWidth) - item
+                        : _left(index, box.maxWidth);
                     return Stack(
                       children: [
                         // One soft pill that slides to the selected tab.
                         AnimatedPositioned(
                           duration: const Duration(milliseconds: 320),
                           curve: Curves.easeOutCubic,
-                          left: _left(index, box.maxWidth) + (item - pillW) / 2,
+                          left: tabLeft + (item - pillW) / 2,
                           top: 9,
                           width: pillW,
                           height: 36,
