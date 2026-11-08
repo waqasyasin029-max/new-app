@@ -196,13 +196,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     Text(
                       'Developed by',
-                      urdu: true,
+                      verbatim: true,
                       style: TextStyle(color: AppColors.muted, fontSize: 12),
                     ),
                     const SizedBox(width: 5),
                     const Text(
                       'Waqas Yasin',
-                      urdu: true,
+                      verbatim: true,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 13,
@@ -329,12 +329,12 @@ class _CreatorCard extends StatelessWidget {
             children: [
               Text(
                 'Developed by',
-                urdu: true,
+                verbatim: true,
                 style: TextStyle(color: AppColors.muted, fontSize: 12),
               ),
               const Text(
                 'Waqas Yasin',
-                urdu: true,
+                verbatim: true,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 17,
