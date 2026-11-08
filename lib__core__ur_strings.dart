@@ -132,6 +132,16 @@ const Map<String, String> urExact = {
   'Clear filters': 'فلٹر ہٹائیں',
   'Close': 'بند کریں',
   'What is new': 'نیا کیا ہے',
+  'Good Morning': 'صبح بخیر',
+  'Good Afternoon': 'دوپہر بخیر',
+  'Good Evening': 'شام بخیر',
+  'Good Night': 'شب بخیر',
+  'Profile': 'پروفائل',
+  'Not set': 'مقرر نہیں',
+  'Name saved': 'نام محفوظ ہو گیا',
+  'Name removed': 'نام ہٹا دیا گیا',
+  'What should we call you?': 'ہم آپ کو کس نام سے بلائیں؟',
+  'Your name is shown on Home. It stays on this phone.': 'آپ کا نام ہوم پر دکھایا جائے گا۔ یہ اسی فون میں رہتا ہے۔',
   'Close the app?': 'ایپ بند کریں؟',
   'The app will close. Your data is saved on this phone.':
       'ایپ بند ہو جائے گی۔ آپ کا ڈیٹا اسی فون میں محفوظ ہے۔',
@@ -539,6 +549,7 @@ const Map<String, String> urExact = {
 };
 
 const Map<String, String> urTemplates = {
+  'Hello, {}': 'ہیلو، {0}',
   'Category: {}': 'کیٹیگری: {0}',
   'Last budget was {}. Change it or keep it.':
       'پچھلا بجٹ {0} تھا۔ بدل لیں یا ویسا ہی رکھیں۔',

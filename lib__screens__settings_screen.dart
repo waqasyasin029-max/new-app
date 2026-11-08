@@ -8,6 +8,7 @@ import '../services/update_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/lock_gate.dart';
+import '../widgets/name_dialog.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import '../core/i18n.dart';
@@ -24,6 +25,23 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 120),
         children: [
+          const SectionTitle('Profile'),
+          TileGroup(
+            children: [
+              ListTile(
+                leading: const Icon(AppIcons.person),
+                title: const Text(
+                  'Your name',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: s.userName.isEmpty
+                    ? const Text('Not set')
+                    : Text(s.userName, verbatim: true),
+                trailing: const Icon(AppIcons.chevronRight),
+                onTap: () => askName(context),
+              ),
+            ],
+          ),
           const SectionTitle('Appearance'),
           TileGroup(
             children: [

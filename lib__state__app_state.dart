@@ -27,6 +27,9 @@ class AppState extends ChangeNotifier {
 
   /// 'en' | 'ur'
   String language = 'en';
+
+  /// The person's name, shown on Home. Empty when not given.
+  String userName = '';
   bool onboardingDone = true;
 
   /// False on a fresh install until the accounts + app-lock setup is finished.
@@ -53,6 +56,7 @@ class AppState extends ChangeNotifier {
     // People who already used the app skip the new first-time setup.
     setupDone = prefs.getBool('setup_done') ?? onboardingDone;
     appLock = prefs.getBool('app_lock') ?? false;
+    userName = prefs.getString('user_name') ?? '';
     applyLook();
   }
 
@@ -90,6 +94,13 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('setup_done', true);
+  }
+
+  Future<void> setUserName(String name) async {
+    userName = name.trim();
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name', userName);
   }
 
   /// Pushes the chosen theme and language into the globals the UI reads.

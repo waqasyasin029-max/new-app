@@ -23,6 +23,10 @@ class FirstSetupScreen extends StatefulWidget {
 
 class _FirstSetupScreenState extends State<FirstSetupScreen> {
   int _step = 0;
+
+  /// The optional "what should we call you" screen comes before the steps.
+  bool _askName = true;
+  final _nameCtl = TextEditingController();
   bool _busy = false;
   final List<PkAccount> _custom = [];
   final Map<String, TextEditingController> _amounts = {};
@@ -35,6 +39,7 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
 
   @override
   void dispose() {
+    _nameCtl.dispose();
     for (final c in _amounts.values) {
       c.dispose();
     }
@@ -205,6 +210,66 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _saveName() async {
+    final t = _nameCtl.text.trim();
+    if (t.isNotEmpty) await context.read<AppState>().setUserName(t);
+    if (mounted) setState(() => _askName = false);
+  }
+
+  Widget _nameStep() {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            children: [
+              const Text(
+                'What should we call you?',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Your name is shown on Home. It stays on this phone.',
+                style: TextStyle(color: AppColors.muted, height: 1.4),
+              ),
+              const SizedBox(height: 24),
+              TextField(
+                controller: _nameCtl,
+                maxLength: 24,
+                textCapitalization: TextCapitalization.words,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _saveName(),
+                decoration: InputDecoration(
+                  labelText: tr('Your name'),
+                  counterText: '',
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          child: Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: FilledButton(
+                  onPressed: _saveName,
+                  child: const Text('Next'),
+                ),
+              ),
+              TextButton(
+                onPressed: () => setState(() => _askName = false),
+                child: const Text('Skip'),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -505,15 +570,19 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop || _busy) return;
-        if (_step > 0) {
+        if (_askName) {
+          context.read<AppState>().backToOnboarding();
+        } else if (_step > 0) {
           setState(() => _step -= 1);
         } else {
-          context.read<AppState>().backToOnboarding();
+          setState(() => _askName = true);
         }
       },
       child: Scaffold(
         body: SafeArea(
-          child: _step == 0
+          child: _askName
+              ? _nameStep()
+              : _step == 0
               ? _accountsStep()
               : _step == 1
               ? _amountsStep()
