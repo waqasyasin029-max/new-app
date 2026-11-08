@@ -2,23 +2,49 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
 import '../core/i18n.dart';
+import '../core/theme.dart';
 import '../state/app_state.dart';
 import 'common.dart';
 
 /// Asks for the name shown on Home and saves it. A name is required.
 Future<void> askName(BuildContext context) async {
   final state = context.read<AppState>();
+  final until = await state.nameLockedUntil();
+  if (!context.mounted) return;
+  if (until != null) {
+    final left = until.difference(DateTime.now());
+    final days = (left.inHours / 24).ceil().clamp(1, 14);
+    snack(
+      context,
+      days <= 1
+          ? 'You can change your name only once in 14 days. Try again in 1 day.'
+          : 'You can change your name only once in 14 days. Try again in $days days.',
+    );
+    return;
+  }
   final c = TextEditingController(text: state.userName);
   final v = await showDialog<String>(
     context: context,
     builder: (ctx) => AlertDialog(
       title: const Text('Your name'),
-      content: TextField(
-        controller: c,
-        autofocus: true,
-        maxLength: 24,
-        textCapitalization: TextCapitalization.words,
-        decoration: InputDecoration(labelText: tr('Name'), counterText: ''),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: c,
+            autofocus: true,
+            maxLength: 24,
+            textCapitalization: TextCapitalization.words,
+            decoration:
+                InputDecoration(labelText: tr('Name'), counterText: ''),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'You can change it freely for 5 minutes. After that, once every 14 days.',
+            style: TextStyle(fontSize: 12.5, color: AppColors.muted, height: 1.4),
+          ),
+        ],
       ),
       actions: [
         TextButton(
@@ -40,7 +66,7 @@ Future<void> askName(BuildContext context) async {
     ),
   );
   c.dispose();
-  if (v == null) return;
+  if (v == null || v == state.userName) return;
   await state.setUserName(v);
   if (context.mounted) snackOk(context, 'Name saved');
 }

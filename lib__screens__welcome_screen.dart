@@ -160,7 +160,7 @@ class _NameSheetState extends State<_NameSheet> {
           ),
           const SizedBox(height: 6),
           Text(
-            'Your name is shown on Home. It stays on this phone.',
+            'Your name is shown on Home. It stays on this phone. You can change it freely for 5 minutes; after that, once every 14 days.',
             style: TextStyle(color: AppColors.muted, height: 1.4),
           ),
           const SizedBox(height: 18),

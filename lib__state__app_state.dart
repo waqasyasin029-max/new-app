@@ -107,11 +107,45 @@ class AppState extends ChangeNotifier {
     await prefs.setBool('welcome_done', true);
   }
 
+  /// For 5 minutes after the name is first set it can be changed freely.
+  /// After that it can be changed once every 14 days.
+  static const nameFreeWindow = Duration(minutes: 5);
+  static const nameLockPeriod = Duration(days: 14);
+
+  /// Until when the name cannot be changed, or null if it can be changed now.
+  Future<DateTime?> nameLockedUntil() async {
+    if (userName.isEmpty) return null;
+    final prefs = await SharedPreferences.getInstance();
+    final setAt = prefs.getInt('name_set_at');
+    if (setAt == null) return null; // set before this rule existed
+    final windowEnd = DateTime.fromMillisecondsSinceEpoch(setAt)
+        .add(nameFreeWindow);
+    final changed = prefs.getInt('name_changed_at');
+    final from = changed == null
+        ? windowEnd
+        : DateTime.fromMillisecondsSinceEpoch(changed);
+    final until = from.add(nameLockPeriod);
+    final now = DateTime.now();
+    if (now.isBefore(windowEnd)) return null;
+    return now.isBefore(until) ? until : null;
+  }
+
   Future<void> setUserName(String name) async {
+    final first = userName.isEmpty;
     userName = name.trim();
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_name', userName);
+    final now = DateTime.now();
+    final setAt = prefs.getInt('name_set_at');
+    if (first || setAt == null) {
+      await prefs.setInt('name_set_at', now.millisecondsSinceEpoch);
+      await prefs.remove('name_changed_at');
+    } else if (now.isAfter(
+      DateTime.fromMillisecondsSinceEpoch(setAt).add(nameFreeWindow),
+    )) {
+      await prefs.setInt('name_changed_at', now.millisecondsSinceEpoch);
+    }
   }
 
   /// Pushes the chosen theme and language into the globals the UI reads.

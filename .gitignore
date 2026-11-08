@@ -1,0 +1,6 @@
+
+# Never commit signing keys or secrets
+*.keystore
+*.keystore.b64
+*.jks
+.env

@@ -74,13 +74,28 @@ void _patchManifest(File f) {
         </receiver>
 ''';
 
-  x = x.replaceFirst(RegExp(r'<application'), '$perms    <application');
+  // No cloud/adb backup of the app's data: nobody can pull the database out.
+  const noBackup = 'android:allowBackup="false" '
+      'android:fullBackupContent="false" '
+      'android:dataExtractionRules="@xml/no_backup_rules"';
+  x = x.replaceFirst(
+    RegExp(r'<application'),
+    '$perms    <application $noBackup',
+  );
   x = x.replaceFirst('</application>', '$receivers    </application>');
   x = x.replaceFirstMapped(
     RegExp(r'android:label="[^"]*"'),
     (_) => 'android:label="Kharcha Tracker"',
   );
   f.writeAsStringSync(x);
+  final xmlDir = Directory('android/app/src/main/res/xml')
+    ..createSync(recursive: true);
+  File('${xmlDir.path}/no_backup_rules.xml').writeAsStringSync('''<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup><exclude domain="root"/><exclude domain="file"/><exclude domain="database"/><exclude domain="sharedpref"/></cloud-backup>
+    <device-transfer><exclude domain="root"/><exclude domain="file"/><exclude domain="database"/><exclude domain="sharedpref"/></device-transfer>
+</data-extraction-rules>
+''');
   stdout.writeln('Patched AndroidManifest.xml');
 }
 

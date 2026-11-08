@@ -55,6 +55,8 @@ class _HomeShellState extends State<HomeShell> {
     final toLeft = (far ? dx : v) < 0;
     var step = toLeft ? 1 : -1;
     if (_rtl) step = -step;
+    // On the Activity tab the swipe first switches Summary <-> History.
+    if (_index == 2 && _activityKey.currentState?.swipe(step) == true) return;
     final next = _index + step;
     if (next >= 0 && next < _pages.length) _go(next);
   }
@@ -73,11 +75,13 @@ class _HomeShellState extends State<HomeShell> {
     });
   }
 
-  static const _pages = <Widget>[
-    DashboardScreen(),
-    AccountsScreen(),
-    ActivityScreen(),
-    SettingsScreen(),
+  final _activityKey = GlobalKey<ActivityScreenState>();
+
+  late final List<Widget> _pages = <Widget>[
+    const DashboardScreen(),
+    const AccountsScreen(),
+    ActivityScreen(key: _activityKey),
+    const SettingsScreen(),
   ];
 
   @override
