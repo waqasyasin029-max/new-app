@@ -70,22 +70,39 @@ class _UpdateDialogState extends State<_UpdateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // One point per line of the release notes. Old releases only carried a
-    // git message ("Merge branch ..."): that is not shown.
-    final points = [
-      for (final l in widget.info.notes.split('\n'))
-        l.trim().replaceFirst(RegExp(r'^[-•*]\s*'), ''),
-    ].where((l) => l.isNotEmpty && !l.startsWith('Merge ')).take(6).toList();
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      icon: Container(
-        width: 64,
+      icon: SizedBox(
+        width: double.infinity,
         height: 64,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: AppColors.gradient,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppColors.gradient,
+              ),
+              child: const Icon(
+                AppIcons.systemUpdate,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+            // Same as "Later": closes the popup (not while downloading).
+            PositionedDirectional(
+              end: 0,
+              top: 0,
+              child: IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: Icon(AppIcons.close, size: 20, color: AppColors.muted),
+                onPressed: _busy ? null : () => Navigator.pop(context),
+              ),
+            ),
+          ],
         ),
-        child: const Icon(AppIcons.systemUpdate, size: 30, color: Colors.white),
       ),
       title: const Text('New update available', textAlign: TextAlign.center),
       content: SizedBox(
@@ -94,77 +111,16 @@ class _UpdateDialogState extends State<_UpdateDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.fieldFill,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  'Version ${widget.info.build}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
+              Text(
+                'To enjoy our newest features tap the button below',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.45,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.muted,
                 ),
               ),
-              if (points.isNotEmpty) ...[
-                const SizedBox(height: 14),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.fieldFill,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'What is new',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.muted,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      for (final p in points)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(top: 1),
-                                child: Icon(
-                                  AppIcons.check,
-                                  size: 18,
-                                  color: AppColors.positive,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text(
-                                  p,
-                                  verbatim: true,
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.35,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
               if (_busy) ...[
                 const SizedBox(height: 18),
                 ClipRRect(
@@ -196,12 +152,6 @@ class _UpdateDialogState extends State<_UpdateDialog> {
                   style: const TextStyle(fontSize: 13, height: 1.4),
                 ),
               ],
-              const SizedBox(height: 14),
-              Text(
-                'Your expenses and settings are kept.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12.5, color: AppColors.muted),
-              ),
               const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,

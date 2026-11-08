@@ -7,6 +7,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart' show confirmExit;
 import 'home_shell.dart';
 import 'setup_screen.dart';
+import 'welcome_screen.dart';
 import '../core/app_icons.dart';
 
 /// First launch shows the intro pages; afterwards the app opens directly.
@@ -17,6 +18,7 @@ class OnboardingGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final done = context.select<AppState, bool>((s) => s.onboardingDone);
     final setup = context.select<AppState, bool>((s) => s.setupDone);
+    final welcome = context.select<AppState, bool>((s) => s.welcomeDone);
     final fromSetup = context.read<AppState>().returnedFromSetup;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 350),
@@ -27,6 +29,8 @@ class OnboardingGate extends StatelessWidget {
             )
           : !setup
           ? const FirstSetupScreen(key: ValueKey('setup'))
+          : !welcome
+          ? const WelcomeFlowScreen(key: ValueKey('welcome'))
           : const HomeShell(key: ValueKey('home')),
     );
   }

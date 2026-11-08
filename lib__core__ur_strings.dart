@@ -142,6 +142,10 @@ const Map<String, String> urExact = {
   'Name removed': 'نام ہٹا دیا گیا',
   'What should we call you?': 'ہم آپ کو کس نام سے بلائیں؟',
   'Your name is shown on Home. It stays on this phone.': 'آپ کا نام ہوم پر دکھایا جائے گا۔ یہ اسی فون میں رہتا ہے۔',
+  'All set up': 'سب تیار ہے',
+  'Welcome': 'خوش آمدید',
+  'Your khata is ready. Let\'s begin!': 'آپ کا کھاتا تیار ہے۔ آئیے شروع کریں!',
+  'To enjoy our newest features tap the button below': 'ہمارے نئے فیچرز سے لطف اٹھانے کے لیے نیچے دیا گیا بٹن دبائیں',
   'Close the app?': 'ایپ بند کریں؟',
   'The app will close. Your data is saved on this phone.':
       'ایپ بند ہو جائے گی۔ آپ کا ڈیٹا اسی فون میں محفوظ ہے۔',
