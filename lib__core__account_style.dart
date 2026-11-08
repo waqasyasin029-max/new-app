@@ -6,11 +6,11 @@ class AccountStyle {
   static IconData icon(String type) {
     switch (type) {
       case 'cash':
-        return Icons.payments_outlined;
+        return Icons.payments_rounded;
       case 'bank':
-        return Icons.account_balance_outlined;
+        return Icons.account_balance_rounded;
       default:
-        return Icons.account_balance_wallet_outlined;
+        return Icons.account_balance_wallet_rounded;
     }
   }
 

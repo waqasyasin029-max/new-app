@@ -32,38 +32,23 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(index: _index, children: _pages),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          FloatingActionButton.small(
-            heroTag: 'assistant',
-            tooltip: tr('Assistant'),
-            elevation: 2,
-            backgroundColor: AppColors.surface,
-            foregroundColor: AppColors.ink,
-            shape: const CircleBorder(),
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AssistantScreen()),
-            ),
-            child: const Icon(Icons.auto_awesome, size: 20),
-          ),
-          const SizedBox(height: 12),
-          FloatingActionButton(
-            heroTag: 'add',
-            tooltip: tr('Add expense'),
-            backgroundColor: AppColors.primary,
-            foregroundColor: Colors.white,
-            shape: const CircleBorder(),
-            onPressed: () => AddExpenseFlow.start(context),
-            child: const Icon(Icons.add_rounded, size: 32),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton.small(
+        heroTag: 'assistant',
+        tooltip: tr('Assistant'),
+        elevation: 2,
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.primary,
+        shape: const CircleBorder(),
+        onPressed: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AssistantScreen()),
+        ),
+        child: const Icon(Icons.auto_awesome_rounded, size: 20),
       ),
       bottomNavigationBar: FloatingNav(
         index: _index,
         onTab: (i) => setState(() => _index = i),
+        onAdd: () => AddExpenseFlow.start(context),
       ),
     );
   }

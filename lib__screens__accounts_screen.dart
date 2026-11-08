@@ -24,7 +24,7 @@ class AccountsScreen extends StatelessWidget {
         actions: [
           IconButton(
             tooltip: tr('Add account'),
-            icon: const Icon(Icons.add_circle_outline),
+            icon: const Icon(Icons.add_circle_rounded),
             onPressed: () => showAccountDialog(context),
           ),
         ],
@@ -74,7 +74,7 @@ class AccountsScreen extends StatelessWidget {
                               context,
                               const TransferScreen(withdraw: true),
                             ),
-                            icon: const Icon(Icons.atm, size: 20),
+                            icon: const Icon(Icons.atm_rounded, size: 20),
                             label: const Text('Withdraw'),
                           ),
                         ),
@@ -87,7 +87,10 @@ class AccountsScreen extends StatelessWidget {
                             ),
                             onPressed: () =>
                                 _open(context, const TransferScreen()),
-                            icon: const Icon(Icons.swap_horiz, size: 20),
+                            icon: const Icon(
+                              Icons.swap_horiz_rounded,
+                              size: 20,
+                            ),
                             label: const Text('Transfer'),
                           ),
                         ),
@@ -172,7 +175,7 @@ class AccountsScreen extends StatelessWidget {
                                     : AppColors.ink,
                               ),
                             ),
-                            const Icon(Icons.chevron_right),
+                            const Icon(Icons.chevron_right_rounded),
                           ],
                         ),
                       ),

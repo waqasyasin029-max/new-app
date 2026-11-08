@@ -258,6 +258,7 @@ class MiniStatTile extends StatelessWidget {
   final bool dotted;
   final bool wide;
   final String? caption;
+  final double valueSize;
   const MiniStatTile({
     super.key,
     required this.icon,
@@ -268,6 +269,7 @@ class MiniStatTile extends StatelessWidget {
     this.dotted = false,
     this.wide = false,
     this.caption,
+    this.valueSize = 24,
   });
 
   Widget _iconBadge() => Container(
@@ -286,7 +288,11 @@ class MiniStatTile extends StatelessWidget {
     child: Text(
       value,
       verbatim: true,
-      style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: color),
+      style: TextStyle(
+        fontSize: valueSize,
+        fontWeight: FontWeight.w800,
+        color: color,
+      ),
     ),
   );
 

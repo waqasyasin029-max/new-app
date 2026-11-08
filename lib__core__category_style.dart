@@ -4,21 +4,21 @@ class CategoryStyle {
   static IconData icon(String name) {
     switch (name) {
       case 'Food':
-        return Icons.restaurant;
+        return Icons.restaurant_rounded;
       case 'Transport':
-        return Icons.directions_car;
+        return Icons.directions_car_rounded;
       case 'Shopping':
-        return Icons.shopping_bag;
+        return Icons.shopping_bag_rounded;
       case 'Bills':
-        return Icons.receipt_long;
+        return Icons.receipt_long_rounded;
       case 'Groceries':
-        return Icons.local_grocery_store;
+        return Icons.local_grocery_store_rounded;
       case 'Health':
-        return Icons.medical_services;
+        return Icons.medical_services_rounded;
       case 'Entertainment':
-        return Icons.movie;
+        return Icons.movie_rounded;
       default:
-        return Icons.category;
+        return Icons.category_rounded;
     }
   }
 

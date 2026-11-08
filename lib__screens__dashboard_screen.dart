@@ -122,7 +122,7 @@ class DashboardScreen extends StatelessWidget {
                 shape: CircleBorder(side: BorderSide(color: AppColors.line)),
                 child: IconButton(
                   tooltip: tr('Settings'),
-                  icon: const Icon(Icons.settings_outlined),
+                  icon: const Icon(Icons.settings_rounded),
                   onPressed: () => _open(context, const SettingsScreen()),
                 ),
               ),
@@ -195,7 +195,7 @@ class DashboardScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.payments_outlined,
+                    Icons.payments_rounded,
                     size: 28,
                     color: Colors.white,
                   ),
@@ -234,8 +234,8 @@ class DashboardScreen extends StatelessWidget {
             onTap: () => _open(context, const IncomeScreen()),
             child: const ListTile(
               leading: Icon(
-                Icons.account_balance_wallet,
-                color: AppColors.primary,
+                Icons.account_balance_wallet_rounded,
+                color: AppColors.gold,
               ),
               title: Text(
                 'Set your monthly salary',
@@ -244,7 +244,7 @@ class DashboardScreen extends StatelessWidget {
               subtitle: Text(
                 'Needed to calculate what is left of your salary.',
               ),
-              trailing: Icon(Icons.chevron_right),
+              trailing: Icon(Icons.chevron_right_rounded),
             ),
           ),
         Padding(

@@ -195,7 +195,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                           const SizedBox(height: 12),
                           FilledButton.icon(
                             onPressed: () => _editSalary(d.salary.amount),
-                            icon: const Icon(Icons.edit),
+                            icon: const Icon(Icons.edit_rounded),
                             label: Text(
                               d.salary.amount == 0
                                   ? 'Set salary'
@@ -216,7 +216,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                       ),
                       TextButton.icon(
                         onPressed: _addExtra,
-                        icon: const Icon(Icons.add),
+                        icon: const Icon(Icons.add_rounded),
                         label: const Text('Add'),
                       ),
                     ],
@@ -231,7 +231,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                       AppCard(
                         child: ListTile(
                           leading: const Icon(
-                            Icons.add_circle_outline,
+                            Icons.add_circle_rounded,
                             color: Colors.green,
                           ),
                           title: Text(i.source, verbatim: true),
@@ -246,7 +246,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
                                 ),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete_outline),
+                                icon: const Icon(Icons.delete_rounded),
                                 onPressed: () async {
                                   if (!await confirmDialog(
                                     context,

@@ -86,8 +86,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     Row(
                       children: [
                         Expanded(
+                          flex: 2,
                           child: MiniStatTile(
-                            icon: Icons.trending_up,
+                            valueSize: 19,
+                            icon: Icons.trending_up_rounded,
                             label: 'Income',
                             value: Fmt.money(d.income),
                             color: AppColors.positive,
@@ -95,8 +97,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           ),
                         ),
                         Expanded(
+                          flex: 3,
                           child: MiniStatTile(
-                            icon: Icons.trending_down,
+                            valueSize: 30,
+                            icon: Icons.trending_down_rounded,
                             label: 'Expenses',
                             value: Fmt.money(d.spent),
                             color: AppColors.danger,
@@ -109,7 +113,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     ),
                     MiniStatTile(
                       wide: true,
-                      icon: Icons.savings_outlined,
+                      icon: Icons.savings_rounded,
                       label: 'Saved',
                       value: d.income > 0
                           ? '${(remaining / d.income * 100).toStringAsFixed(0)}%'
