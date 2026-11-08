@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:flutter/services.dart' show HapticFeedback;
 
 import '../core/i18n.dart';
 import 'history_screen.dart';
@@ -10,11 +11,23 @@ class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
 
   @override
-  State<ActivityScreen> createState() => _ActivityScreenState();
+  State<ActivityScreen> createState() => ActivityScreenState();
 }
 
-class _ActivityScreenState extends State<ActivityScreen> {
+class ActivityScreenState extends State<ActivityScreen> {
   int _tab = 0;
+
+  /// A sideways swipe on this tab first moves between Summary and History.
+  /// [step] is +1 toward the next tab in reading direction, -1 toward the
+  /// previous. Returns true when it was used here; false at either end, so
+  /// the swipe carries on to the neighbouring bottom tab.
+  bool swipe(int step) {
+    final next = _tab + step;
+    if (next < 0 || next > 1) return false;
+    HapticFeedback.selectionClick();
+    setState(() => _tab = next);
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
