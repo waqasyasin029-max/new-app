@@ -132,8 +132,10 @@ const Map<String, String> urExact = {
   'Clear filters': 'فلٹر ہٹائیں',
   'Close': 'بند کریں',
   'Close the app?': 'ایپ بند کریں؟',
-  'Do you really want to close Kharcha Tracker?':
-      'کیا آپ واقعی خرچہ ٹریکر بند کرنا چاہتے ہیں؟',
+  'The app will close. Your data is saved on this phone.':
+      'ایپ بند ہو جائے گی۔ آپ کا ڈیٹا اسی فون میں محفوظ ہے۔',
+  'Stay in app': 'ایپ میں رہیں',
+  'Yes, close app': 'ہاں، ایپ بند کریں',
   'Confirm expenses': 'اخراجات کی تصدیق',
   'Continue': 'جاری رکھیں',
   'Could not check for updates. Is internet on?':

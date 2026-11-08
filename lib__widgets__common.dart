@@ -276,15 +276,57 @@ Future<bool> confirmDialog(
   return r ?? false;
 }
 
-/// Asks before closing the app; it closes only on a clear yes.
+/// Asks before closing the app, in plain words: what will happen, then
+/// "Stay in app" or "Yes, close app". It closes only on a clear yes.
 Future<void> confirmExit(BuildContext context) async {
-  final yes = await confirmDialog(
-    context,
-    'Close the app?',
-    'Do you really want to close Kharcha Tracker?',
-    action: 'Close',
+  final yes = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      icon: Container(
+        width: 64,
+        height: 64,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: AppColors.gradient,
+        ),
+        child: const Icon(AppIcons.close, size: 30, color: Colors.white),
+      ),
+      title: const Text('Close the app?', textAlign: TextAlign.center),
+      content: const Text(
+        'The app will close. Your data is saved on this phone.',
+        textAlign: TextAlign.center,
+      ),
+      actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      actions: [
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                child: const Text('Stay in app'),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: FilledButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size(0, 48),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                ),
+                child: const Text('Yes, close app'),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
   );
-  if (yes) SystemNavigator.pop();
+  if (yes == true) SystemNavigator.pop();
 }
 
 /// Returns a positive amount or null.
