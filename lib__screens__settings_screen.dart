@@ -10,7 +10,6 @@ import '../widgets/common.dart';
 import '../widgets/lock_gate.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
-import 'gemini_setup_screen.dart';
 import 'onboarding_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
@@ -223,41 +222,6 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SectionTitle('Assistant'),
-          TileGroup(
-            children: [
-              ListTile(
-                leading: const Icon(AppIcons.badge),
-                title: const Text(
-                  'Assistant name',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  s.userName.isEmpty ? '—' : s.userName,
-                  verbatim: true,
-                ),
-                trailing: const Icon(AppIcons.chevronRight),
-                onTap: () => _editName(context, s),
-              ),
-              ListTile(
-                leading: const Icon(AppIcons.sparkle),
-                title: const Text(
-                  'Gemini assistant (key)',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  s.geminiKey.trim().isEmpty
-                      ? 'Not added yet. Free key from Google AI Studio'
-                      : 'Key saved. Tap to change it or test it',
-                ),
-                trailing: const Icon(AppIcons.chevronRight),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const GeminiSetupScreen()),
-                ),
-              ),
-            ],
-          ),
           const SectionTitle('Privacy'),
           TileGroup(
             children: [
@@ -338,8 +302,7 @@ class SettingsScreen extends StatelessWidget {
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  'Expenses and income are stored only in a local SQLite database. '
-                  'Speech-to-text is performed by your phone\'s speech service.',
+                  'Expenses and income are stored only in a local database on this phone. Nothing is sent anywhere.',
                 ),
               ),
             ],
@@ -373,47 +336,6 @@ class SettingsScreen extends StatelessWidget {
         'Set a screen lock (PIN, pattern or fingerprint) on your phone first.',
       );
     }
-  }
-
-  Future<void> _editName(BuildContext context, AppState s) async {
-    final c = TextEditingController(text: s.userName);
-    final result = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Assistant name'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'The assistant calls you by this name. Write it in Urdu so it is pronounced correctly.',
-              style: TextStyle(fontSize: 13),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: c,
-              textDirection: TextDirection.rtl,
-              decoration: const InputDecoration(
-                hintText: 'وقاص',
-                isDense: true,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, c.text.trim()),
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    c.dispose();
-    if (result != null) await s.setUserName(result);
   }
 
   /// A switch row plus a time row for one meal reminder.

@@ -20,11 +20,11 @@ class AppState extends ChangeNotifier {
   int revision = 0;
 
   bool reminderEnabled = true;
-  TimeOfDay reminderTime = const TimeOfDay(hour: 23, minute: 0);
+  TimeOfDay reminderTime = const TimeOfDay(hour: 22, minute: 0);
 
-  bool breakfastEnabled = true;
+  bool breakfastEnabled = false;
   TimeOfDay breakfastTime = const TimeOfDay(hour: 12, minute: 0);
-  bool dinnerEnabled = true;
+  bool dinnerEnabled = false;
   TimeOfDay dinnerTime = const TimeOfDay(hour: 21, minute: 30);
 
   /// 'system' | 'light' | 'dark'
@@ -33,8 +33,9 @@ class AppState extends ChangeNotifier {
   /// 'en' | 'ur'
   String language = 'en';
   bool onboardingDone = true;
-  String userName = 'وقاص';
-  String geminiKey = '';
+
+  /// False on a fresh install until the accounts + app-lock setup is finished.
+  bool setupDone = true;
 
   /// Ask for the phone's fingerprint / PIN when the app opens.
   bool appLock = false;
@@ -43,26 +44,29 @@ class AppState extends ChangeNotifier {
     categories = await categoryRepo.all();
     accounts = await accountRepo.all();
     final prefs = await SharedPreferences.getInstance();
+    // People who already used the app keep the old reminder defaults; new
+    // installs get one reminder a day at 10 PM.
+    final old = prefs.getBool('onboarding_done') ?? false;
     reminderEnabled = prefs.getBool('reminder_enabled') ?? true;
     reminderTime = TimeOfDay(
-      hour: prefs.getInt('reminder_hour') ?? 23,
+      hour: prefs.getInt('reminder_hour') ?? (old ? 23 : 22),
       minute: prefs.getInt('reminder_minute') ?? 0,
     );
-    breakfastEnabled = prefs.getBool('breakfast_enabled') ?? true;
+    breakfastEnabled = prefs.getBool('breakfast_enabled') ?? old;
     breakfastTime = TimeOfDay(
       hour: prefs.getInt('breakfast_hour') ?? 12,
       minute: prefs.getInt('breakfast_minute') ?? 0,
     );
-    dinnerEnabled = prefs.getBool('dinner_enabled') ?? true;
+    dinnerEnabled = prefs.getBool('dinner_enabled') ?? old;
     dinnerTime = TimeOfDay(
       hour: prefs.getInt('dinner_hour') ?? 21,
       minute: prefs.getInt('dinner_minute') ?? 30,
     );
     themeMode = prefs.getString('theme_mode') ?? 'system';
-    language = prefs.getString('language') ?? 'en';
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
-    userName = prefs.getString('user_name') ?? 'وقاص';
-    geminiKey = prefs.getString('gemini_key') ?? '';
+    language = prefs.getString('language') ?? 'en';
+    // People who already used the app skip the new first-time setup.
+    setupDone = prefs.getBool('setup_done') ?? onboardingDone;
     appLock = prefs.getBool('app_lock') ?? false;
     applyLook();
   }
@@ -80,6 +84,13 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
+  }
+
+  Future<void> finishSetup() async {
+    setupDone = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('setup_done', true);
   }
 
   /// Pushes the chosen theme and language into the globals the UI reads.
@@ -196,20 +207,6 @@ class AppState extends ChangeNotifier {
       // Never crash the app because a reminder could not be scheduled.
       NotificationService.lastError ??= '$e';
     }
-  }
-
-  Future<void> setUserName(String name) async {
-    userName = name.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_name', userName);
-    notifyListeners();
-  }
-
-  Future<void> setGeminiKey(String key) async {
-    geminiKey = key.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('gemini_key', geminiKey);
-    notifyListeners();
   }
 
   Future<void> setAppLock(bool on) async {

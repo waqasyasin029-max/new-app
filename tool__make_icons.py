@@ -4,7 +4,7 @@ Usage: python3 tool/make_icons.py tool/icon_source.png android/app/src/main/res
 import os
 import sys
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 src, res = sys.argv[1], sys.argv[2]
 im = Image.open(src).convert("RGB")
@@ -39,10 +39,39 @@ notif = {"mdpi": 24, "hdpi": 36, "xhdpi": 48, "xxhdpi": 72, "xxxhdpi": 96}
 for d, px in legacy.items():
     save(logo.resize((px, px), Image.LANCZOS), f"{res}/mipmap-{d}/ic_launcher.png")
 
+# Adaptive icon: a full-bleed diagonal gradient (same colours as the logo) behind the
+# logo's inside, shrunk and feathered so it melts into the gradient. The phone's
+# mask (circle, squircle...) then cuts it, like the round-square legacy icon.
+def _avg(box):
+    return tuple(
+        sum(v) / len(v) for v in zip(*[crop.getpixel((x, y)) for x in range(box[0], box[2], 4) for y in range(box[1], box[3], 4)])
+    )
+
+
+ca, cb = _avg((100, 100, 130, 130)), _avg((894, 894, 924, 924))
+ta, tb = 115 / 1024.0, 909 / 1024.0
+
+
+def gradient(px):
+    g = Image.new("RGB", (px, px))
+    pix = g.load()
+    for y in range(px):
+        for x in range(px):
+            u = ((x + y) / 2.0) / px
+            k = (u - ta) / (tb - ta)
+            pix[x, y] = tuple(int(max(0, min(255, ca[i] + (cb[i] - ca[i]) * k))) for i in range(3))
+    return g
+
+
+inner = crop.crop((70, 70, 954, 954)).convert("RGBA")
+fade = Image.new("L", inner.size, 0)
+ImageDraw.Draw(fade).rectangle((60, 60, inner.width - 60, inner.height - 60), fill=255)
+inner.putalpha(fade.filter(ImageFilter.GaussianBlur(34)))
 for d, px in adaptive.items():
+    save(gradient(px), f"{res}/mipmap-{d}/ic_launcher_background.png")
     canvas = Image.new("RGBA", (px, px), (0, 0, 0, 0))
-    inner = int(px * 0.60)
-    canvas.paste(logo.resize((inner, inner), Image.LANCZOS), ((px - inner) // 2, (px - inner) // 2))
+    side = int(px * 0.66)
+    canvas.alpha_composite(inner.resize((side, side), Image.LANCZOS), ((px - side) // 2, (px - side) // 2))
     save(canvas, f"{res}/mipmap-{d}/ic_launcher_foreground.png")
 
 os.makedirs(f"{res}/mipmap-anydpi-v26", exist_ok=True)
@@ -50,7 +79,7 @@ with open(f"{res}/mipmap-anydpi-v26/ic_launcher.xml", "w") as f:
     f.write(
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">\n'
-        '    <background android:drawable="@color/ic_launcher_background"/>\n'
+        '    <background android:drawable="@mipmap/ic_launcher_background"/>\n'
         '    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>\n'
         "</adaptive-icon>\n"
     )
@@ -61,14 +90,14 @@ with open(f"{res}/values/ic_launcher_background.xml", "w") as f:
         f'    <color name="ic_launcher_background">{bg_hex}</color>\n</resources>\n'
     )
 
-# 3) Notification small icon: white microphone silhouette on transparent.
+# 3) Notification small icon: white wallet silhouette on transparent.
 S = 384
 g = Image.new("L", (S, S), 0)
 d = ImageDraw.Draw(g)
-d.rounded_rectangle((S * 0.36, S * 0.10, S * 0.64, S * 0.55), radius=S * 0.14, fill=255)
-d.arc((S * 0.23, S * 0.28, S * 0.77, S * 0.74), 0, 180, fill=255, width=int(S * 0.055))
-d.rectangle((S * 0.472, S * 0.74, S * 0.528, S * 0.86), fill=255)
-d.rounded_rectangle((S * 0.34, S * 0.85, S * 0.66, S * 0.905), radius=S * 0.025, fill=255)
+d.rounded_rectangle((S * 0.12, S * 0.30, S * 0.88, S * 0.84), radius=S * 0.12, fill=255)
+d.rounded_rectangle((S * 0.20, S * 0.18, S * 0.72, S * 0.34), radius=S * 0.05, fill=255)
+d.rounded_rectangle((S * 0.60, S * 0.47, S * 0.92, S * 0.67), radius=S * 0.10, fill=0)
+d.ellipse((S * 0.68, S * 0.52, S * 0.78, S * 0.62), fill=255)
 for dens, px in notif.items():
     a = g.resize((px, px), Image.LANCZOS)
     icon = Image.new("RGBA", (px, px), (255, 255, 255, 0))
@@ -79,6 +108,6 @@ with open(f"{res}/raw/keep.xml", "w") as f:
     f.write(
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<resources xmlns:tools="http://schemas.android.com/tools"\n'
-        '    tools:keep="@drawable/ic_notification,@mipmap/ic_launcher,@mipmap/ic_launcher_foreground" />\n'
+        '    tools:keep="@drawable/ic_notification,@mipmap/ic_launcher,@mipmap/ic_launcher_foreground,@mipmap/ic_launcher_background" />\n'
     )
 print("icons generated, adaptive background", bg_hex)

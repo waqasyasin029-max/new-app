@@ -16,15 +16,6 @@ class DatabaseHelper {
     'Other',
   ];
 
-  /// name, type (cash | wallet | bank)
-  static const defaultAccounts = [
-    ('Cash', 'cash'),
-    ('JazzCash', 'wallet'),
-    ('Naya Pay', 'wallet'),
-    ('Easypaisa', 'wallet'),
-    ('Meezan Bank', 'bank'),
-  ];
-
   Database? _db;
 
   Future<Database> get database async => _db ??= await _open();
@@ -102,16 +93,7 @@ class DatabaseHelper {
         date TEXT NOT NULL,
         note TEXT NOT NULL DEFAULT '',
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)''');
-    final batch = db.batch();
-    var i = 0;
-    for (final a in defaultAccounts) {
-      batch.insert('accounts', {
-        'name': a.$1,
-        'type': a.$2,
-        'opening_balance': 0,
-        'sort': i++,
-      });
-    }
-    await batch.commit(noResult: true);
+    // No accounts are created here: the first-time setup asks which ones the
+    // person really has.
   }
 }

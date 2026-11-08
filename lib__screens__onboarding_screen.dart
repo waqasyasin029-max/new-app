@@ -5,6 +5,7 @@ import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import 'home_shell.dart';
+import 'setup_screen.dart';
 import '../core/app_icons.dart';
 
 /// First launch shows the intro pages; afterwards the app opens directly.
@@ -14,11 +15,14 @@ class OnboardingGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final done = context.select<AppState, bool>((s) => s.onboardingDone);
+    final setup = context.select<AppState, bool>((s) => s.setupDone);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 350),
-      child: done
-          ? const HomeShell(key: ValueKey('home'))
-          : const OnboardingScreen(key: ValueKey('onboarding')),
+      child: !done
+          ? const OnboardingScreen(key: ValueKey('onboarding'))
+          : !setup
+          ? const FirstSetupScreen(key: ValueKey('setup'))
+          : const HomeShell(key: ValueKey('home')),
     );
   }
 }
@@ -34,23 +38,23 @@ class _Page {
 const _pages = <_Page>[
   _Page(
     AppIcons.editNote,
-    'Just write it',
-    'Write what you spent, in Roman Urdu, Urdu or English. The assistant sorts it out and you confirm.',
+    'Add expenses in seconds',
+    'Tap the orange plus, write the amount, pick a category and the account you paid from.',
   ),
   _Page(
     AppIcons.factCheck,
-    'Check before saving',
-    'Every expense appears on a confirmation screen first. Fix the amount, category or account, then save.',
+    'Know what is left',
+    'Every payment is taken from the right account, so you always see how much money is in your cash, wallets and banks.',
   ),
   _Page(
     AppIcons.wallet,
     'All your accounts in one place',
-    'Cash, JazzCash, Naya Pay, Easypaisa and Meezan Bank. Track balances, withdraw, transfer and match your real balance.',
+    'Cash, JazzCash, Easypaisa, SadaPay, banks and more. Track balances, withdraw, transfer and match your real balance.',
   ),
   _Page(
     AppIcons.insights,
     'Reports, salary and reminders',
-    'See history and monthly reports, track your salary, and get friendly reminders at breakfast, dinner and 11 PM. Light or dark, English or Urdu, fully offline.',
+    'See history and monthly reports, track your salary, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.',
     creator: true,
   ),
 ];
@@ -106,16 +110,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 8, 0),
               child: Row(
                 children: [
-                  _LangChip(
-                    label: 'English',
-                    selected: s.language == 'en',
-                    onTap: () => s.setLanguage('en'),
-                  ),
-                  const SizedBox(width: 8),
-                  _LangChip(
-                    label: 'اردو',
-                    selected: s.language == 'ur',
-                    onTap: () => s.setLanguage('ur'),
+                  _LangSwitch(
+                    urdu: s.language == 'ur',
+                    onChanged: (v) => s.setLanguage(v ? 'ur' : 'en'),
                   ),
                   const Spacer(),
                   AnimatedOpacity(
@@ -125,6 +122,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       onPressed: _last ? null : _finish,
                       child: Text(
                         'Skip',
+                        urdu: true,
                         style: TextStyle(
                           color: AppColors.muted,
                           fontWeight: FontWeight.w600,
@@ -179,6 +177,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     ),
                     child: Text(
                       _last ? 'Get started' : 'Next',
+                      urdu: true,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 17,
@@ -197,11 +196,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   children: [
                     Text(
                       'Developed by',
+                      verbatim: true,
                       style: TextStyle(color: AppColors.muted, fontSize: 12),
                     ),
                     const SizedBox(width: 5),
                     const Text(
                       'Waqas Yasin',
+                      verbatim: true,
                       style: TextStyle(
                         color: AppColors.primary,
                         fontSize: 13,
@@ -248,6 +249,7 @@ class _PageView extends StatelessWidget {
           const SizedBox(height: 44),
           Text(
             page.title,
+            urdu: true,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.ink,
@@ -258,6 +260,7 @@ class _PageView extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             page.text,
+            urdu: true,
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.muted, fontSize: 16, height: 1.5),
           ),
@@ -271,40 +274,26 @@ class _PageView extends StatelessWidget {
   }
 }
 
-class _LangChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _LangChip({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+/// English  [switch]  اردو: one switch instead of two buttons.
+class _LangSwitch extends StatelessWidget {
+  final bool urdu;
+  final ValueChanged<bool> onChanged;
+  const _LangSwitch({required this.urdu, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: selected ? AppColors.primary : AppColors.line,
-          ),
-        ),
-        child: Text(
-          label,
-          verbatim: true,
-          style: TextStyle(
-            color: selected ? Colors.white : AppColors.muted,
-            fontWeight: FontWeight.w600,
-            fontSize: 13,
-          ),
-        ),
-      ),
+    TextStyle st(bool on) => TextStyle(
+      color: on ? AppColors.primary : AppColors.muted,
+      fontWeight: on ? FontWeight.w800 : FontWeight.w600,
+      fontSize: 14,
+    );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('English', verbatim: true, style: st(!urdu)),
+        Switch(value: urdu, onChanged: onChanged),
+        Text('اردو', verbatim: true, style: st(urdu)),
+      ],
     );
   }
 }
@@ -340,10 +329,12 @@ class _CreatorCard extends StatelessWidget {
             children: [
               Text(
                 'Developed by',
+                verbatim: true,
                 style: TextStyle(color: AppColors.muted, fontSize: 12),
               ),
               const Text(
                 'Waqas Yasin',
+                verbatim: true,
                 style: TextStyle(
                   color: AppColors.primary,
                   fontSize: 17,
