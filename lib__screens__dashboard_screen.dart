@@ -14,6 +14,7 @@ import 'history_screen.dart';
 import 'income_screen.dart';
 import 'settings_screen.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class _DashData {
   final SalaryInfo salary;
@@ -82,7 +83,6 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _body(BuildContext context, _DashData d, DateTime now) {
-    final negative = d.remaining < 0;
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
@@ -122,7 +122,7 @@ class DashboardScreen extends StatelessWidget {
                 shape: CircleBorder(side: BorderSide(color: AppColors.line)),
                 child: IconButton(
                   tooltip: tr('Settings'),
-                  icon: const Icon(Icons.settings_rounded),
+                  icon: const Icon(AppIcons.settings),
                   onPressed: () => _open(context, const SettingsScreen()),
                 ),
               ),
@@ -195,7 +195,7 @@ class DashboardScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.payments_rounded,
+                    AppIcons.payments,
                     size: 28,
                     color: Colors.white,
                   ),
@@ -204,39 +204,12 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            _PastelTile(
-              label: 'Monthly salary',
-              value: Fmt.money(d.salary.amount),
-              color: AppColors.mint,
-              onTap: () => _open(context, const IncomeScreen()),
-            ),
-            const SizedBox(width: 10),
-            _PastelTile(
-              label: 'Spent this month',
-              value: Fmt.money(d.monthExpenses),
-              color: AppColors.peach,
-            ),
-            const SizedBox(width: 10),
-            _PastelTile(
-              label: 'Left of salary',
-              value: Fmt.money(d.remaining),
-              color: AppColors.sky,
-              valueColor: negative ? AppColors.danger : null,
-            ),
-          ],
-        ),
         if (d.salary.amount == 0)
           AppCard(
             color: AppColors.noteBg,
             onTap: () => _open(context, const IncomeScreen()),
             child: const ListTile(
-              leading: Icon(
-                Icons.account_balance_wallet_rounded,
-                color: AppColors.gold,
-              ),
+              leading: Icon(AppIcons.wallet, color: AppColors.gold),
               title: Text(
                 'Set your monthly salary',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -244,7 +217,7 @@ class DashboardScreen extends StatelessWidget {
               subtitle: Text(
                 'Needed to calculate what is left of your salary.',
               ),
-              trailing: Icon(Icons.chevron_right_rounded),
+              trailing: Icon(AppIcons.chevronRight),
             ),
           ),
         Padding(
@@ -384,60 +357,6 @@ class DashboardScreen extends StatelessWidget {
         showDate: showDate,
         onTap: () => _open(context, ExpenseEditScreen(expense: e)),
       );
-}
-
-class _PastelTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final Color? valueColor;
-  final VoidCallback? onTap;
-  const _PastelTile({
-    required this.label,
-    required this.value,
-    required this.color,
-    this.valueColor,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-    child: Material(
-      color: color,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(fontSize: 11.5),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: valueColor ?? AppColors.ink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 class _CategoryTile extends StatelessWidget {

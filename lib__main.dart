@@ -8,6 +8,7 @@ import 'screens/onboarding_screen.dart';
 import 'screens/assistant_screen.dart';
 import 'services/notification_service.dart';
 import 'services/update_service.dart';
+import 'widgets/lock_gate.dart';
 import 'widgets/update_dialog.dart';
 import 'state/app_state.dart';
 
@@ -130,7 +131,9 @@ class _KharchaAppState extends State<KharchaApp> with WidgetsBindingObserver {
         ),
         child: Directionality(
           textDirection: L10n.urdu ? TextDirection.rtl : TextDirection.ltr,
-          child: AppBackground(child: child),
+          child: AppBackground(
+            child: LockGate(child: child ?? const SizedBox.shrink()),
+          ),
         ),
       ),
       home: const OnboardingGate(),

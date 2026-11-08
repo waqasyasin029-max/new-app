@@ -9,6 +9,7 @@ import 'dashboard_screen.dart';
 import 'history_screen.dart';
 import 'reports_screen.dart';
 import 'assistant_screen.dart';
+import '../core/app_icons.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -43,7 +44,7 @@ class _HomeShellState extends State<HomeShell> {
           context,
           MaterialPageRoute(builder: (_) => const AssistantScreen()),
         ),
-        child: const Icon(Icons.auto_awesome_rounded, size: 20),
+        child: const Icon(AppIcons.sparkle, size: 20),
       ),
       bottomNavigationBar: FloatingNav(
         index: _index,

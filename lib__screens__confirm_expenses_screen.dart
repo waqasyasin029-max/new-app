@@ -9,6 +9,7 @@ import '../logic/expense_parser.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class _Draft {
   final TextEditingController amount;
@@ -223,7 +224,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
         actions: [
           IconButton(
             tooltip: tr('Close'),
-            icon: const Icon(Icons.close_rounded),
+            icon: const Icon(AppIcons.close),
             onPressed: () => Navigator.of(context).pop(false),
           ),
         ],
@@ -293,14 +294,14 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                 ),
                 OutlinedButton.icon(
                   onPressed: _pickDate,
-                  icon: const Icon(Icons.calendar_today_rounded, size: 18),
+                  icon: const Icon(AppIcons.calendar, size: 18),
                   label: Text('Date for all: ${Fmt.date(_date)}'),
                 ),
                 const SizedBox(height: 8),
                 for (var i = 0; i < _drafts.length; i++) _draftCard(i, scheme),
                 TextButton.icon(
                   onPressed: _addBlank,
-                  icon: const Icon(Icons.add_rounded),
+                  icon: const Icon(AppIcons.add),
                   label: const Text('Add another expense'),
                 ),
               ],
@@ -350,7 +351,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                   ),
                   FilledButton.icon(
                     onPressed: _canSave && !_saving ? _save : null,
-                    icon: const Icon(Icons.check_rounded),
+                    icon: const Icon(AppIcons.check),
                     label: const Text('Save'),
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(130, 52),
@@ -391,7 +392,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.close_rounded),
+                icon: const Icon(AppIcons.close),
                 tooltip: tr('Remove'),
                 onPressed: () => setState(() => _drafts.removeAt(i).dispose()),
               ),

@@ -5,6 +5,7 @@ import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import 'home_shell.dart';
+import '../core/app_icons.dart';
 
 /// First launch shows the intro pages; afterwards the app opens directly.
 class OnboardingGate extends StatelessWidget {
@@ -32,22 +33,22 @@ class _Page {
 
 const _pages = <_Page>[
   _Page(
-    Icons.edit_note_rounded,
+    AppIcons.editNote,
     'Just write it',
     'Write what you spent, in Roman Urdu, Urdu or English. The assistant sorts it out and you confirm.',
   ),
   _Page(
-    Icons.fact_check_rounded,
+    AppIcons.factCheck,
     'Check before saving',
     'Every expense appears on a confirmation screen first. Fix the amount, category or account, then save.',
   ),
   _Page(
-    Icons.account_balance_wallet_rounded,
+    AppIcons.wallet,
     'All your accounts in one place',
     'Cash, JazzCash, Naya Pay, Easypaisa and Meezan Bank. Track balances, withdraw, transfer and match your real balance.',
   ),
   _Page(
-    Icons.insights_rounded,
+    AppIcons.insights,
     'Reports, salary and reminders',
     'See history and monthly reports, track your salary, and get friendly reminders at breakfast, dinner and 11 PM. Light or dark, English or Urdu, fully offline.',
     creator: true,
@@ -330,7 +331,7 @@ class _CreatorCard extends StatelessWidget {
               gradient: AppColors.gradient,
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.person_rounded, color: Colors.white),
+            child: const Icon(AppIcons.person, color: Colors.white),
           ),
           const SizedBox(width: 12),
           Column(

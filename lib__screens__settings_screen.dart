@@ -7,12 +7,14 @@ import '../services/notification_service.dart';
 import '../services/update_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../widgets/lock_gate.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import 'gemini_setup_screen.dart';
 import 'onboarding_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -28,13 +30,13 @@ class SettingsScreen extends StatelessWidget {
           TileGroup(
             children: [
               ListTile(
-                leading: const Icon(Icons.payments_rounded),
+                leading: const Icon(AppIcons.payments),
                 title: const Text(
                   'Salary & income',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: const Text('Set or update your monthly salary'),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(AppIcons.chevronRight),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const IncomeScreen()),
@@ -46,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
           TileGroup(
             children: [
               ListTile(
-                leading: const Icon(Icons.brightness_6_rounded),
+                leading: const Icon(AppIcons.brightness),
                 title: const Text(
                   'Theme',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -66,7 +68,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.translate_rounded),
+                leading: const Icon(AppIcons.translate),
                 title: const Text(
                   'Language',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -90,7 +92,7 @@ class SettingsScreen extends StatelessWidget {
           TileGroup(
             children: [
               SwitchListTile(
-                secondary: const Icon(Icons.notifications_active_rounded),
+                secondary: const Icon(AppIcons.bellRinging),
                 title: const Text(
                   'Remind me every day',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -103,7 +105,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               ListTile(
                 enabled: s.reminderEnabled,
-                leading: const Icon(Icons.access_time_rounded),
+                leading: const Icon(AppIcons.clock),
                 title: const Text(
                   'Reminder time',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -127,7 +129,7 @@ class SettingsScreen extends StatelessWidget {
                       },
               ),
               ListTile(
-                leading: const Icon(Icons.alarm_on_rounded),
+                leading: const Icon(AppIcons.alarm),
                 title: const Text(
                   'Allow exact alarms',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -141,7 +143,7 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.battery_saver_rounded),
+                leading: const Icon(AppIcons.batterySaver),
                 title: const Text(
                   'Allow background running',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -152,7 +154,7 @@ class SettingsScreen extends StatelessWidget {
                 onTap: () => Permission.ignoreBatteryOptimizations.request(),
               ),
               ListTile(
-                leading: const Icon(Icons.timer_rounded),
+                leading: const Icon(AppIcons.timer),
                 title: const Text(
                   'Test reminder in 1 minute',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -179,7 +181,7 @@ class SettingsScreen extends StatelessWidget {
               ),
               const _ReminderStatusTile(),
               ListTile(
-                leading: const Icon(Icons.notification_add_rounded),
+                leading: const Icon(AppIcons.bellAdd),
                 title: const Text(
                   'Send test notification',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -206,7 +208,7 @@ class SettingsScreen extends StatelessWidget {
                 s,
                 meal: 'breakfast',
                 title: 'Breakfast reminder',
-                icon: Icons.free_breakfast_rounded,
+                icon: AppIcons.coffee,
                 enabled: s.breakfastEnabled,
                 time: s.breakfastTime,
               ),
@@ -215,7 +217,7 @@ class SettingsScreen extends StatelessWidget {
                 s,
                 meal: 'dinner',
                 title: 'Dinner reminder',
-                icon: Icons.dinner_dining_rounded,
+                icon: AppIcons.dinner,
                 enabled: s.dinnerEnabled,
                 time: s.dinnerTime,
               ),
@@ -225,7 +227,7 @@ class SettingsScreen extends StatelessWidget {
           TileGroup(
             children: [
               ListTile(
-                leading: const Icon(Icons.badge_rounded),
+                leading: const Icon(AppIcons.badge),
                 title: const Text(
                   'Assistant name',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -234,11 +236,11 @@ class SettingsScreen extends StatelessWidget {
                   s.userName.isEmpty ? '—' : s.userName,
                   verbatim: true,
                 ),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(AppIcons.chevronRight),
                 onTap: () => _editName(context, s),
               ),
               ListTile(
-                leading: const Icon(Icons.auto_awesome_rounded),
+                leading: const Icon(AppIcons.sparkle),
                 title: const Text(
                   'Gemini assistant (key)',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -248,7 +250,7 @@ class SettingsScreen extends StatelessWidget {
                       ? 'Not added yet. Free key from Google AI Studio'
                       : 'Key saved. Tap to change it or test it',
                 ),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(AppIcons.chevronRight),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const GeminiSetupScreen()),
@@ -256,11 +258,28 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SectionTitle('Privacy'),
+          TileGroup(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(AppIcons.lock),
+                title: const Text(
+                  'App lock',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Ask for your fingerprint or phone PIN when the app opens',
+                ),
+                value: s.appLock,
+                onChanged: (on) => _toggleLock(context, s, on),
+              ),
+            ],
+          ),
           const SectionTitle('App'),
           TileGroup(
             children: [
               ListTile(
-                leading: const Icon(Icons.system_update_rounded),
+                leading: const Icon(AppIcons.systemUpdate),
                 title: const Text(
                   'Check for updates',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -287,12 +306,12 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.slideshow_rounded),
+                leading: const Icon(AppIcons.slideshow),
                 title: const Text(
                   'Show intro again',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(AppIcons.chevronRight),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -301,19 +320,19 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               ListTile(
-                leading: const Icon(Icons.info_rounded),
+                leading: const Icon(AppIcons.info),
                 title: const Text(
                   'About Kharcha Tracker',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                trailing: const Icon(Icons.chevron_right_rounded),
+                trailing: const Icon(AppIcons.chevronRight),
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const AboutScreen()),
                 ),
               ),
               const ListTile(
-                leading: Icon(Icons.lock_rounded, color: AppColors.primary),
+                leading: Icon(AppIcons.lock, color: AppColors.primary),
                 title: Text(
                   'Your data stays on this phone',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -328,6 +347,32 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Turning the lock on or off needs the phone's own unlock first, so nobody
+  /// else can switch it off.
+  Future<void> _toggleLock(BuildContext context, AppState s, bool on) async {
+    if (on && !await DeviceLock.available()) {
+      if (context.mounted) {
+        snack(
+          context,
+          'Set a screen lock (PIN, pattern or fingerprint) on your phone first.',
+        );
+      }
+      return;
+    }
+    final r = await DeviceLock.ask(
+      on ? 'Turn on app lock' : 'Turn off app lock',
+    );
+    if (!context.mounted) return;
+    if (r == DeviceLockResult.ok) {
+      await s.setAppLock(on);
+    } else if (r == DeviceLockResult.unavailable) {
+      snack(
+        context,
+        'Set a screen lock (PIN, pattern or fingerprint) on your phone first.',
+      );
+    }
   }
 
   Future<void> _editName(BuildContext context, AppState s) async {
@@ -391,7 +436,7 @@ class SettingsScreen extends StatelessWidget {
       ),
       ListTile(
         enabled: enabled,
-        leading: const Icon(Icons.access_time_rounded),
+        leading: const Icon(AppIcons.clock),
         title: const Text(
           'Reminder time',
           style: TextStyle(fontWeight: FontWeight.w600),
@@ -440,7 +485,7 @@ class _ReminderStatusTileState extends State<_ReminderStatusTile> {
     return FutureBuilder<String>(
       future: _status,
       builder: (context, snap) => ListTile(
-        leading: const Icon(Icons.fact_check_rounded),
+        leading: const Icon(AppIcons.factCheck),
         title: const Text(
           'Reminder status',
           style: TextStyle(fontWeight: FontWeight.w600),
@@ -449,7 +494,7 @@ class _ReminderStatusTileState extends State<_ReminderStatusTile> {
           snap.data == null ? '…' : _lines(snap.data!),
           verbatim: true,
         ),
-        trailing: const Icon(Icons.refresh_rounded),
+        trailing: const Icon(AppIcons.refresh),
         onTap: _refresh,
       ),
     );

@@ -13,6 +13,7 @@ void main() {
     exit(1);
   }
   _patchManifest(manifest);
+  _patchMainActivity();
   _patchGradle();
   _writeProguard();
   final stale = File('test/widget_test.dart');
@@ -21,6 +22,25 @@ void main() {
     stdout.writeln('Removed default test/widget_test.dart');
   }
   stdout.writeln('Android patch complete.');
+}
+
+/// The phone-lock sheet (local_auth) needs a FragmentActivity.
+void _patchMainActivity() {
+  final root = Directory('android/app/src/main');
+  var done = false;
+  for (final e in root.listSync(recursive: true)) {
+    if (e is File &&
+        (e.path.endsWith('/MainActivity.kt') ||
+            e.path.endsWith('/MainActivity.java'))) {
+      final x = e.readAsStringSync();
+      final y = x.replaceAll('FlutterActivity', 'FlutterFragmentActivity');
+      if (y != x) e.writeAsStringSync(y);
+      stdout.writeln('Patched ${e.path} to FlutterFragmentActivity');
+      done = true;
+    }
+  }
+  if (!done)
+    stderr.writeln('WARNING: MainActivity not found; app lock may fail.');
 }
 
 void _patchManifest(File f) {
@@ -40,6 +60,7 @@ void _patchManifest(File f) {
     <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
 ''';
   const receivers = '''
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"/>

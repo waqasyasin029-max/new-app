@@ -8,6 +8,7 @@ import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
+import '../core/app_icons.dart';
 
 class _Saved {
   final int id;
@@ -197,7 +198,7 @@ class _FlowSheetState extends State<_FlowSheet> {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          const Icon(Icons.edit_rounded, size: 14),
+                          const Icon(AppIcons.edit, size: 14),
                         ],
                       ),
                     ),
@@ -213,7 +214,7 @@ class _FlowSheetState extends State<_FlowSheet> {
           backgroundColor: AppColors.fieldFill,
           minimumSize: const Size(44, 44),
         ),
-        icon: const Icon(Icons.close_rounded, size: 20),
+        icon: const Icon(AppIcons.close, size: 20),
         onPressed: () => Navigator.pop(context),
       ),
     ],
@@ -239,7 +240,7 @@ class _FlowSheetState extends State<_FlowSheet> {
                 height: 54,
                 child: Center(
                   child: back
-                      ? const Icon(Icons.backspace_rounded, size: 24)
+                      ? const Icon(AppIcons.backspace, size: 24)
                       : Text(
                           k,
                           verbatim: true,
@@ -346,7 +347,7 @@ class _FlowSheetState extends State<_FlowSheet> {
                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward_rounded, size: 20),
+                const Icon(AppIcons.arrowForward, size: 20),
               ],
             ),
           ),
