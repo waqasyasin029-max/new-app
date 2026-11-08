@@ -259,6 +259,9 @@ class MiniStatTile extends StatelessWidget {
   final bool wide;
   final String? caption;
   final double valueSize;
+
+  /// Small tiles leave the little bar graph out so the amount gets the room.
+  final bool showSpark;
   const MiniStatTile({
     super.key,
     required this.icon,
@@ -270,6 +273,7 @@ class MiniStatTile extends StatelessWidget {
     this.wide = false,
     this.caption,
     this.valueSize = 24,
+    this.showSpark = true,
   });
 
   Widget _iconBadge() => Container(
@@ -363,8 +367,8 @@ class MiniStatTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(child: _valueText()),
-                    const SizedBox(width: 6),
-                    _spark(),
+                    if (showSpark) const SizedBox(width: 6),
+                    if (showSpark) _spark(),
                   ],
                 ),
                 cap,

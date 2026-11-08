@@ -2,6 +2,7 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'Salary + other income': 'تنخواہ + دوسری آمدنی',
   'Privacy': 'پرائیویسی',
   'App lock': 'ایپ لاک',
   'Ask for your fingerprint or phone PIN when the app opens':

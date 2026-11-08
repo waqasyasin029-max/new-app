@@ -94,33 +94,34 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
                       child: IncomeExpenseChart(points: d.months),
                     ),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: MiniStatTile(
-                            valueSize: 19,
-                            icon: AppIcons.trendUp,
-                            label: 'Income',
-                            value: Fmt.money(d.income),
-                            color: AppColors.positive,
-                            spark: [for (final p in d.months) p.income],
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: MiniStatTile(
+                              icon: AppIcons.trendUp,
+                              label: 'Income',
+                              value: Fmt.money(d.income),
+                              color: AppColors.positive,
+                              spark: [for (final p in d.months) p.income],
+                              caption: 'Salary + other income',
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: MiniStatTile(
-                            valueSize: 30,
-                            icon: AppIcons.trendDown,
-                            label: 'Expenses',
-                            value: Fmt.money(d.spent),
-                            color: AppColors.danger,
-                            dotted: true,
-                            spark: [for (final p in d.months) p.spent],
-                            caption: '${Fmt.money(d.spent / elapsed)} per day',
+                          Expanded(
+                            child: MiniStatTile(
+                              icon: AppIcons.trendDown,
+                              label: 'Expenses',
+                              value: Fmt.money(d.spent),
+                              color: AppColors.danger,
+                              dotted: true,
+                              spark: [for (final p in d.months) p.spent],
+                              caption:
+                                  '${Fmt.money(d.spent / elapsed)} per day',
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     MiniStatTile(
                       wide: true,
