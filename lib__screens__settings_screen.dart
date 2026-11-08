@@ -113,7 +113,7 @@ class SettingsScreen extends StatelessWidget {
                 subtitle: Text(
                   kBuildNumber == 0
                       ? 'Development build'
-                      : 'Installed version: $kBuildNumber',
+                      : 'Installed version: $appVersionLabel',
                 ),
                 onTap: () async {
                   snackInfo(context, 'Checking…');

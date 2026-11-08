@@ -121,6 +121,17 @@ class _UpdateDialogState extends State<_UpdateDialog> {
                   color: AppColors.muted,
                 ),
               ),
+              if (widget.info.version.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  'Version ${widget.info.version}',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primary,
+                  ),
+                ),
+              ],
               if (_busy) ...[
                 const SizedBox(height: 18),
                 ClipRRect(

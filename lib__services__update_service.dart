@@ -6,6 +6,14 @@ import 'package:path_provider/path_provider.dart';
 /// Set at build time by the GitHub workflow (--dart-define=BUILD_NUMBER=...).
 const int kBuildNumber = int.fromEnvironment('BUILD_NUMBER', defaultValue: 0);
 
+/// The version people see (1.0.0), set from the VERSION file by the workflow.
+const String kAppVersion = String.fromEnvironment('APP_VERSION');
+
+/// What to show for the installed app: its version, or the build number for
+/// builds made before versions existed.
+String get appVersionLabel =>
+    kAppVersion.isNotEmpty ? kAppVersion : '$kBuildNumber';
+
 /// GitHub repository that publishes the releases (owner/name).
 const String kUpdateRepo = 'waqasyasin029-max/new-app';
 
@@ -14,7 +22,16 @@ class UpdateInfo {
   final String title;
   final String notes;
   final String url;
-  const UpdateInfo(this.build, this.title, this.notes, this.url);
+
+  /// The new version number (like 1.1.0) read from the release name, if any.
+  final String version;
+  const UpdateInfo(
+    this.build,
+    this.title,
+    this.notes,
+    this.url, [
+    this.version = '',
+  ]);
 }
 
 class UpdateCheck {
@@ -59,6 +76,8 @@ class UpdateService {
           (j['name'] as String?) ?? 'Update $build',
           ((j['body'] as String?) ?? '').trim(),
           url,
+          RegExp(r'\d+\.\d+\.\d+').stringMatch((j['name'] as String?) ?? '') ??
+              '',
         ),
       );
     } catch (_) {
