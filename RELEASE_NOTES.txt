@@ -1,4 +1,4 @@
-Smoother tab animation in the bottom bar
-"Developed by" credit at the end of Settings
-Smaller "left of budget" text on Home
-This update popup now lists what is new
+Naam: 5 minute tak free change, phir 14 din mein ek baar
+Reports mein swipe se Summary aur History badalte hain
+Home par date card ke right kinare par
+Extra security: app data ka backup band

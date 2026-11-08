@@ -236,32 +236,75 @@ class DashboardScreen extends StatelessWidget {
               gradient: AppColors.gradient,
               borderRadius: BorderRadius.circular(28),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                // Title on one side, the date pill on the far other side of
+                // the whole card.
+                Row(
+                  children: [
+                    const Text(
+                      'Spent today',
+                      style: TextStyle(fontSize: 14, color: Colors.white),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.softWhite,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        Fmt.date(now),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Spent today',
-                            style: TextStyle(fontSize: 14, color: Colors.white),
+                          FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: AlignmentDirectional.centerStart,
+                            child: Text(
+                              Fmt.money(d.todayTotal),
+                              style: const TextStyle(
+                                fontSize: 38,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
-                          const Spacer(),
+                          const SizedBox(height: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                              vertical: 4,
+                              horizontal: 12,
+                              vertical: 6,
                             ),
                             decoration: BoxDecoration(
                               color: AppColors.softWhite,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
-                              Fmt.date(now),
+                              d.today.isEmpty
+                                  ? 'No expenses today'
+                                  : d.today.length == 1
+                                  ? '1 expense today'
+                                  : '${d.today.length} expenses today',
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 12.5,
                                 fontWeight: FontWeight.w600,
                                 color: Colors.white,
                               ),
@@ -269,57 +312,21 @@ class DashboardScreen extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        alignment: AlignmentDirectional.centerStart,
-                        child: Text(
-                          Fmt.money(d.todayTotal),
-                          style: const TextStyle(
-                            fontSize: 38,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
+                    ),
+                    Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        color: AppColors.softWhite,
+                        shape: BoxShape.circle,
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.softWhite,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          d.today.isEmpty
-                              ? 'No expenses today'
-                              : d.today.length == 1
-                              ? '1 expense today'
-                              : '${d.today.length} expenses today',
-                          style: const TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
+                      child: const Icon(
+                        AppIcons.payments,
+                        size: 28,
+                        color: Colors.white,
                       ),
-                    ],
-                  ),
-                ),
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: AppColors.softWhite,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    AppIcons.payments,
-                    size: 28,
-                    color: Colors.white,
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
