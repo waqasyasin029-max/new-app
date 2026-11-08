@@ -116,12 +116,12 @@ class _UpdateDialogState extends State<_UpdateDialog> {
                   'Version ${widget.info.version}',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.primary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.muted,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
               ],
               Text(
                 'To enjoy our newest features tap the button below',
