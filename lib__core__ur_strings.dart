@@ -2,6 +2,32 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'How much can you spend this month?': 'اس مہینے آپ کتنا خرچ کر سکتے ہیں؟',
+  'Budget and spending for the last 6 months':
+      'پچھلے 6 مہینوں کا بجٹ اور اخراجات',
+  'See history and monthly reports, set a monthly budget, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.': 'ہسٹری اور ماہانہ رپورٹس دیکھیں، ماہانہ بجٹ مقرر کریں، اور ہر رات ایک دوستانہ یاد دہانی پائیں۔ لائٹ یا ڈارک، انگلش یا اردو، مکمل آف لائن۔',
+  'Reports, budget and reminders': 'رپورٹس، بجٹ اور یاد دہانی',
+  'History, reports and a monthly budget': 'ہسٹری، رپورٹس اور ماہانہ بجٹ',
+  'Needed to see how much of your budget is left.':
+      'بجٹ میں سے کتنا بچا ہے، یہ دیکھنے کے لیے ضروری ہے۔',
+  'Set your monthly budget': 'اپنا ماہانہ بجٹ مقرر کریں',
+  'Set how much you can spend this month':
+      'اس مہینے آپ کتنا خرچ کر سکتے ہیں، یہ مقرر کریں',
+  'Budget & income': 'بجٹ اور آمدنی',
+  'Update budget': 'بجٹ اپ ڈیٹ کریں',
+  'Set budget': 'بجٹ مقرر کریں',
+  'No budget set yet.': 'ابھی بجٹ مقرر نہیں۔',
+  'Monthly budget': 'ماہانہ بجٹ',
+  'Left of budget': 'بجٹ میں سے بچت',
+  'Your plan for the month': 'مہینے کا آپ کا منصوبہ',
+  'Budget': 'بجٹ',
+  'A daily reminder to write your expenses': 'خرچے لکھنے کی روزانہ یاد دہانی',
+  'Off': 'بند',
+  'Daily at': 'روزانہ',
+  'Fix it in a few taps': 'چند ٹیپ میں ٹھیک کریں',
+  'Reminder not coming?': 'یاد دہانی نہیں آ رہی؟',
+  'Every day': 'روزانہ',
+  'Reminders': 'یاد دہانیاں',
   'The app reminds you once a day, at 10 PM, to write down today\'s expenses. You can change the time or turn it off whenever you like, in Settings.': 'ایپ دن میں صرف ایک بار، رات 10 بجے، آج کے خرچے لکھنے کی یاد دلائے گی۔ وقت بدلنا یا بند کرنا چاہیں تو سیٹنگز میں کسی بھی وقت کر سکتے ہیں۔',
   'See history and monthly reports, track your salary, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.': 'ہسٹری اور ماہانہ رپورٹس دیکھیں، اپنی تنخواہ کا حساب رکھیں، اور ہر رات ایک دوستانہ یاد دہانی پائیں۔ لائٹ یا ڈارک، انگلش یا اردو، مکمل آف لائن۔',
   'Expenses and income are stored only in a local database on this phone. Nothing is sent anywhere.': 'خرچے اور آمدنی صرف اسی فون کے ڈیٹا بیس میں محفوظ ہیں۔ کچھ بھی کہیں نہیں بھیجا جاتا۔',
@@ -487,6 +513,12 @@ const Map<String, String> urExact = {
 };
 
 const Map<String, String> urTemplates = {
+  'Last budget was {}. Change it or keep it.':
+      'پچھلا بجٹ {0} تھا۔ بدل لیں یا ویسا ہی رکھیں۔',
+  '{} spent this month': 'اس مہینے {0} خرچ ہوئے',
+  'Budget for {}': '{0} کا بجٹ',
+  '{} over budget': 'بجٹ سے {0} زیادہ',
+  '{} left of budget': 'بجٹ میں {0} باقی',
   'Add money to {}': '{0} میں رقم شامل کریں',
   'Added Rs {} as an expense.': 'Rs {0} خرچ کے طور پر شامل کر دیے گئے۔',
   'Carried forward from {}. Update it if it changed.':

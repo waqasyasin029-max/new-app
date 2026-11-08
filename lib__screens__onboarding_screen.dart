@@ -53,8 +53,8 @@ const _pages = <_Page>[
   ),
   _Page(
     AppIcons.insights,
-    'Reports, salary and reminders',
-    'See history and monthly reports, track your salary, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.',
+    'Reports, budget and reminders',
+    'See history and monthly reports, set a monthly budget, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.',
     creator: true,
   ),
 ];

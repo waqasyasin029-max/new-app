@@ -22,11 +22,6 @@ class AppState extends ChangeNotifier {
   bool reminderEnabled = true;
   TimeOfDay reminderTime = const TimeOfDay(hour: 22, minute: 0);
 
-  bool breakfastEnabled = false;
-  TimeOfDay breakfastTime = const TimeOfDay(hour: 12, minute: 0);
-  bool dinnerEnabled = false;
-  TimeOfDay dinnerTime = const TimeOfDay(hour: 21, minute: 30);
-
   /// 'system' | 'light' | 'dark'
   String themeMode = 'system';
 
@@ -44,23 +39,13 @@ class AppState extends ChangeNotifier {
     categories = await categoryRepo.all();
     accounts = await accountRepo.all();
     final prefs = await SharedPreferences.getInstance();
-    // People who already used the app keep the old reminder defaults; new
-    // installs get one reminder a day at 10 PM.
+    // People who already used the app keep their old reminder time (11 PM);
+    // new installs get 10 PM.
     final old = prefs.getBool('onboarding_done') ?? false;
     reminderEnabled = prefs.getBool('reminder_enabled') ?? true;
     reminderTime = TimeOfDay(
       hour: prefs.getInt('reminder_hour') ?? (old ? 23 : 22),
       minute: prefs.getInt('reminder_minute') ?? 0,
-    );
-    breakfastEnabled = prefs.getBool('breakfast_enabled') ?? old;
-    breakfastTime = TimeOfDay(
-      hour: prefs.getInt('breakfast_hour') ?? 12,
-      minute: prefs.getInt('breakfast_minute') ?? 0,
-    );
-    dinnerEnabled = prefs.getBool('dinner_enabled') ?? old;
-    dinnerTime = TimeOfDay(
-      hour: prefs.getInt('dinner_hour') ?? 21,
-      minute: prefs.getInt('dinner_minute') ?? 30,
     );
     themeMode = prefs.getString('theme_mode') ?? 'system';
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
@@ -151,30 +136,6 @@ class AppState extends ChangeNotifier {
     await applyReminder();
   }
 
-  /// [meal] is 'breakfast' or 'dinner'.
-  Future<void> setMealReminder(
-    String meal, {
-    bool? enabled,
-    TimeOfDay? time,
-  }) async {
-    final prefs = await SharedPreferences.getInstance();
-    if (meal == 'breakfast') {
-      if (enabled != null) breakfastEnabled = enabled;
-      if (time != null) breakfastTime = time;
-      await prefs.setBool('breakfast_enabled', breakfastEnabled);
-      await prefs.setInt('breakfast_hour', breakfastTime.hour);
-      await prefs.setInt('breakfast_minute', breakfastTime.minute);
-    } else {
-      if (enabled != null) dinnerEnabled = enabled;
-      if (time != null) dinnerTime = time;
-      await prefs.setBool('dinner_enabled', dinnerEnabled);
-      await prefs.setInt('dinner_hour', dinnerTime.hour);
-      await prefs.setInt('dinner_minute', dinnerTime.minute);
-    }
-    notifyListeners();
-    await applyReminder();
-  }
-
   Future<void> applyReminder() async {
     try {
       if (reminderEnabled) {
@@ -183,26 +144,10 @@ class AppState extends ChangeNotifier {
       } else {
         await NotificationService.cancel();
       }
-      if (breakfastEnabled) {
-        await NotificationService.scheduleAt(
-          id: NotificationService.breakfastId,
-          time: breakfastTime,
-          title: NotificationService.breakfastTitle,
-          text: NotificationService.breakfastBody,
-        );
-      } else {
-        await NotificationService.cancelId(NotificationService.breakfastId);
-      }
-      if (dinnerEnabled) {
-        await NotificationService.scheduleAt(
-          id: NotificationService.dinnerId,
-          time: dinnerTime,
-          title: NotificationService.dinnerTitle,
-          text: NotificationService.dinnerBody,
-        );
-      } else {
-        await NotificationService.cancelId(NotificationService.dinnerId);
-      }
+      // The breakfast and dinner reminders were removed: clear any that an
+      // older version of the app had already scheduled.
+      await NotificationService.cancelId(NotificationService.breakfastId);
+      await NotificationService.cancelId(NotificationService.dinnerId);
     } catch (e) {
       // Never crash the app because a reminder could not be scheduled.
       NotificationService.lastError ??= '$e';

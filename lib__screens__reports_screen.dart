@@ -61,14 +61,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   months.add(
                     MonthPoint(
                       m,
-                      await s.incomes.totalIncome(m),
+                      (await s.incomes.salaryFor(m)).amount,
                       await s.expenses.total(m, Fmt.lastOfMonth(m)),
                     ),
                   );
                 }
                 return _ReportData(
                   (await s.incomes.salaryFor(_month)).amount,
-                  await s.incomes.totalIncome(_month),
+                  (await s.incomes.salaryFor(_month)).amount,
                   await s.expenses.total(from, to),
                   await s.expenses.categoryTotals(from, to),
                   await s.expenses.dailyTotals(from, to),
@@ -101,11 +101,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           Expanded(
                             child: MiniStatTile(
                               icon: AppIcons.trendUp,
-                              label: 'Income',
+                              label: 'Budget',
                               value: Fmt.money(d.income),
                               color: AppColors.positive,
                               spark: [for (final p in d.months) p.income],
-                              caption: 'Salary + other income',
+                              caption: 'Your plan for the month',
                             ),
                           ),
                           Expanded(
@@ -126,7 +126,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     MiniStatTile(
                       wide: true,
                       icon: AppIcons.savings,
-                      label: 'Saved',
+                      label: 'Left of budget',
                       value: d.income > 0
                           ? '${(remaining / d.income * 100).toStringAsFixed(0)}%'
                           : '—',
@@ -135,8 +135,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           : AppColors.primary,
                       spark: [for (final p in d.months) p.savedShare],
                       caption: remaining < 0
-                          ? '${Fmt.money(-remaining)} over this month'
-                          : '${Fmt.money(remaining)} left this month',
+                          ? '${Fmt.money(-remaining)} over budget'
+                          : '${Fmt.money(remaining)} left of budget',
                     ),
                     AppCard(
                       margin: const EdgeInsets.all(4),
@@ -147,7 +147,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       child: ListTile(
                         leading: const Icon(AppIcons.payments),
                         title: const Text(
-                          'Monthly salary',
+                          'Monthly budget',
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                         subtitle: Text(Fmt.money(d.salary), verbatim: true),
