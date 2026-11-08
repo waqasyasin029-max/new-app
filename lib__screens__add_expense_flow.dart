@@ -7,6 +7,7 @@ import '../core/format.dart';
 import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
+import '../logic/lexicon.dart';
 import '../state/app_state.dart';
 import '../core/app_icons.dart';
 
@@ -74,13 +75,48 @@ class _FlowSheet extends StatefulWidget {
 }
 
 class _FlowSheetState extends State<_FlowSheet> {
-  int _step = 0; // 0 amount, 1 category, 2 paid from
+  int _step = 0; // 0 amount, 1 title, 2 category, 3 paid from
   String _digits = '';
   Category? _cat;
+  final _title = TextEditingController();
+  String _detectedFor = '';
   List<AccountBalance> _bals = [];
   bool _saving = false;
 
   double get _amount => double.tryParse(_digits) ?? 0;
+
+  @override
+  void dispose() {
+    _title.dispose();
+    super.dispose();
+  }
+
+  /// The category that matches the typed title ("biryani" is Food), if any.
+  Category? _detect(AppState s) {
+    final name = Lexicon.categorizeText(_title.text);
+    if (name == null) return null;
+    for (final c in s.categories) {
+      if (c.name == name) return c;
+    }
+    return null;
+  }
+
+  /// From the title step: pre-select the matching category, then continue.
+  void _titleNext(AppState s) {
+    final text = _title.text.trim();
+    if (text != _detectedFor) {
+      _detectedFor = text;
+      final d = _detect(s);
+      if (d != null) _cat = d;
+    }
+    setState(() => _step = 2);
+  }
+
+  String get _description {
+    final t = _title.text.trim();
+    if (t.isEmpty) return _cat?.name ?? '';
+    return t[0].toUpperCase() + t.substring(1);
+  }
 
   @override
   void initState() {
@@ -132,7 +168,7 @@ class _FlowSheetState extends State<_FlowSheet> {
           amount: _amount,
           categoryId: cat.id,
           accountId: acc.id,
-          description: cat.name,
+          description: _description,
           date: Fmt.dateOnly(DateTime.now()),
         ),
       );
@@ -351,6 +387,7 @@ class _FlowSheetState extends State<_FlowSheet> {
     required IconData icon,
     required String title,
     String? subtitle,
+    bool selected = false,
     required VoidCallback? onTap,
   }) {
     return Material(
@@ -363,7 +400,10 @@ class _FlowSheetState extends State<_FlowSheet> {
           constraints: const BoxConstraints(minHeight: 60),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            border: Border.all(color: AppColors.line),
+            border: Border.all(
+              color: selected ? AppColors.primary : AppColors.line,
+              width: selected ? 2 : 1,
+            ),
             borderRadius: BorderRadius.circular(18),
           ),
           child: Row(
@@ -412,6 +452,100 @@ class _FlowSheetState extends State<_FlowSheet> {
     );
   }
 
+  Widget _titleStep(AppState s) {
+    final d = _detect(s);
+    return Column(
+      key: const ValueKey('title'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _header(
+          'What did you buy?',
+          chip: Fmt.money(_amount),
+          onChip: () => setState(() => _step = 0),
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          controller: _title,
+          autofocus: true,
+          textCapitalization: TextCapitalization.sentences,
+          textInputAction: TextInputAction.next,
+          onChanged: (_) => setState(() {}),
+          onSubmitted: (_) => _titleNext(s),
+          decoration: InputDecoration(
+            hintText: tr('e.g. biryani, petrol, light bill'),
+            prefixIcon: const Icon(AppIcons.editNote),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 36,
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: d == null
+                ? Text(
+                    'You can pick the category next.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.muted,
+                    ),
+                  )
+                : Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.fieldFill,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CategoryStyle.icon(d.name),
+                          size: 18,
+                          color: AppColors.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Category: ${d.name}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: FilledButton(
+            onPressed: () => _titleNext(s),
+            style: FilledButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Next',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(width: 8),
+                const Icon(AppIcons.arrowForward, size: 20),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _categoryStep(AppState s) {
     return Column(
       key: const ValueKey('category'),
@@ -419,8 +553,10 @@ class _FlowSheetState extends State<_FlowSheet> {
       children: [
         _header(
           'What was it for?',
-          chip: Fmt.money(_amount),
-          onChip: () => setState(() => _step = 0),
+          chip: _title.text.trim().isEmpty
+              ? Fmt.money(_amount)
+              : '${Fmt.money(_amount)} · $_description',
+          onChip: () => setState(() => _step = 1),
         ),
         const SizedBox(height: 12),
         GridView(
@@ -437,12 +573,34 @@ class _FlowSheetState extends State<_FlowSheet> {
               _optionRow(
                 icon: CategoryStyle.icon(c.name),
                 title: c.name,
-                onTap: () => setState(() {
-                  _cat = c;
-                  _step = 2;
-                }),
+                selected: _cat?.id == c.id,
+                onTap: () => setState(() => _cat = c),
               ),
           ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: FilledButton(
+            onPressed: _cat == null ? null : () => setState(() => _step = 3),
+            style: FilledButton.styleFrom(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Next',
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(width: 8),
+                const Icon(AppIcons.arrowForward, size: 20),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -459,7 +617,7 @@ class _FlowSheetState extends State<_FlowSheet> {
         _header(
           'Paid from',
           chip: '${Fmt.money(_amount)} · ${tr(_cat?.name ?? '')}',
-          onChip: () => setState(() => _step = 1),
+          onChip: () => setState(() => _step = 2),
         ),
         const SizedBox(height: 12),
         for (final b in bals)
@@ -506,6 +664,8 @@ class _FlowSheetState extends State<_FlowSheet> {
                 child: _step == 0
                     ? _amountStep()
                     : _step == 1
+                    ? _titleStep(s)
+                    : _step == 2
                     ? _categoryStep(s)
                     : _accountStep(s),
               ),

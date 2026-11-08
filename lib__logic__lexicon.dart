@@ -574,6 +574,16 @@ class Lexicon {
     ],
   };
 
+  /// Category for a typed title such as "biryani" or "petrol", or null.
+  static String? categorizeText(String text) {
+    final words = RegExp(r"[a-z\u0600-\u06FF\u200c']+")
+        .allMatches(text.toLowerCase())
+        .map((m) => m.group(0)!)
+        .toList();
+    if (words.isEmpty) return null;
+    return categorize(words);
+  }
+
   /// Returns the best matching default category name, or null if nothing matched.
   static String? categorize(List<String> words) {
     final forms = <String>{};

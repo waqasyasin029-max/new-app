@@ -2,6 +2,9 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'You can pick the category next.': 'کیٹیگری آپ اگلے مرحلے میں چن سکتے ہیں۔',
+  'e.g. biryani, petrol, light bill': 'مثلاً بریانی، پیٹرول، بجلی کا بل',
+  'What did you buy?': 'آپ نے کیا خریدا؟',
   'Summary': 'خلاصہ',
   'How much can you spend this month?': 'اس مہینے آپ کتنا خرچ کر سکتے ہیں؟',
   'Budget and spending for the last 6 months':
@@ -514,6 +517,7 @@ const Map<String, String> urExact = {
 };
 
 const Map<String, String> urTemplates = {
+  'Category: {}': 'کیٹیگری: {0}',
   'Last budget was {}. Change it or keep it.':
       'پچھلا بجٹ {0} تھا۔ بدل لیں یا ویسا ہی رکھیں۔',
   '{} spent this month': 'اس مہینے {0} خرچ ہوئے',
