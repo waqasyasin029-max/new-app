@@ -65,10 +65,24 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> finishOnboarding() async {
+    returnedFromSetup = false;
     onboardingDone = true;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
+  }
+
+  /// True when the person came back to the intro pages from the first setup:
+  /// the intro then opens on its last page.
+  bool returnedFromSetup = false;
+
+  /// Back from the first setup step goes to the intro pages again.
+  Future<void> backToOnboarding() async {
+    returnedFromSetup = true;
+    onboardingDone = false;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('onboarding_done', false);
   }
 
   Future<void> finishSetup() async {

@@ -16,10 +16,14 @@ class OnboardingGate extends StatelessWidget {
   Widget build(BuildContext context) {
     final done = context.select<AppState, bool>((s) => s.onboardingDone);
     final setup = context.select<AppState, bool>((s) => s.setupDone);
+    final fromSetup = context.read<AppState>().returnedFromSetup;
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 350),
       child: !done
-          ? const OnboardingScreen(key: ValueKey('onboarding'))
+          ? OnboardingScreen(
+              key: const ValueKey('onboarding'),
+              startAtEnd: fromSetup,
+            )
           : !setup
           ? const FirstSetupScreen(key: ValueKey('setup'))
           : const HomeShell(key: ValueKey('home')),
@@ -60,15 +64,24 @@ const _pages = <_Page>[
 class OnboardingScreen extends StatefulWidget {
   /// True when opened again from Settings: closing just goes back.
   final bool replay;
-  const OnboardingScreen({super.key, this.replay = false});
+
+  /// Opens on the last page (when coming back from the first setup).
+  final bool startAtEnd;
+  const OnboardingScreen({
+    super.key,
+    this.replay = false,
+    this.startAtEnd = false,
+  });
 
   @override
   State<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
-  final _controller = PageController();
-  int _index = 0;
+  late final _controller = PageController(
+    initialPage: widget.startAtEnd ? _pages.length - 1 : 0,
+  );
+  late int _index = widget.startAtEnd ? _pages.length - 1 : 0;
 
   @override
   void dispose() {
