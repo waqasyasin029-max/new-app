@@ -123,13 +123,24 @@ class _NameSheetState extends State<_NameSheet> {
 
   bool get _ok => _c.text.trim().isNotEmpty;
 
-  /// Long names get a smaller size so they still fit on one line.
-  double get _nameSize {
-    final n = _c.text.length;
-    if (n <= 10) return 44;
-    if (n <= 15) return 36;
-    if (n <= 20) return 28;
-    return 24;
+  /// The biggest size (up to 44) at which the typed name still fits on one
+  /// line, so a long name shrinks to fit the popup instead of scrolling.
+  double _fit(BuildContext context, double maxW) {
+    final text = _c.text;
+    if (text.isEmpty || maxW <= 0) return 44;
+    final base = DefaultTextStyle.of(context).style.copyWith(
+      fontSize: 44,
+      fontWeight: FontWeight.w800,
+    );
+    final tp = TextPainter(
+      text: TextSpan(text: text, style: base),
+      textDirection: Directionality.of(context),
+      maxLines: 1,
+    )..layout();
+    final w = tp.width;
+    tp.dispose();
+    if (w <= maxW) return 44;
+    return (44 * maxW / w).clamp(20.0, 44.0);
   }
 
   void _done() {
@@ -174,37 +185,50 @@ class _NameSheetState extends State<_NameSheet> {
           const SizedBox(height: 18),
           // The name is typed big and centred, like the amount, so people
           // enjoy seeing their own name.
-          TextField(
-            controller: _c,
-            autofocus: true,
-            maxLength: 24,
-            textAlign: TextAlign.center,
-            textCapitalization: TextCapitalization.words,
-            textInputAction: TextInputAction.done,
-            onChanged: (_) => setState(() {}),
-            onSubmitted: (_) => _done(),
-            cursorColor: AppColors.primary,
-            style: TextStyle(
-              fontSize: _nameSize,
-              height: 1.2,
-              fontWeight: FontWeight.w800,
-              color: AppColors.ink,
-            ),
-            decoration: InputDecoration(
-              hintText: tr('Your name'),
-              hintStyle: TextStyle(
-                fontSize: 44,
-                height: 1.2,
-                fontWeight: FontWeight.w800,
-                color: AppColors.line,
-              ),
-              counterText: '',
-              filled: false,
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 8),
-            ),
+          LayoutBuilder(
+            builder: (context, box) {
+              final target = _fit(context, box.maxWidth - 12);
+              // Shrinks (or grows back) smoothly as the name gets longer.
+              return TweenAnimationBuilder<double>(
+                tween: Tween<double>(end: target),
+                duration: const Duration(milliseconds: 220),
+                curve: Curves.easeOut,
+                builder: (context, size, _) {
+                  return TextField(
+                controller: _c,
+                autofocus: true,
+                maxLength: 24,
+                textAlign: TextAlign.center,
+                textCapitalization: TextCapitalization.words,
+                textInputAction: TextInputAction.done,
+                onChanged: (_) => setState(() {}),
+                onSubmitted: (_) => _done(),
+                cursorColor: AppColors.primary,
+                style: TextStyle(
+                  fontSize: size,
+                  height: 1.2,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.ink,
+                ),
+                decoration: InputDecoration(
+                  hintText: tr('Your name'),
+                  hintStyle: TextStyle(
+                    fontSize: 44,
+                    height: 1.2,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.line,
+                  ),
+                  counterText: '',
+                  filled: false,
+                  border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                ),
+              );
+                },
+              );
+            },
           ),
           Center(
             child: Text(
@@ -303,7 +327,9 @@ class _WelcomeAnimState extends State<_WelcomeAnim>
   /// The name, one letter at a time, each rising with a small overshoot.
   Widget _nameLetters() {
     final chars = widget.name.characters.toList();
-    final size = chars.length <= 10 ? 50.0 : (chars.length <= 16 ? 38.0 : 30.0);
+    final size = chars.length <= 10
+        ? 50.0
+        : (chars.length <= 14 ? 40.0 : (chars.length <= 18 ? 32.0 : 26.0));
     return Wrap(
       alignment: WrapAlignment.center,
       children: [
