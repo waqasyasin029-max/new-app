@@ -10,7 +10,6 @@ import '../widgets/common.dart';
 import '../widgets/lock_gate.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
-import 'onboarding_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
@@ -115,20 +114,6 @@ class SettingsScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(AppIcons.slideshow),
-                title: const Text(
-                  'Show intro again',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                trailing: const Icon(AppIcons.chevronRight),
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const OnboardingScreen(replay: true),
-                  ),
-                ),
-              ),
-              ListTile(
                 leading: const Icon(AppIcons.info),
                 title: const Text(
                   'About Kharcha Tracker',
@@ -149,6 +134,35 @@ class SettingsScreen extends StatelessWidget {
                 subtitle: Text('Nothing is sent anywhere'),
               ),
             ],
+          ),
+          // Developer credit, the same lines as on the first intro screen.
+          Padding(
+            padding: const EdgeInsets.only(top: 28, bottom: 8),
+            child: Column(
+              children: [
+                Text(
+                  'Developed by',
+                  verbatim: true,
+                  style: TextStyle(color: AppColors.muted, fontSize: 12),
+                ),
+                const SizedBox(height: 2),
+                const Text(
+                  'Waqas Yasin',
+                  verbatim: true,
+                  style: TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Made in Pakistan',
+                  verbatim: true,
+                  style: TextStyle(color: AppColors.muted, fontSize: 12),
+                ),
+              ],
+            ),
           ),
         ],
       ),
