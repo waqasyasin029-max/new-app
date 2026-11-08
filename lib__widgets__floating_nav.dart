@@ -151,7 +151,7 @@ class FloatingNav extends StatelessWidget {
                             _item(
                               3,
                               AppIcons.settings,
-                              AppIcons.settings,
+                              AppIcons.settingsFill,
                               'Settings',
                             ),
                           ],
