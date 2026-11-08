@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:provider/provider.dart';
 
 import '../core/account_style.dart';
 import '../core/category_style.dart';
 import '../core/format.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
+import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import 'accounts_screen.dart';
@@ -138,7 +140,7 @@ class DashboardScreen extends StatelessWidget {
                 ? '${Fmt.money(-left)} over budget'
                 : '${Fmt.money(left)} left of budget',
             style: TextStyle(
-              fontSize: 24,
+              fontSize: 18,
               fontWeight: FontWeight.w800,
               color: over ? AppColors.danger : AppColors.ink,
             ),
@@ -163,7 +165,17 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
+  /// Greeting for the time of day.
+  String _greeting(DateTime now) {
+    final h = now.hour;
+    if (h >= 5 && h < 12) return 'Good Morning';
+    if (h >= 12 && h < 17) return 'Good Afternoon';
+    if (h >= 17 && h < 21) return 'Good Evening';
+    return 'Good Night';
+  }
+
   Widget _body(BuildContext context, _DashData d, DateTime now) {
+    final name = context.select<AppState, String>((s) => s.userName);
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       children: [
@@ -184,16 +196,21 @@ class DashboardScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Overview',
-                      style: TextStyle(
+                    if (name.isNotEmpty)
+                      Text(
+                        'Hello, $name',
+                        style: TextStyle(
+                          color: AppColors.muted,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    Text(
+                      _greeting(now),
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w700,
                       ),
-                    ),
-                    Text(
-                      Fmt.date(now),
-                      style: TextStyle(color: AppColors.muted, fontSize: 13),
                     ),
                   ],
                 ),
@@ -225,9 +242,32 @@ class DashboardScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Spent today',
-                        style: TextStyle(fontSize: 14, color: Colors.white),
+                      Row(
+                        children: [
+                          const Text(
+                            'Spent today',
+                            style: TextStyle(fontSize: 14, color: Colors.white),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.softWhite,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Text(
+                              Fmt.date(now),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 4),
                       FittedBox(

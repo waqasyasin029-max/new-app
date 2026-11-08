@@ -23,6 +23,14 @@ class FloatingNav extends StatelessWidget {
   static const _barHeight = 72.0;
   static const _lift = 34.0; // how far the button rises above the bar
 
+  static const _gap = 92.0; // room for the middle button
+
+  /// Left edge of tab [i] inside a bar [w] wide.
+  static double _left(int i, double w) {
+    final item = (w - _gap) / 4;
+    return i < 2 ? i * item : 2 * item + _gap + (i - 2) * item;
+  }
+
   Widget _item(int i, IconData off, IconData on, String label) {
     final selected = index == i;
     final color = selected ? AppColors.ink : AppColors.muted;
@@ -39,17 +47,38 @@ class FloatingNav extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(selected ? on : off, size: 28, color: color),
+                // Colour fades; the icon makes a small hop when it becomes
+                // the selected one.
+                TweenAnimationBuilder<Color?>(
+                  tween: ColorTween(end: color),
+                  duration: const Duration(milliseconds: 220),
+                  builder: (context, c, _) => TweenAnimationBuilder<double>(
+                    key: ValueKey(selected),
+                    tween: Tween(begin: selected ? 0.8 : 1.0, end: 1.0),
+                    duration: const Duration(milliseconds: 380),
+                    curve: Curves.easeOutBack,
+                    builder: (context, v, child) =>
+                        Transform.scale(scale: v, child: child),
+                    child: Icon(
+                      selected ? on : off,
+                      size: 28,
+                      color: c ?? color,
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 3),
-                Text(
-                  tr(label),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                AnimatedDefaultTextStyle(
+                  duration: const Duration(milliseconds: 220),
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.2,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: color,
+                  ),
+                  child: Text(
+                    tr(label),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -82,19 +111,59 @@ class FloatingNav extends StatelessWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.only(bottom: bottom),
-                child: Row(
-                  children: [
-                    _item(0, AppIcons.home, AppIcons.homeFill, 'Home'),
-                    _item(1, AppIcons.wallet, AppIcons.walletFill, 'Accounts'),
-                    const SizedBox(width: 92),
-                    _item(
-                      2,
-                      AppIcons.barChart,
-                      AppIcons.barChartFill,
-                      'Reports',
-                    ),
-                    _item(3, AppIcons.settings, AppIcons.settings, 'Settings'),
-                  ],
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final item = (box.maxWidth - _gap) / 4;
+                    const pillW = 64.0;
+                    // Urdu mirrors the bar, so the pill is measured from the right.
+                    final rtl = Directionality.of(context) == TextDirection.rtl;
+                    final tabLeft = rtl
+                        ? box.maxWidth - _left(index, box.maxWidth) - item
+                        : _left(index, box.maxWidth);
+                    return Stack(
+                      children: [
+                        // One soft pill that slides to the selected tab.
+                        AnimatedPositioned(
+                          duration: const Duration(milliseconds: 320),
+                          curve: Curves.easeOutCubic,
+                          left: tabLeft + (item - pillW) / 2,
+                          top: 9,
+                          width: pillW,
+                          height: 36,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.13),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            _item(0, AppIcons.home, AppIcons.homeFill, 'Home'),
+                            _item(
+                              1,
+                              AppIcons.wallet,
+                              AppIcons.walletFill,
+                              'Accounts',
+                            ),
+                            const SizedBox(width: _gap),
+                            _item(
+                              2,
+                              AppIcons.barChart,
+                              AppIcons.barChartFill,
+                              'Reports',
+                            ),
+                            _item(
+                              3,
+                              AppIcons.settings,
+                              AppIcons.settingsFill,
+                              'Settings',
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ),
             ),

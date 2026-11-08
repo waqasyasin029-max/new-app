@@ -194,4 +194,8 @@ class AppIcons {
     fontFamily: _f,
   ); // hugeicons:alarm-clock
   static const bank = IconData(0xe03e, fontFamily: _f); // hugeicons:bank
+  static const settingsFill = IconData(
+    0xe03f,
+    fontFamily: _f,
+  ); // hugeicons:custom:settingsFill
 }

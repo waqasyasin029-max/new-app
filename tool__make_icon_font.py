@@ -38,6 +38,7 @@ ICONS = {
     "brightness": "contrast", "batterySaver": "battery-charging-01",
     "badge": "id-card", "backspace": "arrow-left-02",
     "arrowForward": "arrow-right-02", "alarm": "alarm-clock", "bank": "bank",
+    "settingsFill": "custom:settingsFill",
 }
 
 # Hand-made icons (24 grid): the filled "selected" versions for the nav bar, plus our bar chart.
@@ -51,6 +52,7 @@ EXTRA = {
     "homeFill": f'<path fill="currentColor" {ST} d="{HOME_D}"/><path data-cut="1" fill="currentColor" d="M10 23V17.5a2 2 0 0 1 4 0V23z"/>',
     "receiptFill": f'<path fill="currentColor" {ST} d="{RECEIPT_D}"/><path data-cut="1" fill="none" {ST} d="M8 11h3M8 7h6"/>',
     "walletFill": f'<path fill="currentColor" {ST} d="{FLAP_D}"/><rect fill="currentColor" {ST} x="3" y="7" width="18" height="14" rx="4"/><path data-cut="1" fill="none" stroke="currentColor" stroke-width="1" d="M5 7h13"/><rect data-cut="1" fill="currentColor" x="15.5" y="11.5" width="7" height="4.5" rx="2.25"/>',
+    "settingsFill": f'<path fill="currentColor" {ST} d="M21.011 14.097c.522-.141.783-.212.886-.346c.103-.135.103-.351.103-.784v-1.934c0-.433 0-.65-.103-.784s-.364-.205-.886-.345c-1.95-.526-3.171-2.565-2.668-4.503c.139-.533.208-.8.142-.956s-.256-.264-.635-.479l-1.725-.98c-.372-.21-.558-.316-.725-.294s-.356.21-.733.587c-1.459 1.455-3.873 1.455-5.333 0c-.377-.376-.565-.564-.732-.587c-.167-.022-.353.083-.725.295l-1.725.979c-.38.215-.57.323-.635.48c-.066.155.003.422.141.955c.503 1.938-.718 3.977-2.669 4.503c-.522.14-.783.21-.886.345S2 10.6 2 11.033v1.934c0 .433 0 .65.103.784s.364.205.886.346c1.95.526 3.171 2.565 2.668 4.502c-.139.533-.208.8-.142.956s.256.264.635.48l1.725.978c.372.212.558.317.725.295s.356-.21.733-.587c1.46-1.457 3.876-1.457 5.336 0c.377.376.565.564.732.587c.167.022.353-.083.726-.295l1.724-.979c.38-.215.57-.323.635-.48s-.003-.422-.141-.955c-.504-1.937.716-3.976 2.666-4.502Z"/><circle data-cut="1" fill="currentColor" cx="12" cy="12" r="3.5"/>',
     "barChartFill": f'<g fill="currentColor" {ST}>{BARS}</g>',
     "barChart": f'<g fill="none" {ST}>{BARS}</g>',
 }

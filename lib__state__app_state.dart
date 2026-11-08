@@ -27,10 +27,16 @@ class AppState extends ChangeNotifier {
 
   /// 'en' | 'ur'
   String language = 'en';
+
+  /// The person's name, shown on Home. Empty when not given.
+  String userName = '';
   bool onboardingDone = true;
 
   /// False on a fresh install until the accounts + app-lock setup is finished.
   bool setupDone = true;
+
+  /// False until the first-run name popup and welcome animation are done.
+  bool welcomeDone = true;
 
   /// Ask for the phone's fingerprint / PIN when the app opens.
   bool appLock = false;
@@ -52,7 +58,9 @@ class AppState extends ChangeNotifier {
     language = prefs.getString('language') ?? 'en';
     // People who already used the app skip the new first-time setup.
     setupDone = prefs.getBool('setup_done') ?? onboardingDone;
+    welcomeDone = prefs.getBool('welcome_done') ?? setupDone;
     appLock = prefs.getBool('app_lock') ?? false;
+    userName = prefs.getString('user_name') ?? '';
     applyLook();
   }
 
@@ -90,6 +98,20 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('setup_done', true);
+  }
+
+  Future<void> finishWelcome() async {
+    welcomeDone = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('welcome_done', true);
+  }
+
+  Future<void> setUserName(String name) async {
+    userName = name.trim();
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name', userName);
   }
 
   /// Pushes the chosen theme and language into the globals the UI reads.

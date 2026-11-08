@@ -70,17 +70,39 @@ class _UpdateDialogState extends State<_UpdateDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final notes = widget.info.notes;
     return AlertDialog(
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      icon: Container(
-        width: 64,
+      icon: SizedBox(
+        width: double.infinity,
         height: 64,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: AppColors.gradient,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppColors.gradient,
+              ),
+              child: const Icon(
+                AppIcons.systemUpdate,
+                size: 30,
+                color: Colors.white,
+              ),
+            ),
+            // Same as "Later": closes the popup (not while downloading).
+            PositionedDirectional(
+              end: 0,
+              top: 0,
+              child: IconButton(
+                visualDensity: VisualDensity.compact,
+                icon: Icon(AppIcons.close, size: 20, color: AppColors.muted),
+                onPressed: _busy ? null : () => Navigator.pop(context),
+              ),
+            ),
+          ],
         ),
-        child: const Icon(AppIcons.systemUpdate, size: 30, color: Colors.white),
       ),
       title: const Text('New update available', textAlign: TextAlign.center),
       content: SizedBox(
@@ -89,45 +111,16 @@ class _UpdateDialogState extends State<_UpdateDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.fieldFill,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(
-                  'Version ${widget.info.build}',
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                  ),
+              Text(
+                'To enjoy our newest features tap the button below',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  height: 1.45,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.muted,
                 ),
               ),
-              if (notes.isNotEmpty) ...[
-                const SizedBox(height: 14),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.fieldFill,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    notes,
-                    verbatim: true,
-                    maxLines: 4,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      height: 1.4,
-                      color: AppColors.muted,
-                    ),
-                  ),
-                ),
-              ],
               if (_busy) ...[
                 const SizedBox(height: 18),
                 ClipRRect(
@@ -159,12 +152,6 @@ class _UpdateDialogState extends State<_UpdateDialog> {
                   style: const TextStyle(fontSize: 13, height: 1.4),
                 ),
               ],
-              const SizedBox(height: 14),
-              Text(
-                'Your expenses and settings are kept.',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 12.5, color: AppColors.muted),
-              ),
               const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
