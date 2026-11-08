@@ -124,6 +124,15 @@ class _NameSheetState extends State<_NameSheet> {
 
   bool get _ok => _c.text.trim().isNotEmpty;
 
+  /// Long names get a smaller size so they still fit on one line.
+  double get _nameSize {
+    final n = _c.text.length;
+    if (n <= 10) return 44;
+    if (n <= 15) return 36;
+    if (n <= 20) return 28;
+    return 24;
+  }
+
   void _done() {
     if (_ok) Navigator.pop(context, _c.text.trim());
   }
@@ -164,19 +173,51 @@ class _NameSheetState extends State<_NameSheet> {
             style: TextStyle(color: AppColors.muted, height: 1.4),
           ),
           const SizedBox(height: 18),
+          // The name is typed big and centred, like the amount, so people
+          // enjoy seeing their own name.
           TextField(
             controller: _c,
             autofocus: true,
             maxLength: 24,
+            textAlign: TextAlign.center,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.done,
             onChanged: (_) => setState(() {}),
             onSubmitted: (_) => _done(),
+            cursorColor: AppColors.primary,
+            style: TextStyle(
+              fontSize: _nameSize,
+              height: 1.2,
+              fontWeight: FontWeight.w800,
+              color: AppColors.ink,
+            ),
             decoration: InputDecoration(
-              labelText: tr('Your name'),
+              hintText: tr('Your name'),
+              hintStyle: TextStyle(
+                fontSize: 44,
+                height: 1.2,
+                fontWeight: FontWeight.w800,
+                color: AppColors.line,
+              ),
               counterText: '',
+              filled: false,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(vertical: 8),
             ),
           ),
+          Center(
+            child: Text(
+              'Type your name',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.muted,
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
           const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
