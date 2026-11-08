@@ -31,8 +31,7 @@ class _Page {
   final IconData icon;
   final String title;
   final String text;
-  final bool creator;
-  const _Page(this.icon, this.title, this.text, {this.creator = false});
+  const _Page(this.icon, this.title, this.text);
 }
 
 const _pages = <_Page>[
@@ -55,7 +54,6 @@ const _pages = <_Page>[
     AppIcons.insights,
     'Reports, budget and reminders',
     'See history and monthly reports, set a monthly budget, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.',
-    creator: true,
   ),
 ];
 
@@ -158,7 +156,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ],
             ),
             Padding(
-              padding: EdgeInsets.fromLTRB(24, 24, 24, _last ? 28 : 12),
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 14),
               child: SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -188,30 +186,34 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
               ),
             ),
-            if (!_last)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 18),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Developed by',
-                      verbatim: true,
-                      style: TextStyle(color: AppColors.muted, fontSize: 12),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 18),
+              child: Column(
+                children: [
+                  Text(
+                    'Developed by',
+                    verbatim: true,
+                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                  ),
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Waqas Yasin',
+                    verbatim: true,
+                    style: TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 5),
-                    const Text(
-                      'Waqas Yasin',
-                      verbatim: true,
-                      style: TextStyle(
-                        color: AppColors.primary,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Made in Pakistan',
+                    verbatim: true,
+                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                  ),
+                ],
               ),
+            ),
           ],
         ),
       ),
@@ -264,10 +266,6 @@ class _PageView extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.muted, fontSize: 16, height: 1.5),
           ),
-          if (page.creator) ...[
-            const SizedBox(height: 24),
-            const _CreatorCard(),
-          ],
         ],
       ),
     );
@@ -294,57 +292,6 @@ class _LangSwitch extends StatelessWidget {
         Switch(value: urdu, onChanged: onChanged),
         Text('اردو', verbatim: true, style: st(urdu)),
       ],
-    );
-  }
-}
-
-class _CreatorCard extends StatelessWidget {
-  const _CreatorCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppColors.line),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              gradient: AppColors.gradient,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(AppIcons.person, color: Colors.white),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Developed by',
-                verbatim: true,
-                style: TextStyle(color: AppColors.muted, fontSize: 12),
-              ),
-              const Text(
-                'Waqas Yasin',
-                verbatim: true,
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }
