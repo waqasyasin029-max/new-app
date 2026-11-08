@@ -8,6 +8,7 @@ import '../core/theme.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class CategoryAvatar extends StatelessWidget {
   final String name;
@@ -77,7 +78,7 @@ class ExpenseTile extends StatelessWidget {
           ),
           if (onDelete != null)
             IconButton(
-              icon: Icon(Icons.delete_rounded, color: AppColors.muted),
+              icon: Icon(AppIcons.delete, color: AppColors.muted),
               tooltip: tr('Delete'),
               onPressed: onDelete,
             ),
@@ -216,7 +217,7 @@ class MonthSwitcher extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
-              icon: const Icon(Icons.chevron_left_rounded),
+              icon: const Icon(AppIcons.chevronLeft),
               onPressed: () =>
                   onChanged(DateTime(month.year, month.month - 1, 1)),
             ),
@@ -229,7 +230,7 @@ class MonthSwitcher extends StatelessWidget {
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.chevron_right_rounded),
+              icon: const Icon(AppIcons.chevronRight),
               onPressed: canNext
                   ? () => onChanged(DateTime(month.year, month.month + 1, 1))
                   : null,

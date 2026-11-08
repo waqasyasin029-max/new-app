@@ -14,6 +14,7 @@ import 'history_screen.dart';
 import 'income_screen.dart';
 import 'settings_screen.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class _DashData {
   final SalaryInfo salary;
@@ -122,7 +123,7 @@ class DashboardScreen extends StatelessWidget {
                 shape: CircleBorder(side: BorderSide(color: AppColors.line)),
                 child: IconButton(
                   tooltip: tr('Settings'),
-                  icon: const Icon(Icons.settings_rounded),
+                  icon: const Icon(AppIcons.settings),
                   onPressed: () => _open(context, const SettingsScreen()),
                 ),
               ),
@@ -195,7 +196,7 @@ class DashboardScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.payments_rounded,
+                    AppIcons.payments,
                     size: 28,
                     color: Colors.white,
                   ),
@@ -233,10 +234,7 @@ class DashboardScreen extends StatelessWidget {
             color: AppColors.noteBg,
             onTap: () => _open(context, const IncomeScreen()),
             child: const ListTile(
-              leading: Icon(
-                Icons.account_balance_wallet_rounded,
-                color: AppColors.gold,
-              ),
+              leading: Icon(AppIcons.wallet, color: AppColors.gold),
               title: Text(
                 'Set your monthly salary',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -244,7 +242,7 @@ class DashboardScreen extends StatelessWidget {
               subtitle: Text(
                 'Needed to calculate what is left of your salary.',
               ),
-              trailing: Icon(Icons.chevron_right_rounded),
+              trailing: Icon(AppIcons.chevronRight),
             ),
           ),
         Padding(

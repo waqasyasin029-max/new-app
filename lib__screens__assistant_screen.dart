@@ -12,6 +12,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import 'confirm_expenses_screen.dart';
 import 'settings_screen.dart';
+import '../core/app_icons.dart';
 
 class _Msg {
   _Msg(this.text, {this.mine = false, this.error = false});
@@ -252,7 +253,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
               padding: const EdgeInsets.only(top: 6),
               child: OutlinedButton.icon(
                 onPressed: _sending ? null : _pickAccount,
-                icon: const Icon(Icons.account_balance_wallet_rounded),
+                icon: const Icon(AppIcons.wallet),
                 label: const Text('Choose where you paid from'),
               ),
             ),
@@ -292,11 +293,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                Icons.auto_awesome_rounded,
-                size: 40,
-                color: AppColors.muted,
-              ),
+              Icon(AppIcons.sparkle, size: 40, color: AppColors.muted),
               const SizedBox(height: 12),
               const Text(
                 'Add your free Gemini key to chat with the assistant. Quick entry works without it.',
@@ -400,7 +397,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
                 const SizedBox(width: 8),
                 IconButton.filled(
                   onPressed: _sending ? null : () => _send(_input.text),
-                  icon: const Icon(Icons.send_rounded),
+                  icon: const Icon(AppIcons.send),
                   tooltip: tr('Send'),
                 ),
               ],
@@ -431,7 +428,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
         const SizedBox(height: 16),
         FilledButton.icon(
           onPressed: _analyzeQuick,
-          icon: const Icon(Icons.fact_check_rounded),
+          icon: const Icon(AppIcons.factCheck),
           label: const Text('Review expenses'),
           style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
         ),
@@ -461,7 +458,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
           if (_chat && _agent != null)
             IconButton(
               tooltip: tr('New chat'),
-              icon: const Icon(Icons.refresh_rounded),
+              icon: const Icon(AppIcons.refresh),
               onPressed: _sending ? null : () => setState(_startChat),
             ),
         ],

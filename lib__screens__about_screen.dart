@@ -4,30 +4,25 @@ import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../services/update_service.dart';
 import '../widgets/common.dart';
+import '../core/app_icons.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
   static const _features = <(IconData, String)>[
     (
-      Icons.edit_note_rounded,
+      AppIcons.editNote,
       'Type your expenses in Roman Urdu, Urdu or English, or ask the assistant',
     ),
-    (Icons.fact_check_rounded, 'Check and fix everything before it is saved'),
+    (AppIcons.factCheck, 'Check and fix everything before it is saved'),
     (
-      Icons.account_balance_wallet_rounded,
+      AppIcons.wallet,
       'Cash, JazzCash, Naya Pay, Easypaisa and bank accounts with balances',
     ),
-    (
-      Icons.swap_horiz_rounded,
-      'Withdraw, transfer and reconcile between accounts',
-    ),
-    (Icons.bar_chart_rounded, 'History, reports and monthly salary tracking'),
-    (
-      Icons.notifications_active_rounded,
-      'Daily, breakfast and dinner reminders',
-    ),
-    (Icons.wifi_off_rounded, 'Works offline, no sign-up'),
+    (AppIcons.swapHoriz, 'Withdraw, transfer and reconcile between accounts'),
+    (AppIcons.barChart, 'History, reports and monthly salary tracking'),
+    (AppIcons.bellRinging, 'Daily, breakfast and dinner reminders'),
+    (AppIcons.wifiOff, 'Works offline, no sign-up'),
   ];
 
   @override
@@ -110,7 +105,7 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 4),
           AppCard(
             child: ListTile(
-              leading: const Icon(Icons.lock_rounded, color: AppColors.primary),
+              leading: const Icon(AppIcons.lock, color: AppColors.primary),
               title: const Text(
                 'Your data stays on this phone',
                 style: TextStyle(fontWeight: FontWeight.w600),

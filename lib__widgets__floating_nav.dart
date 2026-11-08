@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/i18n.dart' show tr;
 import '../core/theme.dart';
+import '../core/app_icons.dart';
 
 /// Bottom bar with a notch around a raised orange "+" button in the middle.
 /// Four tabs (icon over label): the selected one is dark (light theme) or
@@ -83,26 +84,11 @@ class FloatingNav extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: bottom),
                 child: Row(
                   children: [
-                    _item(0, Icons.home_rounded, Icons.home_rounded, 'Home'),
-                    _item(
-                      1,
-                      Icons.receipt_long_rounded,
-                      Icons.receipt_long_rounded,
-                      'History',
-                    ),
+                    _item(0, AppIcons.home, AppIcons.home, 'Home'),
+                    _item(1, AppIcons.receipt, AppIcons.receipt, 'History'),
                     const SizedBox(width: 92),
-                    _item(
-                      2,
-                      Icons.account_balance_wallet_rounded,
-                      Icons.account_balance_wallet_rounded,
-                      'Accounts',
-                    ),
-                    _item(
-                      3,
-                      Icons.bar_chart_rounded,
-                      Icons.bar_chart_rounded,
-                      'Reports',
-                    ),
+                    _item(2, AppIcons.wallet, AppIcons.wallet, 'Accounts'),
+                    _item(3, AppIcons.barChart, AppIcons.barChart, 'Reports'),
                   ],
                 ),
               ),
@@ -138,7 +124,7 @@ class FloatingNav extends StatelessWidget {
                       ],
                     ),
                     child: const Icon(
-                      Icons.add_rounded,
+                      AppIcons.add,
                       color: Colors.white,
                       size: 34,
                     ),

@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
 
+import 'app_icons.dart';
+
 class CategoryStyle {
   static IconData icon(String name) {
     switch (name) {
       case 'Food':
-        return Icons.restaurant_rounded;
+        return AppIcons.restaurant;
       case 'Transport':
-        return Icons.directions_car_rounded;
+        return AppIcons.car;
       case 'Shopping':
-        return Icons.shopping_bag_rounded;
+        return AppIcons.shoppingBag;
       case 'Bills':
-        return Icons.receipt_long_rounded;
+        return AppIcons.receipt;
       case 'Groceries':
-        return Icons.local_grocery_store_rounded;
+        return AppIcons.grocery;
       case 'Health':
-        return Icons.medical_services_rounded;
+        return AppIcons.medical;
       case 'Entertainment':
-        return Icons.movie_rounded;
+        return AppIcons.movie;
       default:
-        return Icons.category_rounded;
+        return AppIcons.category;
     }
   }
 

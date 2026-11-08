@@ -8,6 +8,7 @@ import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import '../widgets/report_charts.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class _ReportData {
   final double income;
@@ -89,7 +90,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           flex: 2,
                           child: MiniStatTile(
                             valueSize: 19,
-                            icon: Icons.trending_up_rounded,
+                            icon: AppIcons.trendUp,
                             label: 'Income',
                             value: Fmt.money(d.income),
                             color: AppColors.positive,
@@ -100,7 +101,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           flex: 3,
                           child: MiniStatTile(
                             valueSize: 30,
-                            icon: Icons.trending_down_rounded,
+                            icon: AppIcons.trendDown,
                             label: 'Expenses',
                             value: Fmt.money(d.spent),
                             color: AppColors.danger,
@@ -113,7 +114,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     ),
                     MiniStatTile(
                       wide: true,
-                      icon: Icons.savings_rounded,
+                      icon: AppIcons.savings,
                       label: 'Saved',
                       value: d.income > 0
                           ? '${(remaining / d.income * 100).toStringAsFixed(0)}%'

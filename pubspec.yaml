@@ -45,3 +45,6 @@ flutter:
         - asset: assets/fonts/NotoNastaliqUrdu-Regular.ttf
         - asset: assets/fonts/NotoNastaliqUrdu-Bold.ttf
           weight: 700
+    - family: KIcons
+      fonts:
+        - asset: assets/fonts/kicons.ttf

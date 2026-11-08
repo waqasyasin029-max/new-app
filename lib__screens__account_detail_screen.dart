@@ -11,6 +11,7 @@ import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import 'transfer_screen.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class _Detail {
   final double balance;
@@ -213,7 +214,7 @@ class AccountDetailScreen extends StatelessWidget {
                       backgroundColor: AppColors.navy,
                     ),
                     onPressed: () => showReconcileDialog(context, a, d.balance),
-                    icon: const Icon(Icons.fact_check_rounded, size: 18),
+                    icon: const Icon(AppIcons.factCheck, size: 18),
                     label: const Text('Check balance'),
                   ),
                   OutlinedButton.icon(
@@ -225,7 +226,7 @@ class AccountDetailScreen extends StatelessWidget {
                       ),
                     ),
                     icon: Icon(
-                      a.isCash ? Icons.swap_horiz_rounded : Icons.atm_rounded,
+                      a.isCash ? AppIcons.swapHoriz : AppIcons.atm,
                       size: 18,
                     ),
                     label: Text(
@@ -234,7 +235,7 @@ class AccountDetailScreen extends StatelessWidget {
                   ),
                   OutlinedButton.icon(
                     onPressed: () => _addMoney(context, a),
-                    icon: const Icon(Icons.add_rounded, size: 18),
+                    icon: const Icon(AppIcons.add, size: 18),
                     label: const Text('Add money'),
                   ),
                 ],
@@ -270,8 +271,8 @@ class AccountDetailScreen extends StatelessWidget {
                           ),
                           child: Icon(
                             i.delta >= 0
-                                ? Icons.south_west_rounded
-                                : Icons.north_east_rounded,
+                                ? AppIcons.arrowDownLeft
+                                : AppIcons.arrowUpRight,
                             size: 18,
                             color: i.delta >= 0
                                 ? AppColors.positive
@@ -309,7 +310,7 @@ class AccountDetailScreen extends StatelessWidget {
                             if (i.kind != 'expense')
                               IconButton(
                                 icon: Icon(
-                                  Icons.delete_rounded,
+                                  AppIcons.delete,
                                   color: AppColors.muted,
                                 ),
                                 onPressed: () async {

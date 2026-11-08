@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
 import 'theme.dart';
+import 'app_icons.dart';
 
 class AccountStyle {
   static IconData icon(String type) {
     switch (type) {
       case 'cash':
-        return Icons.payments_rounded;
+        return AppIcons.payments;
       case 'bank':
-        return Icons.account_balance_rounded;
+        return AppIcons.bank;
       default:
-        return Icons.account_balance_wallet_rounded;
+        return AppIcons.wallet;
     }
   }
 

@@ -9,6 +9,7 @@ import '../widgets/data_loader.dart';
 import 'account_detail_screen.dart';
 import 'transfer_screen.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 class AccountsScreen extends StatelessWidget {
   const AccountsScreen({super.key});
@@ -24,7 +25,7 @@ class AccountsScreen extends StatelessWidget {
         actions: [
           IconButton(
             tooltip: tr('Add account'),
-            icon: const Icon(Icons.add_circle_rounded),
+            icon: const Icon(AppIcons.addCircle),
             onPressed: () => showAccountDialog(context),
           ),
         ],
@@ -74,7 +75,7 @@ class AccountsScreen extends StatelessWidget {
                               context,
                               const TransferScreen(withdraw: true),
                             ),
-                            icon: const Icon(Icons.atm_rounded, size: 20),
+                            icon: const Icon(AppIcons.atm, size: 20),
                             label: const Text('Withdraw'),
                           ),
                         ),
@@ -87,10 +88,7 @@ class AccountsScreen extends StatelessWidget {
                             ),
                             onPressed: () =>
                                 _open(context, const TransferScreen()),
-                            icon: const Icon(
-                              Icons.swap_horiz_rounded,
-                              size: 20,
-                            ),
+                            icon: const Icon(AppIcons.swapHoriz, size: 20),
                             label: const Text('Transfer'),
                           ),
                         ),
@@ -175,7 +173,7 @@ class AccountsScreen extends StatelessWidget {
                                     : AppColors.ink,
                               ),
                             ),
-                            const Icon(Icons.chevron_right_rounded),
+                            const Icon(AppIcons.chevronRight),
                           ],
                         ),
                       ),

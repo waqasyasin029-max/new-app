@@ -7,6 +7,7 @@ import '../services/agent_service.dart';
 import '../services/gemini_api.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../core/app_icons.dart';
 
 /// Paste the free Gemini key and check that the assistant can think and
 /// use its saving tools.
@@ -165,7 +166,7 @@ class _GeminiSetupScreenState extends State<GeminiSetupScreen> {
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: _save,
-            icon: const Icon(Icons.check_rounded),
+            icon: const Icon(AppIcons.check),
             label: const Text('Save'),
             style: FilledButton.styleFrom(
               minimumSize: const Size.fromHeight(52),
@@ -174,7 +175,7 @@ class _GeminiSetupScreenState extends State<GeminiSetupScreen> {
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: _checking ? null : _check,
-            icon: const Icon(Icons.health_and_safety_rounded),
+            icon: const Icon(AppIcons.healthSafety),
             label: Text(_checking ? 'Checking…' : 'Check assistant'),
             style: OutlinedButton.styleFrom(
               minimumSize: const Size.fromHeight(48),

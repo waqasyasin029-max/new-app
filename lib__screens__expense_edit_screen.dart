@@ -9,6 +9,7 @@ import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 /// Add a new expense manually, or edit/delete an existing one.
 class ExpenseEditScreen extends StatefulWidget {
@@ -109,10 +110,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
         title: Text(_editing ? 'Edit expense' : 'Add expense'),
         actions: [
           if (_editing)
-            IconButton(
-              icon: const Icon(Icons.delete_rounded),
-              onPressed: _delete,
-            ),
+            IconButton(icon: const Icon(AppIcons.delete), onPressed: _delete),
         ],
       ),
       body: ListView(
@@ -144,13 +142,13 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _pickDate,
-            icon: const Icon(Icons.calendar_today_rounded),
+            icon: const Icon(AppIcons.calendar),
             label: Text(Fmt.date(_date)),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: _save,
-            icon: const Icon(Icons.check_rounded),
+            icon: const Icon(AppIcons.check),
             label: Text(_editing ? 'Save changes' : 'Add expense'),
           ),
         ],

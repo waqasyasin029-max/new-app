@@ -6,6 +6,7 @@ import '../core/theme.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../core/i18n.dart';
+import '../core/app_icons.dart';
 
 /// Move money between accounts. In [withdraw] mode it records an ATM/cash withdrawal into Cash.
 class TransferScreen extends StatefulWidget {
@@ -187,7 +188,7 @@ class _TransferScreenState extends State<TransferScreen> {
           const SizedBox(height: 16),
           OutlinedButton.icon(
             onPressed: _pickDate,
-            icon: const Icon(Icons.calendar_today_rounded, size: 18),
+            icon: const Icon(AppIcons.calendar, size: 18),
             label: Text(
               w ? 'Withdrawn on: ${Fmt.date(_date)}' : Fmt.date(_date),
             ),
@@ -200,7 +201,7 @@ class _TransferScreenState extends State<TransferScreen> {
           const SizedBox(height: 24),
           FilledButton.icon(
             onPressed: _saving ? null : _save,
-            icon: const Icon(Icons.check_rounded),
+            icon: const Icon(AppIcons.check),
             label: Text(w ? 'Save withdrawal' : 'Save transfer'),
           ),
         ],
