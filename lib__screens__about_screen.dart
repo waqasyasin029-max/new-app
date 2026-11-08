@@ -18,7 +18,7 @@ class AboutScreen extends StatelessWidget {
     (AppIcons.wallet, 'Cash, wallets and bank accounts with balances'),
     (AppIcons.swapHoriz, 'Withdraw, transfer and reconcile between accounts'),
     (AppIcons.barChart, 'History, reports and monthly salary tracking'),
-    (AppIcons.bellRinging, 'Daily, breakfast and dinner reminders'),
+    (AppIcons.bellRinging, 'A daily reminder to write your expenses'),
     (AppIcons.wifiOff, 'Works offline, no sign-up'),
   ];
 

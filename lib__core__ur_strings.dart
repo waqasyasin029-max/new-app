@@ -2,6 +2,13 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'A daily reminder to write your expenses': 'خرچے لکھنے کی روزانہ یاد دہانی',
+  'Off': 'بند',
+  'Daily at': 'روزانہ',
+  'Fix it in a few taps': 'چند ٹیپ میں ٹھیک کریں',
+  'Reminder not coming?': 'یاد دہانی نہیں آ رہی؟',
+  'Every day': 'روزانہ',
+  'Reminders': 'یاد دہانیاں',
   'The app reminds you once a day, at 10 PM, to write down today\'s expenses. You can change the time or turn it off whenever you like, in Settings.': 'ایپ دن میں صرف ایک بار، رات 10 بجے، آج کے خرچے لکھنے کی یاد دلائے گی۔ وقت بدلنا یا بند کرنا چاہیں تو سیٹنگز میں کسی بھی وقت کر سکتے ہیں۔',
   'See history and monthly reports, track your salary, and get one friendly reminder every night. Light or dark, English or Urdu, fully offline.': 'ہسٹری اور ماہانہ رپورٹس دیکھیں، اپنی تنخواہ کا حساب رکھیں، اور ہر رات ایک دوستانہ یاد دہانی پائیں۔ لائٹ یا ڈارک، انگلش یا اردو، مکمل آف لائن۔',
   'Expenses and income are stored only in a local database on this phone. Nothing is sent anywhere.': 'خرچے اور آمدنی صرف اسی فون کے ڈیٹا بیس میں محفوظ ہیں۔ کچھ بھی کہیں نہیں بھیجا جاتا۔',

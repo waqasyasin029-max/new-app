@@ -142,9 +142,6 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
   Future<void> _saveReminder() async {
     final s = context.read<AppState>();
     setState(() => _busy = true);
-    // One reminder a day; the breakfast and dinner ones stay off.
-    await s.setMealReminder('breakfast', enabled: false);
-    await s.setMealReminder('dinner', enabled: false);
     await s.setReminder(enabled: _remind, time: _remindTime);
     if (_remind) await NotificationService.requestPermission();
     if (!mounted) return;

@@ -11,6 +11,7 @@ import '../widgets/lock_gate.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import 'onboarding_screen.dart';
+import 'reminders_screen.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
@@ -87,138 +88,26 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SectionTitle('Daily reminder'),
+          const SectionTitle('Reminders'),
           TileGroup(
             children: [
-              SwitchListTile(
-                secondary: const Icon(AppIcons.bellRinging),
-                title: const Text(
-                  'Remind me every day',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: const Text(
-                  '"Have you recorded your expenses today?"',
-                ),
-                value: s.reminderEnabled,
-                onChanged: (v) => s.setReminder(enabled: v),
-              ),
               ListTile(
-                enabled: s.reminderEnabled,
-                leading: const Icon(AppIcons.clock),
+                leading: const Icon(AppIcons.bellRinging),
                 title: const Text(
-                  'Reminder time',
+                  'Reminders',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
-                subtitle: Text(s.reminderTime.format(context)),
-                onTap: !s.reminderEnabled
-                    ? null
-                    : () async {
-                        final t = await showTimePicker(
-                          context: context,
-                          initialTime: s.reminderTime,
-                        );
-                        if (t != null) {
-                          await s.setReminder(time: t);
-                          if (context.mounted)
-                            snack(
-                              context,
-                              'Reminder set for ${t.format(context)} daily.',
-                            );
-                        }
-                      },
-              ),
-              ListTile(
-                leading: const Icon(AppIcons.alarm),
-                title: const Text(
-                  'Allow exact alarms',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                subtitle: Text(
+                  s.reminderEnabled
+                      ? '${tr('Daily at')} ${s.reminderTime.format(context)}'
+                      : tr('Off'),
+                  verbatim: true,
                 ),
-                subtitle: const Text(
-                  'Makes the reminder arrive on the minute (Android 12+)',
+                trailing: const Icon(AppIcons.chevronRight),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RemindersScreen()),
                 ),
-                onTap: () async {
-                  await NotificationService.requestExactAlarmPermission();
-                  await s.applyReminder();
-                },
-              ),
-              ListTile(
-                leading: const Icon(AppIcons.batterySaver),
-                title: const Text(
-                  'Allow background running',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: const Text(
-                  'Stops the phone battery saver from blocking reminders',
-                ),
-                onTap: () => Permission.ignoreBatteryOptimizations.request(),
-              ),
-              ListTile(
-                leading: const Icon(AppIcons.timer),
-                title: const Text(
-                  'Test reminder in 1 minute',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                subtitle: const Text(
-                  'Tap, then lock the phone and wait. It should ring on time.',
-                ),
-                onTap: () async {
-                  final ok = await NotificationService.requestPermission();
-                  if (!ok && context.mounted) {
-                    snack(
-                      context,
-                      'Notification permission is off. Enable it in Android settings.',
-                    );
-                    return;
-                  }
-                  await NotificationService.scheduleTestIn(
-                    const Duration(minutes: 1),
-                  );
-                  if (context.mounted) {
-                    snack(context, 'A test reminder will arrive in 1 minute.');
-                  }
-                },
-              ),
-              const _ReminderStatusTile(),
-              ListTile(
-                leading: const Icon(AppIcons.bellAdd),
-                title: const Text(
-                  'Send test notification',
-                  style: TextStyle(fontWeight: FontWeight.w600),
-                ),
-                onTap: () async {
-                  final ok = await NotificationService.requestPermission();
-                  if (!ok && context.mounted) {
-                    snack(
-                      context,
-                      'Notification permission is off. Enable it in Android settings.',
-                    );
-                    return;
-                  }
-                  await NotificationService.showTest();
-                },
-              ),
-            ],
-          ),
-          const SectionTitle('Meal reminders'),
-          TileGroup(
-            children: [
-              ..._mealTiles(
-                context,
-                s,
-                meal: 'breakfast',
-                title: 'Breakfast reminder',
-                icon: AppIcons.coffee,
-                enabled: s.breakfastEnabled,
-                time: s.breakfastTime,
-              ),
-              ..._mealTiles(
-                context,
-                s,
-                meal: 'dinner',
-                title: 'Dinner reminder',
-                icon: AppIcons.dinner,
-                enabled: s.dinnerEnabled,
-                time: s.dinnerTime,
               ),
             ],
           ),
@@ -337,98 +226,4 @@ class SettingsScreen extends StatelessWidget {
       );
     }
   }
-
-  /// A switch row plus a time row for one meal reminder.
-  List<Widget> _mealTiles(
-    BuildContext context,
-    AppState s, {
-    required String meal,
-    required String title,
-    required IconData icon,
-    required bool enabled,
-    required TimeOfDay time,
-  }) {
-    return [
-      SwitchListTile(
-        secondary: Icon(icon),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(time.format(context)),
-        value: enabled,
-        onChanged: (v) => s.setMealReminder(meal, enabled: v),
-      ),
-      ListTile(
-        enabled: enabled,
-        leading: const Icon(AppIcons.clock),
-        title: const Text(
-          'Reminder time',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(time.format(context)),
-        onTap: !enabled
-            ? null
-            : () async {
-                final t = await showTimePicker(
-                  context: context,
-                  initialTime: time,
-                );
-                if (t != null) {
-                  await s.setMealReminder(meal, time: t);
-                  if (context.mounted) {
-                    snack(
-                      context,
-                      'Reminder set for ${t.format(context)} daily.',
-                    );
-                  }
-                }
-              },
-      ),
-    ];
-  }
-}
-
-/// Shows whether reminders are really set up, and any error.
-class _ReminderStatusTile extends StatefulWidget {
-  const _ReminderStatusTile();
-
-  @override
-  State<_ReminderStatusTile> createState() => _ReminderStatusTileState();
-}
-
-class _ReminderStatusTileState extends State<_ReminderStatusTile> {
-  late Future<String> _status = NotificationService.status();
-
-  Future<void> _refresh() async {
-    await context.read<AppState>().applyReminder();
-    if (mounted) setState(() => _status = NotificationService.status());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: _status,
-      builder: (context, snap) => ListTile(
-        leading: const Icon(AppIcons.factCheck),
-        title: const Text(
-          'Reminder status',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          snap.data == null ? '…' : _lines(snap.data!),
-          verbatim: true,
-        ),
-        trailing: const Icon(AppIcons.refresh),
-        onTap: _refresh,
-      ),
-    );
-  }
-
-  /// Translates each status line when the app is in Urdu.
-  String _lines(String raw) => raw
-      .split('\n')
-      .map((l) {
-        final i = l.indexOf(': ');
-        if (i < 0) return tr(l);
-        return '${tr(l.substring(0, i))}: ${tr(l.substring(i + 2))}';
-      })
-      .join('\n');
 }
