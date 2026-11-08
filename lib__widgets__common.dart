@@ -276,6 +276,17 @@ Future<bool> confirmDialog(
   return r ?? false;
 }
 
+/// Asks before closing the app; it closes only on a clear yes.
+Future<void> confirmExit(BuildContext context) async {
+  final yes = await confirmDialog(
+    context,
+    'Close the app?',
+    'Do you really want to close Kharcha Tracker?',
+    action: 'Close',
+  );
+  if (yes) SystemNavigator.pop();
+}
+
 /// Returns a positive amount or null.
 /// Types amounts with thousands separators: 1,000 and 25,000.50.
 /// Only digits and one decimal point (two decimals at most) are accepted.

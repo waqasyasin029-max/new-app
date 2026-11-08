@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/i18n.dart' show tr;
 import '../core/theme.dart';
 import '../widgets/budget_dialog.dart';
+import '../widgets/common.dart' show confirmExit;
 import '../widgets/floating_nav.dart';
 import 'add_expense_flow.dart';
 import 'accounts_screen.dart';
@@ -39,11 +40,17 @@ class _HomeShellState extends State<HomeShell> {
 
   @override
   Widget build(BuildContext context) {
-    // Back from any other tab returns to Home first; only Home closes the app.
+    // Back from any other tab returns to Home first; on Home it asks before
+    // closing the app.
     return PopScope(
-      canPop: _index == 0,
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) setState(() => _index = 0);
+        if (didPop) return;
+        if (_index != 0) {
+          setState(() => _index = 0);
+        } else {
+          confirmExit(context);
+        }
       },
       child: Scaffold(
         body: IndexedStack(index: _index, children: _pages),

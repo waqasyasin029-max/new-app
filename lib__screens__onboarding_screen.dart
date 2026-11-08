@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
+import '../widgets/common.dart' show confirmExit;
 import 'home_shell.dart';
 import 'setup_screen.dart';
 import '../core/app_icons.dart';
@@ -115,13 +116,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final s = context.watch<AppState>();
     // Back shows the previous page; only the first page leaves the screen.
     return PopScope(
-      canPop: _index == 0,
+      canPop: widget.replay && _index == 0,
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) return;
-        _controller.previousPage(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        if (_index > 0) {
+          _controller.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        } else {
+          confirmExit(context);
+        }
       },
       child: Scaffold(
       body: SafeArea(
