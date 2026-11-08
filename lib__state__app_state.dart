@@ -36,8 +36,6 @@ class AppState extends ChangeNotifier {
 
   /// False on a fresh install until the accounts + app-lock setup is finished.
   bool setupDone = true;
-  String userName = '';
-  String geminiKey = '';
 
   /// Ask for the phone's fingerprint / PIN when the app opens.
   bool appLock = false;
@@ -62,12 +60,11 @@ class AppState extends ChangeNotifier {
       minute: prefs.getInt('dinner_minute') ?? 30,
     );
     themeMode = prefs.getString('theme_mode') ?? 'system';
-    language = prefs.getString('language') ?? 'en';
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
+    // New installs start in Urdu; people who already used the app keep English.
+    language = prefs.getString('language') ?? (onboardingDone ? 'en' : 'ur');
     // People who already used the app skip the new first-time setup.
     setupDone = prefs.getBool('setup_done') ?? onboardingDone;
-    userName = prefs.getString('user_name') ?? '';
-    geminiKey = prefs.getString('gemini_key') ?? '';
     appLock = prefs.getBool('app_lock') ?? false;
     applyLook();
   }
@@ -208,20 +205,6 @@ class AppState extends ChangeNotifier {
       // Never crash the app because a reminder could not be scheduled.
       NotificationService.lastError ??= '$e';
     }
-  }
-
-  Future<void> setUserName(String name) async {
-    userName = name.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_name', userName);
-    notifyListeners();
-  }
-
-  Future<void> setGeminiKey(String key) async {
-    geminiKey = key.trim();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('gemini_key', geminiKey);
-    notifyListeners();
   }
 
   Future<void> setAppLock(bool on) async {

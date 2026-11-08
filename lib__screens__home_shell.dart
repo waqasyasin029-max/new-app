@@ -8,7 +8,6 @@ import 'accounts_screen.dart';
 import 'dashboard_screen.dart';
 import 'history_screen.dart';
 import 'reports_screen.dart';
-import 'assistant_screen.dart';
 import '../core/app_icons.dart';
 
 class HomeShell extends StatefulWidget {
@@ -32,20 +31,6 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _index, children: _pages),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: FloatingActionButton.small(
-        heroTag: 'assistant',
-        tooltip: tr('Assistant'),
-        elevation: 2,
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.primary,
-        shape: const CircleBorder(),
-        onPressed: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const AssistantScreen()),
-        ),
-        child: const Icon(AppIcons.sparkle, size: 20),
-      ),
       bottomNavigationBar: FloatingNav(
         index: _index,
         onTab: (i) => setState(() => _index = i),

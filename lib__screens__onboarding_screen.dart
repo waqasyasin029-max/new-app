@@ -38,13 +38,13 @@ class _Page {
 const _pages = <_Page>[
   _Page(
     AppIcons.editNote,
-    'Just write it',
-    'Write what you spent, in Roman Urdu, Urdu or English. The assistant sorts it out and you confirm.',
+    'Add expenses in seconds',
+    'Tap the orange plus, write the amount, pick a category and the account you paid from.',
   ),
   _Page(
     AppIcons.factCheck,
-    'Check before saving',
-    'Every expense appears on a confirmation screen first. Fix the amount, category or account, then save.',
+    'Know what is left',
+    'Every payment is taken from the right account, so you always see how much money is in your cash, wallets and banks.',
   ),
   _Page(
     AppIcons.wallet,

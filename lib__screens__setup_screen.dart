@@ -110,13 +110,18 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
     _toggle(a, true);
   }
 
+  List<PkAccount> get _chosen => [
+    for (final a in [...PkAccounts.all, ..._custom])
+      if (_on(a)) a,
+  ];
+
   Future<void> _saveAccounts() async {
     final s = context.read<AppState>();
     setState(() => _busy = true);
     final have = (await s.accountRepo.all())
         .map((a) => a.name.toLowerCase())
         .toSet();
-    for (final a in [...PkAccounts.all, ..._custom]) {
+    for (final a in _chosen) {
       final c = _amounts[a.name];
       if (c == null || have.contains(a.name.toLowerCase())) continue;
       final v = double.tryParse(c.text.trim().replaceAll(',', '')) ?? 0;
@@ -126,7 +131,7 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _step = 1;
+      _step = 2;
     });
   }
 
@@ -182,20 +187,6 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
               ),
             ),
           ),
-          if (on)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(52, 0, 14, 12),
-              child: TextField(
-                controller: _amounts[a.name],
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  isDense: true,
-                  labelText: tr('Money in it right now (Rs)'),
-                ),
-              ),
-            ),
         ],
       ),
     );
@@ -209,12 +200,12 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             children: [
               const Text(
-                'Your accounts',
+                'What do you have?',
                 style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               Text(
-                'Tick the ones you use and write how much money is in each. You can add or change them later.',
+                'Tick everything you use to keep or spend money. You can add or change them later.',
                 style: TextStyle(color: AppColors.muted, height: 1.4),
               ),
               const SectionTitle('Cash'),
@@ -240,9 +231,92 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
             width: double.infinity,
             height: 54,
             child: FilledButton(
-              onPressed: _busy ? null : _saveAccounts,
+              onPressed: () => setState(() => _step = 1),
               child: const Text('Next'),
             ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _amountsStep() {
+    final list = _chosen;
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            children: [
+              const Text(
+                'How much money is in each?',
+                style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Write the amount you have right now in every account. Leave it empty if it is zero.',
+                style: TextStyle(color: AppColors.muted, height: 1.4),
+              ),
+              const SizedBox(height: 12),
+              for (final a in list)
+                AppCard(
+                  margin: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                  child: Row(
+                    children: [
+                      Icon(AccountStyle.icon(a.type), size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 5,
+                        child: Text(
+                          a.name,
+                          verbatim: a.type != 'cash',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 4,
+                        child: TextField(
+                          controller: _amounts[a.name],
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          textAlign: TextAlign.end,
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            hintText: '0',
+                            prefixText: 'Rs ',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+          child: Row(
+            children: [
+              TextButton(
+                onPressed: () => setState(() => _step = 0),
+                child: const Text('Back'),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: SizedBox(
+                  height: 54,
+                  child: FilledButton(
+                    onPressed: _busy ? null : _saveAccounts,
+                    child: const Text('Next'),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -311,7 +385,13 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(child: _step == 0 ? _accountsStep() : _lockStep()),
+      body: SafeArea(
+        child: _step == 0
+            ? _accountsStep()
+            : _step == 1
+            ? _amountsStep()
+            : _lockStep(),
+      ),
     );
   }
 }

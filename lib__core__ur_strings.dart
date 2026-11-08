@@ -2,6 +2,17 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'Expenses and income are stored only in a local database on this phone. Nothing is sent anywhere.': 'خرچے اور آمدنی صرف اسی فون کے ڈیٹا بیس میں محفوظ ہیں۔ کچھ بھی کہیں نہیں بھیجا جاتا۔',
+  'Add an expense in seconds: amount, category and account': 'چند سیکنڈ میں خرچ لکھیں: رقم، کیٹیگری اور اکاؤنٹ',
+  'Every payment is taken from the right account, so you always see how much money is in your cash, wallets and banks.': 'ہر ادائیگی صحیح اکاؤنٹ سے کٹتی ہے، اس لیے آپ کو ہمیشہ پتا ہوتا ہے کہ نقد، والٹس اور بینکوں میں کتنے پیسے ہیں۔',
+  'Know what is left': 'جانیں کتنا بچا ہے',
+  'Tap the orange plus, write the amount, pick a category and the account you paid from.': 'نارنجی پلس دبائیں، رقم لکھیں، کیٹیگری اور وہ اکاؤنٹ چنیں جس سے ادائیگی کی۔',
+  'Add expenses in seconds': 'چند سیکنڈ میں خرچ لکھیں',
+  'Back': 'پیچھے',
+  'Write the amount you have right now in every account. Leave it empty if it is zero.': 'ہر اکاؤنٹ میں اس وقت جتنی رقم ہے لکھیں۔ اگر صفر ہے تو خالی چھوڑ دیں۔',
+  'How much money is in each?': 'ہر ایک میں کتنی رقم ہے؟',
+  'Tick everything you use to keep or spend money. You can add or change them later.': 'جن میں آپ پیسے رکھتے یا خرچ کرتے ہیں ان سب پر نشان لگائیں۔ بعد میں بدل یا شامل کر سکتے ہیں۔',
+  'What do you have?': 'آپ کے پاس کیا کیا ہے؟',
   'Name': 'نام',
   'Not now': 'ابھی نہیں',
   'Ask for your fingerprint or phone PIN every time the app opens, so nobody else can see your money. You can change this in Settings.': 'ہر بار ایپ کھلنے پر فنگر پرنٹ یا فون پن پوچھا جائے گا تاکہ آپ کے پیسے کوئی اور نہ دیکھ سکے۔ سیٹنگز میں بدل سکتے ہیں۔',

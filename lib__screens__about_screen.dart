@@ -12,7 +12,7 @@ class AboutScreen extends StatelessWidget {
   static const _features = <(IconData, String)>[
     (
       AppIcons.editNote,
-      'Type your expenses in Roman Urdu, Urdu or English, or ask the assistant',
+      'Add an expense in seconds: amount, category and account',
     ),
     (AppIcons.factCheck, 'Check and fix everything before it is saved'),
     (AppIcons.wallet, 'Cash, wallets and bank accounts with balances'),
