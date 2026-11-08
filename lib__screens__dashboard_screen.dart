@@ -204,23 +204,6 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            _PastelTile(
-              label: 'Monthly salary',
-              value: Fmt.money(d.salary.amount),
-              color: AppColors.mint,
-              onTap: () => _open(context, const IncomeScreen()),
-            ),
-            const SizedBox(width: 10),
-            _PastelTile(
-              label: 'Spent this month',
-              value: Fmt.money(d.monthExpenses),
-              color: AppColors.peach,
-            ),
-          ],
-        ),
         if (d.salary.amount == 0)
           AppCard(
             color: AppColors.noteBg,
@@ -374,60 +357,6 @@ class DashboardScreen extends StatelessWidget {
         showDate: showDate,
         onTap: () => _open(context, ExpenseEditScreen(expense: e)),
       );
-}
-
-class _PastelTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final Color? valueColor;
-  final VoidCallback? onTap;
-  const _PastelTile({
-    required this.label,
-    required this.value,
-    required this.color,
-    this.valueColor,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) => Expanded(
-    child: Material(
-      color: color,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: const TextStyle(fontSize: 11.5),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: AlignmentDirectional.centerStart,
-                child: Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: valueColor ?? AppColors.ink,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 class _CategoryTile extends StatelessWidget {

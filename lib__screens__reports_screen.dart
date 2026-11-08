@@ -7,16 +7,25 @@ import '../data/models.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import '../widgets/report_charts.dart';
+import 'income_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
 class _ReportData {
+  final double salary;
   final double income;
   final double spent;
   final List<CategoryTotal> cats;
   final Map<String, double> daily;
   final List<MonthPoint> months;
-  _ReportData(this.income, this.spent, this.cats, this.daily, this.months);
+  _ReportData(
+    this.salary,
+    this.income,
+    this.spent,
+    this.cats,
+    this.daily,
+    this.months,
+  );
 }
 
 class ReportsScreen extends StatefulWidget {
@@ -58,6 +67,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   );
                 }
                 return _ReportData(
+                  (await s.incomes.salaryFor(_month)).amount,
                   await s.incomes.totalIncome(_month),
                   await s.expenses.total(from, to),
                   await s.expenses.categoryTotals(from, to),
@@ -126,6 +136,22 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       caption: remaining < 0
                           ? '${Fmt.money(-remaining)} over this month'
                           : '${Fmt.money(remaining)} left this month',
+                    ),
+                    AppCard(
+                      margin: const EdgeInsets.all(4),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const IncomeScreen()),
+                      ),
+                      child: ListTile(
+                        leading: const Icon(AppIcons.payments),
+                        title: const Text(
+                          'Monthly salary',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Text(Fmt.money(d.salary), verbatim: true),
+                        trailing: const Icon(AppIcons.chevronRight),
+                      ),
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 4),

@@ -2,6 +2,17 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'Privacy': 'پرائیویسی',
+  'App lock': 'ایپ لاک',
+  'Ask for your fingerprint or phone PIN when the app opens':
+      'ایپ کھولتے وقت فنگر پرنٹ یا فون کا پن مانگے',
+  'Set a screen lock (PIN, pattern or fingerprint) on your phone first.':
+      'پہلے اپنے فون میں سکرین لاک (پن، پیٹرن یا فنگر پرنٹ) لگائیں۔',
+  'Turn on app lock': 'ایپ لاک چالو کریں',
+  'Turn off app lock': 'ایپ لاک بند کریں',
+  'Unlock Kharcha Tracker': 'خرچہ ٹریکر کھولیں',
+  'Locked': 'مقفل',
+  'Unlock': 'کھولیں',
   '"Have you recorded your expenses today?"':
       '"کیا آپ نے آج کے اخراجات درج کیے؟"',
   'Have you recorded your expenses today?': 'کیا آپ نے آج کے اخراجات درج کیے؟',

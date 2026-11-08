@@ -36,6 +36,9 @@ class AppState extends ChangeNotifier {
   String userName = 'وقاص';
   String geminiKey = '';
 
+  /// Ask for the phone's fingerprint / PIN when the app opens.
+  bool appLock = false;
+
   Future<void> init() async {
     categories = await categoryRepo.all();
     accounts = await accountRepo.all();
@@ -60,6 +63,7 @@ class AppState extends ChangeNotifier {
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
     userName = prefs.getString('user_name') ?? 'وقاص';
     geminiKey = prefs.getString('gemini_key') ?? '';
+    appLock = prefs.getBool('app_lock') ?? false;
     applyLook();
   }
 
@@ -205,6 +209,13 @@ class AppState extends ChangeNotifier {
     geminiKey = key.trim();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('gemini_key', geminiKey);
+    notifyListeners();
+  }
+
+  Future<void> setAppLock(bool on) async {
+    appLock = on;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('app_lock', on);
     notifyListeners();
   }
 }

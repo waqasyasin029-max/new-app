@@ -7,6 +7,7 @@ import '../services/notification_service.dart';
 import '../services/update_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../widgets/lock_gate.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import 'gemini_setup_screen.dart';
@@ -257,6 +258,23 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
+          const SectionTitle('Privacy'),
+          TileGroup(
+            children: [
+              SwitchListTile(
+                secondary: const Icon(AppIcons.lock),
+                title: const Text(
+                  'App lock',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Ask for your fingerprint or phone PIN when the app opens',
+                ),
+                value: s.appLock,
+                onChanged: (on) => _toggleLock(context, s, on),
+              ),
+            ],
+          ),
           const SectionTitle('App'),
           TileGroup(
             children: [
@@ -329,6 +347,32 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Turning the lock on or off needs the phone's own unlock first, so nobody
+  /// else can switch it off.
+  Future<void> _toggleLock(BuildContext context, AppState s, bool on) async {
+    if (on && !await DeviceLock.available()) {
+      if (context.mounted) {
+        snack(
+          context,
+          'Set a screen lock (PIN, pattern or fingerprint) on your phone first.',
+        );
+      }
+      return;
+    }
+    final r = await DeviceLock.ask(
+      on ? 'Turn on app lock' : 'Turn off app lock',
+    );
+    if (!context.mounted) return;
+    if (r == DeviceLockResult.ok) {
+      await s.setAppLock(on);
+    } else if (r == DeviceLockResult.unavailable) {
+      snack(
+        context,
+        'Set a screen lock (PIN, pattern or fingerprint) on your phone first.',
+      );
+    }
   }
 
   Future<void> _editName(BuildContext context, AppState s) async {
