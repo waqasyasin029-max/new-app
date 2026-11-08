@@ -217,8 +217,7 @@ class _NameSheetState extends State<_NameSheet> {
               ),
             ),
           ),
-          const SizedBox(height: 14),
-          const SizedBox(height: 12),
+          const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             height: 56,
