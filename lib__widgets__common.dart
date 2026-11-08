@@ -485,13 +485,13 @@ class ToastCard extends StatelessWidget {
   Widget _icon() {
     switch (kind) {
       case ToastKind.ok:
-        return Icon(AppIcons.check, size: 24, color: _fg);
+        return Icon(AppIcons.check, size: 22, color: _fg);
       case ToastKind.info:
-        return Icon(AppIcons.info, size: 24, color: _fg);
+        return Icon(AppIcons.info, size: 22, color: _fg);
       case ToastKind.error:
         return Container(
-          width: 22,
-          height: 22,
+          width: 20,
+          height: 20,
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
@@ -514,7 +514,7 @@ class ToastCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(14, 12, 6, 12),
+      padding: const EdgeInsets.fromLTRB(14, 8, 8, 8),
       decoration: BoxDecoration(
         color: _bg,
         borderRadius: BorderRadius.circular(16),
@@ -528,8 +528,8 @@ class ToastCard extends StatelessWidget {
             child: DefaultTextStyle.merge(
               style: TextStyle(
                 color: _fg,
-                fontSize: 14.5,
-                height: 1.3,
+                fontSize: 14,
+                height: 1.25,
                 fontWeight: FontWeight.w700,
               ),
               child: content,
@@ -539,7 +539,8 @@ class ToastCard extends StatelessWidget {
             TextButton(
               style: TextButton.styleFrom(
                 foregroundColor: _fg,
-                minimumSize: const Size(0, 36),
+                minimumSize: const Size(0, 28),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 textStyle: const TextStyle(fontWeight: FontWeight.w800),
               ),
@@ -551,8 +552,9 @@ class ToastCard extends StatelessWidget {
             ),
           IconButton(
             visualDensity: VisualDensity.compact,
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            icon: Icon(AppIcons.close, size: 18, color: _fg),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 28),
+            icon: Icon(AppIcons.close, size: 16, color: _fg),
             onPressed: onClose,
           ),
         ],
