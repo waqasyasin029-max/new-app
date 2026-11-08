@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
@@ -273,6 +274,45 @@ Future<bool> confirmDialog(
 }
 
 /// Returns a positive amount or null.
+/// Types amounts with thousands separators: 1,000 and 25,000.50.
+/// Only digits and one decimal point (two decimals at most) are accepted.
+class AmountFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final raw = newValue.text.replaceAll(',', '');
+    if (raw.isEmpty) return newValue.copyWith(text: '');
+    if (!RegExp(r'^\d*\.?\d*$').hasMatch(raw)) return oldValue;
+    final dot = raw.indexOf('.');
+    var whole = dot < 0 ? raw : raw.substring(0, dot);
+    final dec = dot < 0 ? '' : raw.substring(dot + 1);
+    if (dec.length > 2) return oldValue;
+    whole = whole.replaceFirst(RegExp(r'^0+(?=\d)'), '');
+    if (whole.isEmpty) whole = '0';
+    final sb = StringBuffer();
+    for (var i = 0; i < whole.length; i++) {
+      if (i > 0 && (whole.length - i) % 3 == 0) sb.write(',');
+      sb.write(whole[i]);
+    }
+    final text = '$sb${dot < 0 ? '' : '.$dec'}';
+    // Keep the cursor after the same number of digits as before.
+    final end = newValue.selection.end.clamp(0, newValue.text.length);
+    final before = newValue.text.substring(0, end).replaceAll(',', '').length;
+    var seen = 0;
+    var pos = 0;
+    while (pos < text.length && seen < before) {
+      if (text[pos] != ',') seen++;
+      pos++;
+    }
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: pos),
+    );
+  }
+}
+
 double? parseAmount(String s) {
   final v = double.tryParse(s.trim().replaceAll(',', ''));
   return (v != null && v > 0 && v.isFinite) ? v : null;

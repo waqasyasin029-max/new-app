@@ -114,6 +114,7 @@ Future<void> showAccountDialog(
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
                       ),
+                      inputFormatters: [AmountFormatter()],
                       decoration: InputDecoration(
                         labelText: tr('Money in it right now (Rs)'),
                       ),
@@ -249,6 +250,7 @@ Future<void> showReconcileDialog(
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+                inputFormatters: [AmountFormatter()],
                 onChanged: (_) => setD(() {}),
                 decoration: InputDecoration(
                   labelText: tr(

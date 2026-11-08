@@ -39,6 +39,7 @@ class AccountDetailScreen extends StatelessWidget {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
+              inputFormatters: [AmountFormatter()],
               decoration: InputDecoration(labelText: tr('Amount (Rs)')),
             ),
             const SizedBox(height: 12),

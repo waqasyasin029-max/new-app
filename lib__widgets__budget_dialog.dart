@@ -42,6 +42,7 @@ Future<void> askBudget(BuildContext context, {bool monthly = false}) async {
             controller: c,
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(
               labelText: tr('Amount (Rs)'),
               prefixText: 'Rs ',

@@ -300,6 +300,7 @@ class _FirstSetupScreenState extends State<FirstSetupScreen> {
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
+                          inputFormatters: [AmountFormatter()],
                           textAlign: TextAlign.end,
                           decoration: const InputDecoration(
                             isDense: true,

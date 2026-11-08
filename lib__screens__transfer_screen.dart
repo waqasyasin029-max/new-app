@@ -171,6 +171,7 @@ class _TransferScreenState extends State<TransferScreen> {
             controller: _amount,
             autofocus: w,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(
               labelText: tr(
                 w ? 'How much did you withdraw? (Rs)' : 'Amount (Rs)',
@@ -181,6 +182,7 @@ class _TransferScreenState extends State<TransferScreen> {
           TextField(
             controller: _fee,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(
               labelText: tr('Fee / charges (optional)'),
             ),

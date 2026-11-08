@@ -120,6 +120,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
             controller: _amount,
             autofocus: !_editing,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [AmountFormatter()],
             decoration: InputDecoration(labelText: tr('Amount (Rs)')),
           ),
           const SizedBox(height: 16),

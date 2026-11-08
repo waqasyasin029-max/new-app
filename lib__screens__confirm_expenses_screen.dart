@@ -408,6 +408,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                     keyboardType: const TextInputType.numberWithOptions(
                       decimal: true,
                     ),
+                    inputFormatters: [AmountFormatter()],
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
                       labelText: tr('Amount (Rs)'),
