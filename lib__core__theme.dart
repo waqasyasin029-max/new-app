@@ -205,6 +205,8 @@ ThemeData buildAppTheme() {
     // the screens, so nothing looks like stock Android.
     canvasColor: AppColors.surface,
     dialogTheme: DialogThemeData(
+      // Wider than the stock 40 px side margin so popups do not look narrow.
+      insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
       elevation: 0,

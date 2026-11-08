@@ -2,6 +2,10 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'Choose an account.': 'اکاؤنٹ چنیں۔',
+  'Other (write the name)': 'کوئی اور (نام خود لکھیں)',
+  'Choose an account': 'اکاؤنٹ چنیں',
+  'Account': 'اکاؤنٹ',
   'You can pick the category next.': 'کیٹیگری آپ اگلے مرحلے میں چن سکتے ہیں۔',
   'e.g. biryani, petrol, light bill': 'مثلاً بریانی، پیٹرول، بجلی کا بل',
   'What did you buy?': 'آپ نے کیا خریدا؟',
