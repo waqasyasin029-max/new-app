@@ -298,15 +298,6 @@ class _FlowSheetState extends State<_FlowSheet> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  Container(
-                    width: 3,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
                 ],
               ),
               const SizedBox(height: 2),
