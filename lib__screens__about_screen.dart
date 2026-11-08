@@ -15,10 +15,7 @@ class AboutScreen extends StatelessWidget {
       'Type your expenses in Roman Urdu, Urdu or English, or ask the assistant',
     ),
     (AppIcons.factCheck, 'Check and fix everything before it is saved'),
-    (
-      AppIcons.wallet,
-      'Cash, JazzCash, Naya Pay, Easypaisa and bank accounts with balances',
-    ),
+    (AppIcons.wallet, 'Cash, wallets and bank accounts with balances'),
     (AppIcons.swapHoriz, 'Withdraw, transfer and reconcile between accounts'),
     (AppIcons.barChart, 'History, reports and monthly salary tracking'),
     (AppIcons.bellRinging, 'Daily, breakfast and dinner reminders'),

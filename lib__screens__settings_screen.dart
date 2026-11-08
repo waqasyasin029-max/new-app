@@ -229,7 +229,7 @@ class SettingsScreen extends StatelessWidget {
               ListTile(
                 leading: const Icon(AppIcons.badge),
                 title: const Text(
-                  'Assistant name',
+                  'Your name',
                   style: TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
@@ -380,13 +380,13 @@ class SettingsScreen extends StatelessWidget {
     final result = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Assistant name'),
+        title: const Text('Your name'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'The assistant calls you by this name. Write it in Urdu so it is pronounced correctly.',
+              'The assistant uses this name when it talks to you. Optional.',
               style: TextStyle(fontSize: 13),
             ),
             const SizedBox(height: 12),
@@ -394,7 +394,7 @@ class SettingsScreen extends StatelessWidget {
               controller: c,
               textDirection: TextDirection.rtl,
               decoration: const InputDecoration(
-                hintText: 'وقاص',
+                hintText: tr('Your name'),
                 isDense: true,
               ),
             ),

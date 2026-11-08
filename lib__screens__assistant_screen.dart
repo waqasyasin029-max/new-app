@@ -67,9 +67,9 @@ class _AssistantScreenState extends State<AssistantScreen> {
       _agent = null;
       return;
     }
-    final who = s.userName.trim().isEmpty ? '' : ' ${s.userName.trim()} sir';
+    final who = s.userName.trim().isEmpty ? '' : ' ${s.userName.trim()}';
     final hello =
-        'Assalam o Alaikum$who! Likhein aaj kya kharcha hua, main likh leta hoon. '
+        'Hello$who! Likhein aaj kya kharcha hua, main likh leta hoon. '
         'Ya kuch poochna ho, jaise "is hafte kitna kharcha hua?".';
     _agent = AgentService(state: s, apiKey: _keyUsed, userName: s.userName)
       ..seedAssistant(hello);

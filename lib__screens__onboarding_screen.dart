@@ -5,6 +5,7 @@ import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../state/app_state.dart';
 import 'home_shell.dart';
+import 'setup_screen.dart';
 import '../core/app_icons.dart';
 
 /// First launch shows the intro pages; afterwards the app opens directly.
@@ -14,11 +15,14 @@ class OnboardingGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final done = context.select<AppState, bool>((s) => s.onboardingDone);
+    final setup = context.select<AppState, bool>((s) => s.setupDone);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 350),
-      child: done
-          ? const HomeShell(key: ValueKey('home'))
-          : const OnboardingScreen(key: ValueKey('onboarding')),
+      child: !done
+          ? const OnboardingScreen(key: ValueKey('onboarding'))
+          : !setup
+          ? const FirstSetupScreen(key: ValueKey('setup'))
+          : const HomeShell(key: ValueKey('home')),
     );
   }
 }
@@ -45,7 +49,7 @@ const _pages = <_Page>[
   _Page(
     AppIcons.wallet,
     'All your accounts in one place',
-    'Cash, JazzCash, Naya Pay, Easypaisa and Meezan Bank. Track balances, withdraw, transfer and match your real balance.',
+    'Cash, JazzCash, Easypaisa, SadaPay, banks and more. Track balances, withdraw, transfer and match your real balance.',
   ),
   _Page(
     AppIcons.insights,

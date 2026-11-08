@@ -2,6 +2,15 @@
 // keys with {} are templates whose captured parts fill {0}, {1} ... in the Urdu text.
 
 const Map<String, String> urExact = {
+  'Name': 'نام',
+  'Not now': 'ابھی نہیں',
+  'Ask for your fingerprint or phone PIN every time the app opens, so nobody else can see your money. You can change this in Settings.': 'ہر بار ایپ کھلنے پر فنگر پرنٹ یا فون پن پوچھا جائے گا تاکہ آپ کے پیسے کوئی اور نہ دیکھ سکے۔ سیٹنگز میں بدل سکتے ہیں۔',
+  'Lock the app?': 'ایپ کو لاک کریں؟',
+  'Your own': 'آپ کے اپنے',
+  'Banks': 'بینک',
+  'Digital wallets': 'ڈیجیٹل والٹس',
+  'Tick the ones you use and write how much money is in each. You can add or change them later.': 'جو آپ استعمال کرتے ہیں ان پر نشان لگائیں اور ہر ایک میں رقم لکھیں۔ بعد میں بھی بدل سکتے ہیں۔',
+  'Add another account': 'ایک اور اکاؤنٹ شامل کریں',
   'Salary + other income': 'تنخواہ + دوسری آمدنی',
   'Privacy': 'پرائیویسی',
   'App lock': 'ایپ لاک',
@@ -49,7 +58,8 @@ const Map<String, String> urExact = {
   'Cancel': 'منسوخ کریں',
   'Cash': 'نقد',
   'Cash in hand now (Rs)': 'اس وقت ہاتھ میں نقد (روپے)',
-  'Cash, JazzCash, Naya Pay, Easypaisa or bank. You can change it per expense below.': 'نقد، جیز کیش، نیا پے، ایزی پیسہ یا بینک۔ آپ نیچے ہر خرچ کے لیے اسے بدل سکتے ہیں۔',
+  'Cash, a wallet or a bank. You can change it per expense below.':
+      'نقد، والٹ یا بینک۔ آپ نیچے ہر خرچ کے لیے اسے بدل سکتے ہیں۔',
   'Categories this month': 'اس مہینے کے زمرے',
   'Category': 'زمرہ',
   'Check balance': 'بیلنس چیک کریں',
@@ -244,8 +254,8 @@ const Map<String, String> urExact = {
       'اپنے خرچے رومن اردو، اردو یا انگلش میں لکھیں، یا اسسٹنٹ سے پوچھیں',
   'Check and fix everything before it is saved':
       'محفوظ ہونے سے پہلے ہر چیز دیکھیں اور درست کریں',
-  'Cash, JazzCash, Naya Pay, Easypaisa and bank accounts with balances':
-      'نقد، جاز کیش، نیا پے، ایزی پیسہ اور بینک اکاؤنٹس بیلنس کے ساتھ',
+  'Cash, wallets and bank accounts with balances':
+      'نقد، والٹس اور بینک اکاؤنٹس بیلنس کے ساتھ',
   'Withdraw, transfer and reconcile between accounts':
       'اکاؤنٹس کے درمیان رقم نکالیں، منتقل کریں اور حساب ملائیں',
   'History, reports and monthly salary tracking':
@@ -261,7 +271,7 @@ const Map<String, String> urExact = {
   'Check before saving': 'محفوظ کرنے سے پہلے دیکھیں',
   'Every expense appears on a confirmation screen first. Fix the amount, category or account, then save.': 'ہر خرچ پہلے تصدیقی اسکرین پر آتا ہے۔ رقم، زمرہ یا اکاؤنٹ درست کریں، پھر محفوظ کریں۔',
   'All your accounts in one place': 'آپ کے تمام اکاؤنٹس ایک جگہ',
-  'Cash, JazzCash, Naya Pay, Easypaisa and Meezan Bank. Track balances, withdraw, transfer and match your real balance.': 'نقد، جاز کیش، نیا پے، ایزی پیسہ اور میزان بینک۔ بیلنس دیکھیں، رقم نکالیں، منتقل کریں اور اصل بیلنس سے ملائیں۔',
+  'Cash, JazzCash, Easypaisa, SadaPay, banks and more. Track balances, withdraw, transfer and match your real balance.': 'نقد، جاز کیش، ایزی پیسہ، سادہ پے، بینک اور مزید۔ بیلنس دیکھیں، رقم نکالیں، منتقل کریں اور اصل بیلنس سے ملائیں۔',
   'Reports, salary and reminders': 'رپورٹس، تنخواہ اور یاد دہانی',
   'See history and monthly reports, track your salary, and get friendly reminders at breakfast, dinner and 11 PM. Light or dark, English or Urdu, fully offline.': 'ہسٹری اور ماہانہ رپورٹس دیکھیں، تنخواہ کا حساب رکھیں، اور ناشتے، رات کے کھانے اور رات 11 بجے دوستانہ یاد دہانی پائیں۔ لائٹ یا ڈارک، انگلش یا اردو، مکمل آف لائن۔',
   'Voice engine': 'آواز کا انجن',
@@ -287,9 +297,9 @@ const Map<String, String> urExact = {
   'Talking assistant': 'بولنے والا اسسٹنٹ',
   'Greets you, listens, repeats your order and asks you to confirm':
       'سلام کرتا ہے، سنتا ہے، آپ کا آرڈر دہراتا ہے اور تصدیق پوچھتا ہے',
-  'Assistant name': 'اسسٹنٹ کے لیے نام',
-  'The assistant calls you by this name. Write it in Urdu so it is pronounced correctly.':
-      'اسسٹنٹ آپ کو اسی نام سے پکارے گا۔ درست تلفظ کے لیے اردو میں لکھیں۔',
+  'Your name': 'آپ کا نام',
+  'The assistant uses this name when it talks to you. Optional.':
+      'اسسٹنٹ بات کرتے وقت یہ نام استعمال کرے گا۔ لازمی نہیں۔',
   'Assistant is speaking…': 'اسسٹنٹ بول رہا ہے…',
   'Urdu text-to-speech is not installed on this phone. Install "Speech Services by Google" and its Urdu voice, then try again. Normal voice entry is used for now.': 'اس فون میں اردو بولنے کی آواز انسٹال نہیں۔ "Speech Services by Google" اور اس کی اردو آواز انسٹال کر کے دوبارہ کوشش کریں۔ فی الحال عام آواز سے اندراج چل رہا ہے۔',
   'Thinking…': 'سوچ رہا ہے…',

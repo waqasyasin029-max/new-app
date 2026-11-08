@@ -286,7 +286,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Cash, JazzCash, Naya Pay, Easypaisa or bank. You can change it per expense below.',
+                        'Cash, a wallet or a bank. You can change it per expense below.',
                         style: TextStyle(color: AppColors.muted, fontSize: 12),
                       ),
                     ],

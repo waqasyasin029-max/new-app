@@ -33,7 +33,10 @@ class AppState extends ChangeNotifier {
   /// 'en' | 'ur'
   String language = 'en';
   bool onboardingDone = true;
-  String userName = 'وقاص';
+
+  /// False on a fresh install until the accounts + app-lock setup is finished.
+  bool setupDone = true;
+  String userName = '';
   String geminiKey = '';
 
   /// Ask for the phone's fingerprint / PIN when the app opens.
@@ -61,7 +64,9 @@ class AppState extends ChangeNotifier {
     themeMode = prefs.getString('theme_mode') ?? 'system';
     language = prefs.getString('language') ?? 'en';
     onboardingDone = prefs.getBool('onboarding_done') ?? false;
-    userName = prefs.getString('user_name') ?? 'وقاص';
+    // People who already used the app skip the new first-time setup.
+    setupDone = prefs.getBool('setup_done') ?? onboardingDone;
+    userName = prefs.getString('user_name') ?? '';
     geminiKey = prefs.getString('gemini_key') ?? '';
     appLock = prefs.getBool('app_lock') ?? false;
     applyLook();
@@ -80,6 +85,13 @@ class AppState extends ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('onboarding_done', true);
+  }
+
+  Future<void> finishSetup() async {
+    setupDone = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('setup_done', true);
   }
 
   /// Pushes the chosen theme and language into the globals the UI reads.
