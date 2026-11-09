@@ -813,8 +813,9 @@ class _DailyPainter extends CustomPainter {
       o.safeLabel != safeLabel;
 }
 
-/// History: the last 7 days as big bars with the amount on top. Swipe to the
-/// right for older weeks. Tap a bar to show only that day in the list.
+/// History: the last 7 days as bars with the amount scale on the left. The
+/// picked day (or the highest one) is orange with a bubble. Swipe to the right
+/// for older weeks. Tap a bar to show only that day in the list.
 class WeekBarsCard extends StatefulWidget {
   /// Spending per day, keyed 'yyyy-MM-dd', covering [weeks] weeks up to today.
   final Map<String, double> daily;
@@ -860,21 +861,30 @@ class _WeekBarsCardState extends State<WeekBarsCard> {
 
   double _amount(DateTime d) => widget.daily[Fmt.key(d)] ?? 0;
 
+  List<DateTime> _days(int page) {
+    final end = _end(page);
+    return [
+      for (var i = 6; i >= 0; i--) DateTime(end.year, end.month, end.day - i),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     var maxV = 0.0;
     for (final v in widget.daily.values) {
       if (v > maxV) maxV = v;
     }
-    final end = _end(_page);
-    final start = DateTime(end.year, end.month, end.day - 6);
+    final step = _niceStep(maxV / 3);
+    final days = _days(_page);
     var total = 0.0;
-    for (var i = 0; i < 7; i++) {
-      total += _amount(DateTime(start.year, start.month, start.day + i));
+    for (final d in days) {
+      total += _amount(d);
     }
+    final end = days.last;
+    final start = days.first;
     return Container(
       margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-      padding: const EdgeInsets.fromLTRB(12, 14, 12, 10),
+      padding: const EdgeInsets.fromLTRB(14, 14, 14, 10),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(20),
@@ -883,45 +893,51 @@ class _WeekBarsCardState extends State<WeekBarsCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _page == 0
-                      ? const Text(
-                          'Last 7 days',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        )
-                      : Text(
-                          '${Fmt.dayShort(start)} – ${Fmt.dayShort(end)}',
-                          verbatim: true,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                          ),
+          Row(
+            children: [
+              Expanded(
+                child: _page == 0
+                    ? const Text(
+                        'Last 7 days',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
                         ),
+                      )
+                    : Text(
+                        '${Fmt.dayShort(start)} – ${Fmt.dayShort(end)}',
+                        verbatim: true,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 7,
                 ),
-                Text(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.line),
+                ),
+                child: Text(
                   Fmt.money(total),
                   verbatim: true,
-                  style: TextStyle(
-                    fontSize: 13,
+                  style: const TextStyle(
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.muted,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           Directionality(
             textDirection: TextDirection.ltr,
             child: SizedBox(
-              height: 150,
+              height: 200,
               child: PageView.builder(
                 controller: _ctrl,
                 reverse: true, // swipe to the right for older weeks
@@ -930,102 +946,239 @@ class _WeekBarsCardState extends State<WeekBarsCard> {
                   setState(() => _page = i);
                   widget.onPageChanged(i);
                 },
-                itemBuilder: (_, page) => _week(page, maxV),
+                itemBuilder: (_, page) => _WeekPlot(
+                  days: _days(page),
+                  values: [for (final d in _days(page)) _amount(d)],
+                  step: step,
+                  selected: widget.selectedDay,
+                  onPick: widget.onPickDay,
+                ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(4, 6, 4, 0),
-            child: Text(
-              'Swipe right for older weeks. Tap a bar to see that day.',
-              style: TextStyle(fontSize: 11.5, color: AppColors.muted),
-            ),
+          Text(
+            'Swipe right for older weeks. Tap a bar to see that day.',
+            style: TextStyle(fontSize: 11.5, color: AppColors.muted),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _week(int page, double maxV) {
-    final end = _end(page);
-    final days = [
-      for (var i = 6; i >= 0; i--) DateTime(end.year, end.month, end.day - i),
-    ];
-    var pageMax = 0.0;
-    for (final d in days) {
-      if (_amount(d) > pageMax) pageMax = _amount(d);
+class _WeekPlot extends StatelessWidget {
+  final List<DateTime> days;
+  final List<double> values;
+  final double step;
+  final DateTime? selected;
+  final ValueChanged<DateTime> onPick;
+  const _WeekPlot({
+    required this.days,
+    required this.values,
+    required this.step,
+    required this.selected,
+    required this.onPick,
+  });
+
+  static const double axisW = 40;
+
+  /// The bar that is orange: the picked day if it is in this week, else the
+  /// highest day.
+  int? get _hot {
+    final sel = selected;
+    if (sel != null) {
+      for (var i = 0; i < days.length; i++) {
+        if (days[i] == Fmt.dateOnly(sel)) return i;
+      }
     }
-    final scale = maxV <= 0 ? 1.0 : maxV;
-    final sel = widget.selectedDay;
-    return Row(
-      children: [
-        for (final d in days)
-          Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () => widget.onPickDay(d),
-              child: _bar(d, scale, pageMax, sel),
-            ),
-          ),
-      ],
-    );
+    var top = -1;
+    for (var i = 0; i < values.length; i++) {
+      if (values[i] > 0 && (top < 0 || values[i] > values[top])) top = i;
+    }
+    return top < 0 ? null : top;
   }
 
-  Widget _bar(DateTime d, double scale, double pageMax, DateTime? sel) {
-    final v = _amount(d);
-    final isSel = sel != null && Fmt.dateOnly(sel) == d;
-    final isTop = v > 0 && v == pageMax;
-    final h = v <= 0 ? 4.0 : math.max(6.0, v / scale * 90);
-    final color = v <= 0
-        ? AppColors.line
-        : isSel
-        ? AppColors.ink
-        : isTop
-        ? AppColors.primary
-        : AppColors.primary.withOpacity(0.38);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: [
-        SizedBox(
-          height: 16,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              v > 0 ? _compact(v) : '',
-              verbatim: true,
-              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800),
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, c) {
+        final plotW = c.maxWidth - axisW;
+        final bw = plotW / 7;
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: (d) {
+            final x = d.localPosition.dx - axisW;
+            if (x < 0) return;
+            onPick(days[(x / bw).floor().clamp(0, 6)]);
+          },
+          child: CustomPaint(
+            size: Size(c.maxWidth, c.maxHeight),
+            painter: _WeekPainter(
+              days: days,
+              values: values,
+              step: step,
+              hot: _hot,
+              primary: AppColors.primary,
+              ink: AppColors.ink,
+              muted: AppColors.muted,
+              grid: AppColors.line,
+              bar: AppColors.fieldFill,
+              surface: AppColors.surface,
+              labels: [for (final d in days) Fmt.weekdayShort(d)],
             ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Container(
-          width: 24,
-          height: h,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: const BorderRadius.vertical(
-              top: Radius.circular(7),
-              bottom: Radius.circular(3),
-            ),
-          ),
-        ),
-        const SizedBox(height: 5),
-        SizedBox(
-          height: 16,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              Fmt.weekdayShort(d),
-              verbatim: true,
-              style: TextStyle(
-                fontSize: 11.5,
-                fontWeight: FontWeight.w700,
-                color: AppColors.muted,
-              ),
-            ),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
+}
+
+class _WeekPainter extends CustomPainter {
+  final List<DateTime> days;
+  final List<double> values;
+  final double step;
+  final int? hot;
+  final Color primary;
+  final Color ink;
+  final Color muted;
+  final Color grid;
+  final Color bar;
+  final Color surface;
+  final List<String> labels;
+  _WeekPainter({
+    required this.days,
+    required this.values,
+    required this.step,
+    required this.hot,
+    required this.primary,
+    required this.ink,
+    required this.muted,
+    required this.grid,
+    required this.bar,
+    required this.surface,
+    required this.labels,
+  });
+
+  TextPainter _tp(String s, double size, FontWeight w, Color c, [double? maxW]) {
+    return TextPainter(
+      text: TextSpan(
+        text: s,
+        style: TextStyle(fontSize: size, fontWeight: w, color: c),
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: 1,
+      ellipsis: '…',
+    )..layout(maxWidth: maxW ?? double.infinity);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    const axisW = _WeekPlot.axisW;
+    const topPad = 34.0; // room for the bubble
+    const labelH = 26.0;
+    final plotH = size.height - topPad - labelH;
+    final plotW = size.width - axisW;
+    final bw = plotW / 7;
+    final maxScale = step * 3;
+    final base = topPad + plotH;
+
+    // Grid lines and the amount scale on the left.
+    for (var k = 0; k <= 3; k++) {
+      final y = base - plotH * k / 3;
+      final gp = Paint()
+        ..color = grid
+        ..strokeWidth = 1;
+      if (k == 0) {
+        canvas.drawLine(Offset(axisW, y), Offset(size.width, y), gp);
+      } else {
+        for (double x = axisW; x < size.width; x += 8) {
+          canvas.drawLine(
+            Offset(x, y),
+            Offset(math.min(x + 4, size.width), y),
+            gp,
+          );
+        }
+      }
+      final t = _tp(_compact(step * k), 10.5, FontWeight.w700, muted);
+      t.paint(canvas, Offset(axisW - 8 - t.width, y - t.height / 2));
+    }
+
+    // Bars.
+    for (var i = 0; i < 7; i++) {
+      final v = values[i];
+      final h = v <= 0 ? 4.0 : math.max(6.0, v / maxScale * plotH);
+      final w = bw * 0.6;
+      final x = axisW + i * bw + (bw - w) / 2;
+      final rect = RRect.fromRectAndCorners(
+        Rect.fromLTWH(x, base - h, w, h),
+        topLeft: const Radius.circular(9),
+        topRight: const Radius.circular(9),
+        bottomLeft: const Radius.circular(5),
+        bottomRight: const Radius.circular(5),
+      );
+      final isHot = hot == i && v > 0;
+      final paint = Paint();
+      if (isHot) {
+        paint.shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [primary, primary.withOpacity(0.55)],
+        ).createShader(rect.outerRect);
+      } else {
+        paint.color = bar;
+      }
+      canvas.drawRRect(rect, paint);
+
+      // Day name; bold and dark for the orange bar.
+      final lt = _tp(
+        labels[i],
+        11.5,
+        isHot ? FontWeight.w800 : FontWeight.w600,
+        isHot ? ink : muted,
+        bw,
+      );
+      lt.paint(
+        canvas,
+        Offset(axisW + i * bw + (bw - lt.width) / 2, base + 7),
+      );
+
+      if (isHot) {
+        final cx = axisW + i * bw + bw / 2;
+        final tt = _tp(Fmt.number(v), 12, FontWeight.w800, surface);
+        final bubbleW = tt.width + 22;
+        final bubbleH = 26.0;
+        final by = base - h - bubbleH - 8;
+        final bx = (cx - bubbleW / 2).clamp(axisW - 8, size.width - bubbleW);
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(bx, by, bubbleW, bubbleH),
+            const Radius.circular(13),
+          ),
+          Paint()..color = ink,
+        );
+        tt.paint(canvas, Offset(bx + 11, by + (bubbleH - tt.height) / 2));
+        canvas.drawCircle(Offset(cx, base - h + 6), 3, Paint()..color = ink);
+        canvas.drawCircle(
+          Offset(cx, base - h + 6),
+          3,
+          Paint()
+            ..color = surface
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.2,
+        );
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_WeekPainter o) =>
+      o.values != values ||
+      o.hot != hot ||
+      o.step != step ||
+      o.primary != primary ||
+      o.ink != ink ||
+      o.muted != muted ||
+      o.grid != grid ||
+      o.bar != bar ||
+      o.surface != surface;
 }
