@@ -1,6 +1,4 @@
-App lock mein "Lock app after" aa gaya: app kitni der baad khud lock ho, ye chuno
-Plus se naya kharch add karte waqt pichle din ka kharch bhi add ho sakta hai (< Aaj > arrows)
-Summary mein roz ke kharch ka chart (Daily) aur Months ka switch
-History ke upar pichle 7 din ka chart, purane hafte swipe se, bar par tap karke us din ki list
-PDF report: pehle mahina ya poora saal chuno, phir PDF banao
-Nav bar ab floating hai, tabs mein barabar jagah, plus thoda chhota, selected tab ka pill hata diya
+Saare charts ab ek hi style mein: moti goli bars, halka track, safed card (Summary Daily, Months aur History ke 7 din)
+Summary ka Daily chart ab 10-10 din ke pages mein hai, swipe karke agle din dekho; neeche Highest day aur Average per day
+Reminder time ka naya popup: hour, minute, AM/PM wheels aur "Next reminder" kitni der mein
+"Reminder not coming?" wala section hata diya, Reminders screen saaf ho gayi
