@@ -516,7 +516,7 @@ class DashboardScreen extends StatelessWidget {
               Text(
                 total,
                 verbatim: true,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.muted,
