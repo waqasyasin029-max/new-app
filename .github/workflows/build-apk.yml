@@ -4,6 +4,10 @@ on:
   workflow_dispatch:
   push:
     branches: [main, master]
+    # The small Kharcha Notice app has its own workflow.
+    paths-ignore:
+      - 'notice_app__**'
+      - '.github/workflows/build-notice-app.yml'
 
 permissions:
   contents: write

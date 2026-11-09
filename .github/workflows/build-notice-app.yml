@@ -1,0 +1,91 @@
+name: Build Notice App
+
+# The small "Kharcha Notice" app (sends notifications to Kharcha Tracker users).
+# Builds only when its own files change. Its releases are tagged notice-v<N>
+# and are never "latest", so Kharcha Tracker's updater never sees them.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, next]
+    paths:
+      - 'notice_app__**'
+      - '.github/workflows/build-notice-app.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore folders from flat file names
+        run: |
+          for f in *__*; do
+            [ -e "$f" ] || continue
+            d="${f//__//}"
+            mkdir -p "$(dirname "$d")"
+            mv "$f" "$d"
+          done
+          ls -R notice_app tool
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Use fixed signing key (so new APKs install over old ones)
+        env:
+          KEYSTORE_B64: ${{ secrets.KEYSTORE_B64 }}
+        run: |
+          mkdir -p ~/.android
+          echo "$KEYSTORE_B64" | base64 -d > ~/.android/debug.keystore
+          test -s ~/.android/debug.keystore
+
+      - name: Create Android scaffold, copy app, patch, build
+        run: |
+          APP="$RUNNER_TEMP/napp"
+          APP_VERSION="$(tr -d '[:space:]' < notice_app/VERSION)"
+          echo "Building notice app $APP_VERSION"
+          flutter create --platforms=android --project-name kharcha_notice --org com.personal "$APP"
+          rm -rf "$APP/lib" "$APP/test"
+          cp -r notice_app/lib notice_app/pubspec.yaml "$APP/"
+          mkdir -p "$APP/tool"
+          cp tool/patch_android.dart notice_app/tool/make_icon.py "$APP/tool/"
+          cp analysis_options.yaml "$APP/"
+          cd "$APP"
+          NOTICE_APP=1 dart run tool/patch_android.dart
+          pip install pillow
+          python3 tool/make_icon.py android/app/src/main/res
+          flutter pub get
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+          flutter build apk --release --no-shrink --target-platform android-arm64 --build-name="$APP_VERSION" --build-number=${{ github.run_number }} --dart-define=BUILD_NUMBER=${{ github.run_number }} --dart-define=APP_VERSION="$APP_VERSION"
+
+      - name: Check the APK is signed with our key (so updates install)
+        run: |
+          APK="$RUNNER_TEMP/napp/build/app/outputs/flutter-apk/app-release.apk"
+          APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -1)"
+          "$APKSIGNER" verify --print-certs "$APK" | tee certs.txt
+          grep -q "certificate SHA-256 digest: e1caa7a4a07daaa86cd6338b1ee87e02e695953b30f48dacb666f2f0293d844a" certs.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kharcha-notice-apk
+          path: ${{ runner.temp }}/napp/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Publish release (only from main)
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp "$RUNNER_TEMP/napp/build/app/outputs/flutter-apk/app-release.apk" kharcha-notice.apk
+          NOTES="$(cat notice_app/RELEASE_NOTES.txt 2>/dev/null || true)"
+          APP_VERSION="$(tr -d '[:space:]' < notice_app/VERSION)"
+          # Never "latest" and marked pre-release: Kharcha Tracker only follows /releases/latest.
+          gh release create "notice-v${{ github.run_number }}" kharcha-notice.apk --title "Kharcha Notice $APP_VERSION" --notes "$NOTES" --latest=false --prerelease
