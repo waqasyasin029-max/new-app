@@ -49,9 +49,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
     setState(() => _pdfBusy = true);
     try {
       await ReportPdfService.shareMonth(context.read<AppState>(), _month);
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
-        snack(context, 'Could not create the PDF. Please try again.');
+        final d = e.toString().replaceAll('\n', ' ');
+        snack(
+          context,
+          'Could not create the PDF [${ReportPdfService.stage}] '
+          '${d.length > 110 ? d.substring(0, 110) : d}',
+        );
       }
     } finally {
       if (mounted) setState(() => _pdfBusy = false);

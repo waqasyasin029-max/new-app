@@ -23,6 +23,9 @@ class ReportPdfService {
   static const _green = PdfColor.fromInt(0xFF15803D);
   static const _red = PdfColor.fromInt(0xFFC62828);
 
+  /// Last step reached; shown in the error message to help find problems.
+  static String stage = '';
+
   static final _numFmt = NumberFormat('#,##0', 'en');
 
   static String _money(num v) => 'Rs ${_numFmt.format(v.round())}';
@@ -42,6 +45,7 @@ class ReportPdfService {
   /// Creates the PDF for [month] and shows the share sheet.
   static Future<void> shareMonth(AppState s, DateTime month) async {
     final file = await build(s, month);
+    stage = 'share';
     final label = DateFormat('MMMM yyyy', 'en').format(month);
     await SharePlus.instance.share(
       ShareParams(
@@ -52,6 +56,7 @@ class ReportPdfService {
   }
 
   static Future<File> build(AppState s, DateTime month) async {
+    stage = 'data';
     final from = DateTime(month.year, month.month, 1);
     final to = DateTime(month.year, month.month + 1, 0);
 
@@ -78,12 +83,22 @@ class ReportPdfService {
         ? null
         : items.reduce((a, b) => b.amount > a.amount ? b : a);
 
-    final regular = pw.Font.ttf(
-      await rootBundle.load('assets/fonts/Manrope-Regular.ttf'),
-    );
-    final bold = pw.Font.ttf(
-      await rootBundle.load('assets/fonts/Manrope-Bold.ttf'),
-    );
+    stage = 'fonts';
+    pw.Font regular;
+    pw.Font bold;
+    try {
+      regular = pw.Font.ttf(
+        await rootBundle.load('assets/fonts/Manrope-Regular.ttf'),
+      );
+      bold = pw.Font.ttf(
+        await rootBundle.load('assets/fonts/Manrope-Bold.ttf'),
+      );
+    } catch (_) {
+      // Built-in PDF fonts: always available, Latin letters only.
+      regular = pw.Font.helvetica();
+      bold = pw.Font.helveticaBold();
+    }
+    stage = 'layout';
     final doc = pw.Document(
       title: 'Kharcha report - ${DateFormat('MMMM yyyy', 'en').format(month)}',
       author: 'Kharcha Tracker',
@@ -329,11 +344,15 @@ class ReportPdfService {
       ),
     );
 
+    stage = 'save';
     final dir = await getTemporaryDirectory();
     final file = File(
       '${dir.path}/Kharcha_Report_${DateFormat('yyyy-MM').format(month)}.pdf',
     );
-    await file.writeAsBytes(await doc.save(), flush: true);
+    stage = 'render';
+    final bytes = await doc.save();
+    stage = 'write';
+    await file.writeAsBytes(bytes, flush: true);
     return file;
   }
 }
