@@ -26,7 +26,7 @@ class ReportPdfService {
   /// Last step reached; shown in the error message to help find problems.
   static String stage = '';
 
-  static final _numFmt = NumberFormat('#,##0', 'en');
+  static final _numFmt = NumberFormat('#,##0');
 
   static String _money(num v) => 'Rs ${_numFmt.format(v.round())}';
 
@@ -46,7 +46,7 @@ class ReportPdfService {
   static Future<void> shareMonth(AppState s, DateTime month) async {
     final file = await build(s, month);
     stage = 'share';
-    final label = DateFormat('MMMM yyyy', 'en').format(month);
+    final label = DateFormat('MMMM yyyy').format(month);
     await SharePlus.instance.share(
       ShareParams(
         files: [XFile(file.path, mimeType: 'application/pdf')],
@@ -100,7 +100,7 @@ class ReportPdfService {
     }
     stage = 'layout';
     final doc = pw.Document(
-      title: 'Kharcha report - ${DateFormat('MMMM yyyy', 'en').format(month)}',
+      title: 'Kharcha report - ${DateFormat('MMMM yyyy').format(month)}',
       author: 'Kharcha Tracker',
       theme: pw.ThemeData.withFont(base: regular, bold: bold),
     );
@@ -199,13 +199,13 @@ class ReportPdfService {
                 ),
                 pw.SizedBox(height: 4),
                 pw.Text(
-                  DateFormat('MMMM yyyy', 'en').format(month),
+                  DateFormat('MMMM yyyy').format(month),
                   style: t(24, b: true, color: PdfColors.white),
                 ),
                 pw.SizedBox(height: 6),
                 pw.Text(
                   '${name.isEmpty ? '' : 'Prepared for ${_clean(name)}  |  '}'
-                  'Created ${DateFormat('d MMM yyyy', 'en').format(now)}',
+                  'Created ${DateFormat('d MMM yyyy').format(now)}',
                   style: t(9.5, color: PdfColors.white),
                 ),
               ],
@@ -228,7 +228,7 @@ class ReportPdfService {
           pw.Text(
             '${items.length} ${items.length == 1 ? 'expense' : 'expenses'}'
             '  |  Average ${_money(perDay)} per day'
-            '${topEntry == null ? '' : '  |  Highest day: ${DateFormat('d MMM', 'en').format(DateTime.parse(topEntry.key))} (${_money(topEntry.value)})'}',
+            '${topEntry == null ? '' : '  |  Highest day: ${DateFormat('d MMM').format(DateTime.parse(topEntry.key))} (${_money(topEntry.value)})'}',
             style: t(9.5, color: _muted),
           ),
           if (big != null)
@@ -236,7 +236,7 @@ class ReportPdfService {
               padding: pw.EdgeInsets.only(top: 3),
               child: pw.Text(
                 'Largest expense: ${_clean(big.description.isEmpty ? (big.categoryName ?? '') : big.description)}'
-                ' (${_money(big.amount)}, ${DateFormat('d MMM', 'en').format(big.date)})',
+                ' (${_money(big.amount)}, ${DateFormat('d MMM').format(big.date)})',
                 style: t(9.5, color: _muted),
               ),
             ),
@@ -304,7 +304,7 @@ class ReportPdfService {
                 for (final e in items)
                   pw.TableRow(
                     children: [
-                      cell(DateFormat('d MMM', 'en').format(e.date)),
+                      cell(DateFormat('d MMM').format(e.date)),
                       cell(
                         _clean(
                           e.description.isEmpty
