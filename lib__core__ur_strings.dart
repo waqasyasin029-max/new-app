@@ -98,6 +98,10 @@ const Map<String, String> urExact = {
   'Highest:': 'سب سے زیادہ:',
   'Average:': 'اوسط:',
   'per day': 'روزانہ',
+  'Spent': 'خرچ',
+  'Swipe for the next days. Tap a bar to see the amount.': 'اگلے دنوں کے لیے سوائپ کریں۔ رقم دیکھنے کے لیے بار پر ٹیپ کریں۔',
+  'Last 6 months': 'پچھلے 6 مہینے',
+  'Tap a bar to see the amount.': 'رقم دیکھنے کے لیے بار پر ٹیپ کریں۔',
   'App lock': 'ایپ لاک',
   'Ask for your fingerprint or phone PIN when the app opens':
       'ایپ کھولتے وقت فنگر پرنٹ یا فون کا پن مانگے',
