@@ -95,6 +95,9 @@ const Map<String, String> urExact = {
   'Whole year': 'پورا سال',
   'Report': 'رپورٹ',
   'Create PDF': 'PDF بنائیں',
+  'Highest:': 'سب سے زیادہ:',
+  'Average:': 'اوسط:',
+  'per day': 'روزانہ',
   'App lock': 'ایپ لاک',
   'Ask for your fingerprint or phone PIN when the app opens':
       'ایپ کھولتے وقت فنگر پرنٹ یا فون کا پن مانگے',

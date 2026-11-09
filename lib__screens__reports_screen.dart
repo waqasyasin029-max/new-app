@@ -134,7 +134,6 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         key: ValueKey(_month),
                         month: _month,
                         daily: d.daily,
-                        budget: d.income,
                         perDay: d.spent / elapsed,
                         months: d.months,
                       ),
