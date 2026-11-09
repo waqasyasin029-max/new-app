@@ -23,6 +23,7 @@ dependencies:
   local_auth: ^2.3.0
   pdf: ^3.11.0
   share_plus: ^13.2.0
+  workmanager: ^0.10.0
 
 dev_dependencies:
   flutter_test:

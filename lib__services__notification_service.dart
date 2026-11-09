@@ -229,6 +229,28 @@ class NotificationService {
     }
   }
 
+  /// A notice sent by the developer (not the daily reminder). Shows now.
+  static Future<void> showNotice(String title, String body) async {
+    await _plugin.show(
+      1100,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'notices',
+          'Notices',
+          channelDescription: 'Messages from the developer',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: 'ic_notification',
+          color: const Color(0xFFEE6F2B),
+          largeIcon: const DrawableResourceAndroidBitmap('ic_notification_large'),
+          styleInformation: BigTextStyleInformation(body),
+        ),
+      ),
+    );
+  }
+
   /// One-off reminder [after] from now, to prove that alarms really fire.
   static Future<void> scheduleTestIn(Duration after) async {
     final exact = await canScheduleExact();
