@@ -812,3 +812,220 @@ class _DailyPainter extends CustomPainter {
       o.line != line ||
       o.safeLabel != safeLabel;
 }
+
+/// History: the last 7 days as big bars with the amount on top. Swipe to the
+/// right for older weeks. Tap a bar to show only that day in the list.
+class WeekBarsCard extends StatefulWidget {
+  /// Spending per day, keyed 'yyyy-MM-dd', covering [weeks] weeks up to today.
+  final Map<String, double> daily;
+  final int weeks;
+  final DateTime? selectedDay;
+  final ValueChanged<DateTime> onPickDay;
+
+  /// The week shown first, and a callback when it changes, so the screen can
+  /// keep the week while the list below reloads.
+  final int initialPage;
+  final ValueChanged<int> onPageChanged;
+  const WeekBarsCard({
+    super.key,
+    required this.daily,
+    required this.weeks,
+    required this.selectedDay,
+    required this.onPickDay,
+    required this.initialPage,
+    required this.onPageChanged,
+  });
+
+  @override
+  State<WeekBarsCard> createState() => _WeekBarsCardState();
+}
+
+class _WeekBarsCardState extends State<WeekBarsCard> {
+  late int _page = widget.initialPage; // 0 = last 7 days, 1 = week before...
+  late final PageController _ctrl = PageController(initialPage: _page);
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  DateTime get _today => Fmt.dateOnly(DateTime.now());
+
+  /// Last day of the week shown on [page].
+  DateTime _end(int page) {
+    final t = _today;
+    return DateTime(t.year, t.month, t.day - 7 * page);
+  }
+
+  double _amount(DateTime d) => widget.daily[Fmt.key(d)] ?? 0;
+
+  @override
+  Widget build(BuildContext context) {
+    var maxV = 0.0;
+    for (final v in widget.daily.values) {
+      if (v > maxV) maxV = v;
+    }
+    final end = _end(_page);
+    final start = DateTime(end.year, end.month, end.day - 6);
+    var total = 0.0;
+    for (var i = 0; i < 7; i++) {
+      total += _amount(DateTime(start.year, start.month, start.day + i));
+    }
+    return Container(
+      margin: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 10),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppColors.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: _page == 0
+                      ? const Text(
+                          'Last 7 days',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        )
+                      : Text(
+                          '${Fmt.dayShort(start)} – ${Fmt.dayShort(end)}',
+                          verbatim: true,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                ),
+                Text(
+                  Fmt.money(total),
+                  verbatim: true,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SizedBox(
+              height: 150,
+              child: PageView.builder(
+                controller: _ctrl,
+                reverse: true, // swipe to the right for older weeks
+                itemCount: widget.weeks,
+                onPageChanged: (i) {
+                  setState(() => _page = i);
+                  widget.onPageChanged(i);
+                },
+                itemBuilder: (_, page) => _week(page, maxV),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(4, 6, 4, 0),
+            child: Text(
+              'Swipe right for older weeks. Tap a bar to see that day.',
+              style: TextStyle(fontSize: 11.5, color: AppColors.muted),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _week(int page, double maxV) {
+    final end = _end(page);
+    final days = [
+      for (var i = 6; i >= 0; i--) DateTime(end.year, end.month, end.day - i),
+    ];
+    var pageMax = 0.0;
+    for (final d in days) {
+      if (_amount(d) > pageMax) pageMax = _amount(d);
+    }
+    final scale = maxV <= 0 ? 1.0 : maxV;
+    final sel = widget.selectedDay;
+    return Row(
+      children: [
+        for (final d in days)
+          Expanded(
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => widget.onPickDay(d),
+              child: _bar(d, scale, pageMax, sel),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _bar(DateTime d, double scale, double pageMax, DateTime? sel) {
+    final v = _amount(d);
+    final isSel = sel != null && Fmt.dateOnly(sel) == d;
+    final isTop = v > 0 && v == pageMax;
+    final h = v <= 0 ? 4.0 : math.max(6.0, v / scale * 90);
+    final color = v <= 0
+        ? AppColors.line
+        : isSel
+        ? AppColors.ink
+        : isTop
+        ? AppColors.primary
+        : AppColors.primary.withOpacity(0.38);
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        SizedBox(
+          height: 16,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              v > 0 ? _compact(v) : '',
+              verbatim: true,
+              style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w800),
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          width: 24,
+          height: h,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(7),
+              bottom: Radius.circular(3),
+            ),
+          ),
+        ),
+        const SizedBox(height: 5),
+        SizedBox(
+          height: 16,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              Fmt.weekdayShort(d),
+              verbatim: true,
+              style: TextStyle(
+                fontSize: 11.5,
+                fontWeight: FontWeight.w700,
+                color: AppColors.muted,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

@@ -90,6 +90,7 @@ const Map<String, String> urExact = {
   'Highest day': 'سب سے زیادہ خرچ کا دن',
   'Average per day': 'روزانہ اوسط',
   'Safe per day': 'روزانہ محفوظ حد',
+  'Swipe right for older weeks. Tap a bar to see that day.': 'پرانے ہفتوں کے لیے دائیں سوائپ کریں۔ اس دن کو دیکھنے کے لیے بار پر ٹیپ کریں۔',
   'App lock': 'ایپ لاک',
   'Ask for your fingerprint or phone PIN when the app opens':
       'ایپ کھولتے وقت فنگر پرنٹ یا فون کا پن مانگے',
