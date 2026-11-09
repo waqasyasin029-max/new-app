@@ -8,6 +8,7 @@ import '../core/theme.dart';
 import '../services/notification_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
+import '../widgets/time_sheet.dart';
 
 /// One reminder a day. Fixes for a reminder that does not arrive are tucked
 /// away in a section that is closed until needed.
@@ -52,9 +53,9 @@ class _RemindersScreenState extends State<RemindersScreen> {
                 onTap: !s.reminderEnabled
                     ? null
                     : () async {
-                        final t = await showTimePicker(
-                          context: context,
-                          initialTime: s.reminderTime,
+                        final t = await showTimeSheet(
+                          context,
+                          initial: s.reminderTime,
                         );
                         if (t != null) {
                           await s.setReminder(time: t);

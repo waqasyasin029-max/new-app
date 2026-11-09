@@ -291,6 +291,10 @@ const Map<String, String> urExact = {
   'Record when you took money out (ATM or agent). It is added to your Cash and taken from the account you choose.': 'درج کریں کہ آپ نے کب رقم نکالی (اے ٹی ایم یا ایجنٹ سے)۔ یہ آپ کے نقد میں شامل اور منتخب اکاؤنٹ سے کم ہو جائے گی۔',
   'Remaining': 'باقی',
   'Remind me every day': 'مجھے روزانہ یاد دلائیں',
+  'Next reminder': 'اگلی یاد دہانی',
+  'Pick the time you usually finish your day.': 'وہ وقت چنیں جب آپ عموماً دن کا کام ختم کرتے ہیں۔',
+  'hr': 'گھنٹے',
+  'min': 'منٹ',
   'Reminder time': 'یاد دہانی کا وقت',
   'Reminds you to record your daily expenses':
       'روزانہ اخراجات درج کرنے کی یاد دہانی',
