@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart' hide Text;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_icons.dart';
 import '../core/i18n.dart';
 import '../core/theme.dart';
-import '../services/notification_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/time_sheet.dart';
 
-/// One reminder a day. Fixes for a reminder that does not arrive are tucked
-/// away in a section that is closed until needed.
+/// One reminder a day: an on/off switch and the time.
 class RemindersScreen extends StatefulWidget {
   const RemindersScreen({super.key});
 
@@ -20,8 +17,6 @@ class RemindersScreen extends StatefulWidget {
 }
 
 class _RemindersScreenState extends State<RemindersScreen> {
-  bool _open = false;
-
   @override
   Widget build(BuildContext context) {
     final s = context.watch<AppState>();
@@ -69,143 +64,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 18),
-          TileGroup(
-            children: [
-              ListTile(
-                leading: const Icon(AppIcons.alarm),
-                title: const Text(
-                  'Reminder not coming?',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
-                subtitle: const Text('Fix it in a few taps'),
-                trailing: AnimatedRotation(
-                  turns: _open ? 0.25 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: const Icon(AppIcons.chevronRight),
-                ),
-                onTap: () => setState(() => _open = !_open),
-              ),
-              if (_open) ...[
-                ListTile(
-                  leading: const Icon(AppIcons.alarm),
-                  title: const Text(
-                    'Allow exact alarms',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Reminder arrives on time'),
-                  onTap: () async {
-                    await NotificationService.requestExactAlarmPermission();
-                    await s.applyReminder();
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(AppIcons.batterySaver),
-                  title: const Text(
-                    'Allow background running',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Stops battery saver blocking it'),
-                  onTap: () => Permission.ignoreBatteryOptimizations.request(),
-                ),
-                ListTile(
-                  leading: const Icon(AppIcons.timer),
-                  title: const Text(
-                    'Test reminder in 1 minute',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  subtitle: const Text('Rings in 1 minute'),
-                  onTap: () async {
-                    final ok = await NotificationService.requestPermission();
-                    if (!ok && context.mounted) {
-                      snack(
-                        context,
-                        'Notification permission is off. Enable it in Android settings.',
-                      );
-                      return;
-                    }
-                    await NotificationService.scheduleTestIn(
-                      const Duration(minutes: 1),
-                    );
-                    if (context.mounted) {
-                      snackInfo(
-                        context,
-                        'A test reminder will arrive in 1 minute.',
-                      );
-                    }
-                  },
-                ),
-                const _ReminderStatusTile(),
-                ListTile(
-                  leading: const Icon(AppIcons.bellAdd),
-                  title: const Text(
-                    'Send test notification',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  onTap: () async {
-                    final ok = await NotificationService.requestPermission();
-                    if (!ok && context.mounted) {
-                      snack(
-                        context,
-                        'Notification permission is off. Enable it in Android settings.',
-                      );
-                      return;
-                    }
-                    await NotificationService.showTest();
-                  },
-                ),
-              ],
-            ],
-          ),
         ],
       ),
     );
   }
-}
-
-/// Shows whether reminders are really set up, and any error.
-class _ReminderStatusTile extends StatefulWidget {
-  const _ReminderStatusTile();
-
-  @override
-  State<_ReminderStatusTile> createState() => _ReminderStatusTileState();
-}
-
-class _ReminderStatusTileState extends State<_ReminderStatusTile> {
-  late Future<String> _status = NotificationService.status();
-
-  Future<void> _refresh() async {
-    await context.read<AppState>().applyReminder();
-    if (mounted) setState(() => _status = NotificationService.status());
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: _status,
-      builder: (context, snap) => ListTile(
-        leading: const Icon(AppIcons.factCheck),
-        title: const Text(
-          'Reminder status',
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
-        subtitle: Text(
-          snap.data == null ? '…' : _lines(snap.data!),
-          verbatim: true,
-        ),
-        trailing: const Icon(AppIcons.refresh),
-        onTap: _refresh,
-      ),
-    );
-  }
-
-  /// Translates each status line when the app is in Urdu.
-  String _lines(String raw) => raw
-      .split('\n')
-      .map((l) {
-        final i = l.indexOf(': ');
-        if (i < 0) return tr(l);
-        return '${tr(l.substring(0, i))}: ${tr(l.substring(i + 2))}';
-      })
-      .join('\n');
 }
