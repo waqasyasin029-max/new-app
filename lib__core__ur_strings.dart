@@ -242,6 +242,10 @@ const Map<String, String> urExact = {
   'Paid from (apply to all)': 'ادائیگی کہاں سے (سب پر لاگو)',
   'Pick two different accounts.': 'دو مختلف اکاؤنٹ چنیں۔',
   'Recent': 'حالیہ',
+  'Save report as PDF': 'رپورٹ PDF میں محفوظ کریں',
+  'Creating PDF...': 'PDF بن رہی ہے...',
+  'Could not create the PDF. Please try again.':
+      'PDF نہیں بن سکی۔ دوبارہ کوشش کریں۔',
   'Yesterday': 'کل',
   'Earlier': 'اس سے پہلے',
   'See all in History': 'ہسٹری میں سب دیکھیں',
