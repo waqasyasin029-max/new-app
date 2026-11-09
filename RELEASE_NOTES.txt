@@ -1,3 +1,2 @@
 Reports se mahine ki report PDF mein save ya share karne ka masla theek kiya
 Home par kharch din ke hisab se alag alag dikhte hain
-Reports mein Summary aur History ungli ke saath slide hote hain
