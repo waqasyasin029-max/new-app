@@ -9,6 +9,7 @@ import '../services/report_pdf_service.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
+import '../widgets/pdf_sheet.dart';
 import '../widgets/report_charts.dart';
 import 'income_screen.dart';
 import '../core/i18n.dart';
@@ -46,9 +47,26 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Future<void> _savePdf() async {
     if (_pdfBusy) return;
+    final s = context.read<AppState>();
+    var firstYear = DateTime.now().year;
+    try {
+      final first = await s.expenses.firstDate();
+      if (first != null && first.year < firstYear) firstYear = first.year;
+    } catch (_) {}
+    if (!mounted) return;
+    final choice = await showPdfSheet(
+      context,
+      month: _month,
+      firstYear: firstYear,
+    );
+    if (choice == null || !mounted) return;
     setState(() => _pdfBusy = true);
     try {
-      await ReportPdfService.openMonth(context.read<AppState>(), _month);
+      await ReportPdfService.openMonth(
+        s,
+        choice.month,
+        wholeYear: choice.wholeYear,
+      );
     } catch (_) {
       if (mounted) {
         snack(context, 'Could not create the PDF. Please try again.');
