@@ -81,6 +81,14 @@ class _FlowSheetState extends State<_FlowSheet> {
   List<AccountBalance> _bals = [];
   bool _saving = false;
 
+  /// 0 = today, 1 = yesterday, and so on. Chosen with the arrows on step 1.
+  int _daysBack = 0;
+
+  DateTime get _date {
+    final t = Fmt.dateOnly(DateTime.now());
+    return DateTime(t.year, t.month, t.day - _daysBack);
+  }
+
   double get _amount => double.tryParse(_digits) ?? 0;
 
   @override
@@ -206,7 +214,7 @@ class _FlowSheetState extends State<_FlowSheet> {
           categoryId: cat.id,
           accountId: acc.id,
           description: _description,
-          date: Fmt.dateOnly(DateTime.now()),
+          date: Fmt.dateOnly(_date),
         ),
       );
       state.changed();
@@ -329,6 +337,67 @@ class _FlowSheetState extends State<_FlowSheet> {
     );
   }
 
+  Widget _dayArrow(IconData icon, VoidCallback? onTap) => Material(
+    color: onTap == null ? AppColors.fieldFill.withOpacity(0.5) : AppColors.fieldFill,
+    shape: const CircleBorder(),
+    child: InkWell(
+      customBorder: const CircleBorder(),
+      onTap: onTap,
+      child: SizedBox(
+        width: 40,
+        height: 40,
+        child: Icon(
+          icon,
+          size: 18,
+          color: onTap == null ? AppColors.line : AppColors.ink,
+        ),
+      ),
+    ),
+  );
+
+  /// "< Yesterday >": goes back one day per tap; the right arrow stops at today.
+  Widget _dayStepper() {
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _dayArrow(
+          AppIcons.chevronLeft,
+          () => setState(() => _daysBack += 1),
+        ),
+        const SizedBox(width: 12),
+        Container(
+          constraints: const BoxConstraints(minWidth: 140),
+          height: 40,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: _daysBack == 0
+                ? AppColors.fieldFill
+                : AppColors.primary.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Text(
+            Fmt.dayLabel(_date),
+            verbatim: true,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w800,
+              color: _daysBack == 0 ? AppColors.ink : AppColors.primary,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        _dayArrow(
+          AppIcons.chevronRight,
+          _daysBack == 0 ? null : () => setState(() => _daysBack -= 1),
+        ),
+      ],
+      ),
+    );
+  }
+
   Widget _amountStep() {
     final empty = _digits.isEmpty;
     return Column(
@@ -383,6 +452,8 @@ class _FlowSheetState extends State<_FlowSheet> {
             ],
           ),
         ),
+        _dayStepper(),
+        const SizedBox(height: 6),
         for (final row in const [
           ['1', '2', '3'],
           ['4', '5', '6'],

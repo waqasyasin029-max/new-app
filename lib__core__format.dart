@@ -34,6 +34,9 @@ class Fmt {
   static String date(DateTime d) => L10n.urdu
       ? '${_urDays[d.weekday - 1]}، ${d.day} ${_urMonths[d.month - 1]} ${d.year}'
       : DateFormat('EEE, d MMM yyyy').format(d);
+  /// Short weekday name: "Sat" / "ہفتہ".
+  static String weekdayShort(DateTime d) =>
+      L10n.urdu ? _urDays[d.weekday - 1] : DateFormat('E').format(d);
   static String dayShort(DateTime d) => L10n.urdu
       ? '${d.day} ${_urMonths[d.month - 1]}'
       : DateFormat('d MMM').format(d);

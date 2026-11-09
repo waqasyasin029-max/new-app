@@ -41,6 +41,10 @@ class AppState extends ChangeNotifier {
   /// Ask for the phone's fingerprint / PIN when the app opens.
   bool appLock = false;
 
+  /// Seconds away from the app before it locks again. 0 = right away,
+  /// -1 = only when the app was closed (never on coming back from background).
+  int appLockDelay = 30;
+
   Future<void> init() async {
     categories = await categoryRepo.all();
     accounts = await accountRepo.all();
@@ -60,6 +64,7 @@ class AppState extends ChangeNotifier {
     setupDone = prefs.getBool('setup_done') ?? onboardingDone;
     welcomeDone = prefs.getBool('welcome_done') ?? setupDone;
     appLock = prefs.getBool('app_lock') ?? false;
+    appLockDelay = prefs.getInt('app_lock_delay') ?? 30;
     userName = prefs.getString('user_name') ?? '';
     applyLook();
   }
@@ -222,6 +227,13 @@ class AppState extends ChangeNotifier {
       // Never crash the app because a reminder could not be scheduled.
       NotificationService.lastError ??= '$e';
     }
+  }
+
+  Future<void> setAppLockDelay(int seconds) async {
+    appLockDelay = seconds;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('app_lock_delay', seconds);
+    notifyListeners();
   }
 
   Future<void> setAppLock(bool on) async {

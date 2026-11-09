@@ -109,6 +109,14 @@ class ExpenseRepository {
     return rows.map(Expense.fromMap).toList();
   }
 
+  /// Date of the oldest expense, or null when there are none.
+  Future<DateTime?> firstDate() async {
+    final db = await DatabaseHelper.instance.database;
+    final rows = await db.rawQuery('SELECT MIN(date) AS d FROM expenses');
+    final v = rows.first['d'];
+    return v == null ? null : Fmt.parseKey(v as String);
+  }
+
   Future<double> total(DateTime from, DateTime to) async {
     final db = await DatabaseHelper.instance.database;
     final rows = await db.rawQuery(

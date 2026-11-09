@@ -11,6 +11,7 @@ import 'add_expense_flow.dart';
 import 'expense_edit_screen.dart';
 import '../core/i18n.dart';
 import '../widgets/date_sheet.dart';
+import '../widgets/report_charts.dart';
 import '../core/app_icons.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -32,6 +33,38 @@ class _HistoryScreenState extends State<HistoryScreen> {
   DateTimeRange? _range;
   late int? _categoryId = widget.initialCategoryId;
   String _search = '';
+
+  static const _chartWeeks = 8;
+  int _chartPage = 0;
+
+  DateTime? get _singleDay {
+    final r = _range;
+    if (r == null) return null;
+    return Fmt.dateOnly(r.start) == Fmt.dateOnly(r.end)
+        ? Fmt.dateOnly(r.start)
+        : null;
+  }
+
+  /// The last-7-days bars at the top of the list.
+  Widget _weekChart() {
+    return DataLoader<Map<String, double>>(
+      load: (s) {
+        final t = Fmt.dateOnly(DateTime.now());
+        final from = DateTime(t.year, t.month, t.day - (7 * _chartWeeks - 1));
+        return s.expenses.dailyTotals(from, t);
+      },
+      builder: (context, daily) => WeekBarsCard(
+        daily: daily,
+        weeks: _chartWeeks,
+        selectedDay: _singleDay,
+        initialPage: _chartPage,
+        onPageChanged: (i) => _chartPage = i,
+        onPickDay: (d) => setState(() {
+          _range = _singleDay == d ? null : DateTimeRange(start: d, end: d);
+        }),
+      ),
+    );
+  }
 
   bool get _filtered =>
       _range != null || _categoryId != null || _search.isNotEmpty;
@@ -155,13 +188,20 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               builder: (context, list) {
                 if (list.isEmpty) {
-                  return Center(
-                    child: Text(
-                      _filtered
-                          ? 'No transactions match these filters.'
-                          : 'No transactions yet.',
-                      style: TextStyle(color: AppColors.muted),
-                    ),
+                  return ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
+                    children: [
+                      _weekChart(),
+                      const SizedBox(height: 40),
+                      Center(
+                        child: Text(
+                          _filtered
+                              ? 'No transactions match these filters.'
+                              : 'No transactions yet.',
+                          style: TextStyle(color: AppColors.muted),
+                        ),
+                      ),
+                    ],
                   );
                 }
                 final total = list.fold<double>(0, (a, e) => a + e.amount);
@@ -172,6 +212,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 return ListView(
                   padding: const EdgeInsets.fromLTRB(16, 4, 16, 120),
                   children: [
+                    _weekChart(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(4, 8, 4, 0),
                       child: Text(

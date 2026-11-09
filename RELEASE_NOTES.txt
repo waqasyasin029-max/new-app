@@ -1,5 +1,6 @@
-PDF report banne ke baad seedha PDF viewer mein khulti hai
-History ka calendar aur category/account chunne ke sheets ab app ki theme mein
-Kharch add karte waqt pehle likhi hui titles suggestion mein aati hain
-History ka plus button bhi naya kharch usi tarah add karta hai jaise neeche wala plus
-Nav bar ka selected tab ab orange hai
+App lock mein "Lock app after" aa gaya: app kitni der baad khud lock ho, ye chuno
+Plus se naya kharch add karte waqt pichle din ka kharch bhi add ho sakta hai (< Aaj > arrows)
+Summary mein roz ke kharch ka chart (Daily) aur Months ka switch
+History ke upar pichle 7 din ka chart, purane hafte swipe se, bar par tap karke us din ki list
+PDF report: pehle mahina ya poora saal chuno, phir PDF banao
+Nav bar ab floating hai, tabs mein barabar jagah, plus thoda chhota, selected tab ka pill hata diya

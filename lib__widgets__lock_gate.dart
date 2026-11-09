@@ -46,7 +46,8 @@ class DeviceLock {
 enum DeviceLockResult { ok, failed, unavailable }
 
 /// Covers the whole app with a lock screen while it is locked: when the app
-/// starts, and when it comes back after being away for more than 30 seconds.
+/// starts, and when it comes back after being away for longer than the time
+/// chosen in Settings (30 seconds by default).
 class LockGate extends StatefulWidget {
   final Widget child;
   const LockGate({super.key, required this.child});
@@ -56,7 +57,6 @@ class LockGate extends StatefulWidget {
 }
 
 class _LockGateState extends State<LockGate> with WidgetsBindingObserver {
-  static const _grace = Duration(seconds: 30);
   late bool _locked;
   bool _asking = false;
   DateTime? _leftAt;
@@ -85,9 +85,12 @@ class _LockGateState extends State<LockGate> with WidgetsBindingObserver {
     } else if (state == AppLifecycleState.resumed) {
       final left = _leftAt;
       _leftAt = null;
+      final st = context.read<AppState>();
+      final delay = st.appLockDelay;
       if (left != null &&
-          context.read<AppState>().appLock &&
-          DateTime.now().difference(left) > _grace) {
+          st.appLock &&
+          delay >= 0 &&
+          DateTime.now().difference(left) >= Duration(seconds: delay)) {
         setState(() => _locked = true);
         _unlock();
       }
