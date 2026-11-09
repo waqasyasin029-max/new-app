@@ -9,6 +9,7 @@ import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/lock_gate.dart';
 import '../widgets/name_dialog.dart';
+import '../widgets/picker_sheet.dart';
 import '../widgets/update_dialog.dart';
 import 'about_screen.dart';
 import '../core/i18n.dart';
@@ -99,6 +100,17 @@ class SettingsScreen extends StatelessWidget {
                 value: s.appLock,
                 onChanged: (on) => _toggleLock(context, s, on),
               ),
+              if (s.appLock)
+                ListTile(
+                  leading: const Icon(AppIcons.timer),
+                  title: const Text(
+                    'Lock app after',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: Text(_delayLabel(s.appLockDelay)),
+                  trailing: const Icon(AppIcons.chevronRight),
+                  onTap: () => _pickLockDelay(context, s),
+                ),
             ],
           ),
           const SectionTitle('App'),
@@ -211,5 +223,37 @@ class SettingsScreen extends StatelessWidget {
         'Set a screen lock (PIN, pattern or fingerprint) on your phone first.',
       );
     }
+  }
+
+  static const _delays = <int, String>{
+    0: 'Immediately',
+    30: '30 seconds',
+    60: '1 minute',
+    300: '5 minutes',
+    900: '15 minutes',
+    -1: 'Only when app is closed',
+  };
+
+  String _delayLabel(int v) => _delays[v] ?? '30 seconds';
+
+  Future<void> _pickLockDelay(BuildContext context, AppState s) async {
+    final v = await showPickerSheet<int>(
+      context,
+      title: 'Lock app after',
+      selected: s.appLockDelay,
+      options: [
+        for (final e in _delays.entries)
+          PickerOption<int>(
+            value: e.key,
+            label: e.value,
+            subtitle: e.key == 60
+                ? 'Recommended'
+                : e.key == -1
+                    ? 'Not locked while it stays in background'
+                    : null,
+          ),
+      ],
+    );
+    if (v != null) await s.setAppLockDelay(v);
   }
 }

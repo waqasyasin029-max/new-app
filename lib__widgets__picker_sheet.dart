@@ -8,16 +8,43 @@ import '../core/theme.dart';
 class PickerOption<T> {
   final T value;
   final String label;
-  final Widget leading;
+  final Widget? leading;
+
+  /// Optional small grey line under the label (bottom sheet only).
+  final String? subtitle;
 
   /// True for text typed by the user (account names): never translated.
   final bool verbatim;
   const PickerOption({
     required this.value,
     required this.label,
-    required this.leading,
+    this.leading,
+    this.subtitle,
     this.verbatim = false,
   });
+}
+
+/// Opens the same themed sheet without a form field. Returns null when the
+/// person closes it without choosing.
+Future<T?> showPickerSheet<T>(
+  BuildContext context, {
+  required String title,
+  required List<PickerOption<T>> options,
+  required T selected,
+}) async {
+  final r = await showModalBottomSheet<_Picked<T>>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: AppColors.surface,
+    showDragHandle: false,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
+    builder: (_) =>
+        _PickerSheet<T>(title: title, options: options, selected: selected),
+  );
+  return r?.value;
 }
 
 class _Picked<T> {
@@ -90,8 +117,10 @@ class PickerField<T> extends StatelessWidget {
             ? const SizedBox(height: 24)
             : Row(
                 children: [
-                  cur.leading,
-                  const SizedBox(width: 10),
+                  if (cur.leading != null) ...[
+                    cur.leading!,
+                    const SizedBox(width: 10),
+                  ],
                   Expanded(
                     child: Text(
                       cur.label,
@@ -189,17 +218,32 @@ class _PickerSheet<T> extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             child: Row(
               children: [
-                o.leading,
-                const SizedBox(width: 12),
+                if (o.leading != null) ...[
+                  o.leading!,
+                  const SizedBox(width: 12),
+                ],
                 Expanded(
-                  child: Text(
-                    o.label,
-                    verbatim: o.verbatim,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: on ? FontWeight.w800 : FontWeight.w700,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        o.label,
+                        verbatim: o.verbatim,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: on ? FontWeight.w800 : FontWeight.w700,
+                        ),
+                      ),
+                      if (o.subtitle != null)
+                        Text(
+                          o.subtitle!,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            color: AppColors.muted,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
                 Container(
