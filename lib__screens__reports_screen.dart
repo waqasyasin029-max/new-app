@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart' hide Text;
+import 'package:provider/provider.dart';
 
 import '../core/category_style.dart';
 import '../core/format.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
+import '../services/report_pdf_service.dart';
+import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import '../widgets/report_charts.dart';
@@ -39,6 +42,21 @@ class ReportsScreen extends StatefulWidget {
 
 class _ReportsScreenState extends State<ReportsScreen> {
   DateTime _month = Fmt.firstOfMonth(DateTime.now());
+  bool _pdfBusy = false;
+
+  Future<void> _savePdf() async {
+    if (_pdfBusy) return;
+    setState(() => _pdfBusy = true);
+    try {
+      await ReportPdfService.shareMonth(context.read<AppState>(), _month);
+    } catch (_) {
+      if (mounted) {
+        snack(context, 'Could not create the PDF. Please try again.');
+      }
+    } finally {
+      if (mounted) setState(() => _pdfBusy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,6 +133,39 @@ class _ReportsScreenState extends State<ReportsScreen> {
                         ),
                         subtitle: Text(Fmt.money(d.salary), verbatim: true),
                         trailing: const Icon(AppIcons.chevronRight),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 6, 4, 0),
+                      child: OutlinedButton.icon(
+                        onPressed: _pdfBusy ? null : _savePdf,
+                        icon: _pdfBusy
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                ),
+                              )
+                            : const Icon(AppIcons.receipt, size: 20),
+                        label: Text(
+                          _pdfBusy ? 'Creating PDF...' : 'Save report as PDF',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(46),
+                          foregroundColor: AppColors.primary,
+                          side: const BorderSide(
+                            color: AppColors.primary,
+                            width: 1.4,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
                       ),
                     ),
                     const Padding(

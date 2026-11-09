@@ -2,7 +2,6 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:flutter/services.dart' show HapticFeedback;
 
 import '../core/i18n.dart';
-import '../widgets/fade_slide_page.dart';
 import 'history_screen.dart';
 import 'reports_screen.dart';
 
@@ -15,30 +14,63 @@ class ActivityScreen extends StatefulWidget {
   State<ActivityScreen> createState() => ActivityScreenState();
 }
 
-class ActivityScreenState extends State<ActivityScreen> {
+class ActivityScreenState extends State<ActivityScreen>
+    with SingleTickerProviderStateMixin {
   int _tab = 0;
 
-  /// Which side the page slides in from (1 = right, -1 = left); flips in
-  /// Urdu, which mirrors the layout.
-  int _dir = 1;
+  /// Where the two pages are, 0 = Summary fully shown, 1 = History fully
+  /// shown. It follows the finger while swiping and glides when released.
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    value: 0,
+  );
+  double _w = 390;
 
   bool get _rtl => Directionality.of(context) == TextDirection.rtl;
 
-  void _select(int next) {
-    if (next == _tab) return;
-    setState(() {
-      _dir = (next > _tab ? 1 : -1) * (_rtl ? -1 : 1);
-      _tab = next;
-    });
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
   }
 
-  /// A sideways swipe on this tab first moves between Summary and History.
-  /// [step] is +1 toward the next tab in reading direction, -1 toward the
-  /// previous. Returns true when it was used here; false at either end, so
-  /// the swipe carries on to the neighbouring bottom tab.
-  bool swipe(int step) {
+  void _glideTo(int tab) {
+    final dist = (_c.value - tab).abs();
+    if (dist == 0) return;
+    _c.animateTo(
+      tab.toDouble(),
+      duration: Duration(milliseconds: (380 * dist).round().clamp(160, 380)),
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _select(int next) {
+    if (next == _tab) return;
+    setState(() => _tab = next);
+    _glideTo(next);
+  }
+
+  /// The page follows the finger while it moves sideways.
+  void dragUpdate(double dx) {
+    _c.stop();
+    final d = dx / _w * (_rtl ? 1 : -1);
+    _c.value = (_c.value + d).clamp(0.0, 1.0);
+  }
+
+  /// The finger is lifted. [step] is +1 toward the next page in reading
+  /// direction, -1 toward the previous, 0 for "not far enough: go back".
+  /// Returns false when the swipe went past either end, so it carries on to
+  /// the neighbouring bottom tab.
+  bool dragEnd(int step) {
     final next = _tab + step;
-    if (next < 0 || next > 1) return false;
+    if (step == 0) {
+      _glideTo(_tab);
+      return true;
+    }
+    if (next < 0 || next > 1) {
+      _glideTo(_tab);
+      return false;
+    }
     HapticFeedback.selectionClick();
     _select(next);
     return true;
@@ -63,20 +95,44 @@ class ActivityScreenState extends State<ActivityScreen> {
           ),
         ),
       ),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          FadeSlidePage(
-            active: _tab == 0,
-            dir: _dir,
-            child: const ReportsScreen(embedded: true),
-          ),
-          FadeSlidePage(
-            active: _tab == 1,
-            dir: _dir,
-            child: const HistoryScreen(embedded: true),
-          ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, box) {
+          _w = box.maxWidth;
+          return AnimatedBuilder(
+            animation: _c,
+            builder: (context, _) {
+              final p = _c.value;
+              final sign = _rtl ? -1.0 : 1.0;
+              return ClipRect(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Offstage(
+                      offstage: p >= 1.0,
+                      child: Transform.translate(
+                        offset: Offset(-p * _w * sign, 0),
+                        child: IgnorePointer(
+                          ignoring: _tab != 0,
+                          child: const ReportsScreen(embedded: true),
+                        ),
+                      ),
+                    ),
+                    Offstage(
+                      offstage: p <= 0.0,
+                      child: Transform.translate(
+                        offset: Offset((1 - p) * _w * sign, 0),
+                        child: IgnorePointer(
+                          ignoring: _tab != 1,
+                          child: const HistoryScreen(embedded: true),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
