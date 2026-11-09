@@ -37,6 +37,18 @@ class Fmt {
   static String dayShort(DateTime d) => L10n.urdu
       ? '${d.day} ${_urMonths[d.month - 1]}'
       : DateFormat('d MMM').format(d);
+  /// "Today", "Yesterday", else "Fri, 6 Nov" (for grouped lists).
+  static String dayLabel(DateTime d) {
+    final now = dateOnly(DateTime.now());
+    final day = dateOnly(d);
+    final diff = now.difference(day).inDays;
+    if (diff == 0) return tr('Today');
+    if (diff == 1) return tr('Yesterday');
+    return L10n.urdu
+        ? '${_urDays[d.weekday - 1]}، ${d.day} ${_urMonths[d.month - 1]}'
+        : DateFormat('EEE, d MMM').format(d);
+  }
+
   static String month(DateTime d) => L10n.urdu
       ? '${_urMonths[d.month - 1]} ${d.year}'
       : DateFormat('MMMM yyyy').format(d);

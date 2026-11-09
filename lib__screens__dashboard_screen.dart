@@ -24,7 +24,8 @@ class _DashData {
   final double monthExpenses;
   final double todayTotal;
   final List<Expense> today;
-  final List<Expense> recent;
+  final List<Expense> week;
+  final List<Expense> earlier;
   final List<CategoryTotal> cats;
   final List<AccountBalance> accounts;
   _DashData(
@@ -33,7 +34,8 @@ class _DashData {
     this.monthExpenses,
     this.todayTotal,
     this.today,
-    this.recent,
+    this.week,
+    this.earlier,
     this.cats,
     this.accounts,
   );
@@ -64,7 +66,12 @@ class DashboardScreen extends StatelessWidget {
             final extras = await s.incomes.extras(month);
             final spent = await s.expenses.total(month, end);
             final todayList = await s.expenses.list(from: today, to: today);
-            final recent = await s.expenses.list(limit: 8);
+            final weekStart = today.subtract(const Duration(days: 6));
+            final week = await s.expenses.list(from: weekStart, to: today);
+            final earlier = await s.expenses.list(
+              to: weekStart.subtract(const Duration(days: 1)),
+              limit: 4,
+            );
             final cats = await s.expenses.categoryTotals(month, end);
             final accounts = await s.accountRepo.balances();
             return _DashData(
@@ -73,7 +80,8 @@ class DashboardScreen extends StatelessWidget {
               spent,
               todayList.fold<double>(0, (a, e) => a + e.amount),
               todayList,
-              recent,
+              week,
+              earlier,
               cats,
               accounts,
             );
@@ -434,7 +442,7 @@ class DashboardScreen extends StatelessWidget {
               ),
             ),
           ),
-        SectionTitle('Today', trailing: Fmt.money(d.todayTotal)),
+        const SectionTitle('Recent'),
         if (d.today.isEmpty)
           AppCard(
             padding: EdgeInsets.all(18),
@@ -442,27 +450,81 @@ class DashboardScreen extends StatelessWidget {
               'No expenses recorded today. Tap the plus button to add one.',
               style: TextStyle(color: AppColors.muted),
             ),
-          )
-        else
-          TileGroup(children: [for (final e in d.today) _tile(context, e)]),
-        const SectionTitle('Recent transactions'),
-        if (d.recent.isEmpty)
-          AppCard(
-            padding: EdgeInsets.all(18),
-            child: Text(
-              'Nothing yet.',
-              style: TextStyle(color: AppColors.muted),
-            ),
-          )
-        else
+          ),
+        ..._dayGroups(context, d),
+        if (d.earlier.isNotEmpty) ...[
+          _dayHeader('Earlier', null),
           TileGroup(
             children: [
-              for (final e in d.recent) _tile(context, e, showDate: true),
+              for (final e in d.earlier) _tile(context, e, showDate: true),
             ],
+          ),
+        ],
+        if (d.week.isNotEmpty || d.earlier.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: OutlinedButton(
+              onPressed: () => _open(context, const HistoryScreen()),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(46),
+                foregroundColor: AppColors.primary,
+                side: const BorderSide(color: AppColors.primary, width: 1.4),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: const Text(
+                'See all in History',
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5),
+              ),
+            ),
           ),
       ],
     );
   }
+
+  /// One header + card per day (last 7 days, only days that have expenses).
+  List<Widget> _dayGroups(BuildContext context, _DashData d) {
+    final days = <String, List<Expense>>{};
+    for (final e in d.week) {
+      days.putIfAbsent(Fmt.key(e.date), () => []).add(e);
+    }
+    return [
+      for (final entry in days.entries) ...[
+        _dayHeader(
+          Fmt.dayLabel(Fmt.parseKey(entry.key)),
+          Fmt.money(entry.value.fold<double>(0, (a, e) => a + e.amount)),
+          verbatim: true,
+        ),
+        TileGroup(children: [for (final e in entry.value) _tile(context, e)]),
+      ],
+    ];
+  }
+
+  Widget _dayHeader(String label, String? total, {bool verbatim = false}) =>
+      Padding(
+        padding: const EdgeInsets.fromLTRB(6, 12, 6, 2),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              verbatim: verbatim,
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w800),
+            ),
+            if (total != null)
+              Text(
+                total,
+                verbatim: true,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.muted,
+                ),
+              ),
+          ],
+        ),
+      );
 
   Widget _tile(BuildContext context, Expense e, {bool showDate = false}) =>
       ExpenseTile(
