@@ -31,7 +31,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
 
   Future<void> _editSalary(double current) async {
     final c = TextEditingController(
-      text: current > 0 ? Fmt.number(current).replaceAll(',', '') : '',
+      text: current > 0 ? amountText(current) : '',
     );
     final v = await showDialog<double>(
       context: context,

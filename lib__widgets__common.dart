@@ -364,6 +364,15 @@ class AmountFormatter extends TextInputFormatter {
   }
 }
 
+/// A saved amount as the amount fields show it: 25,000 or 1,250.5.
+String amountText(num v) {
+  var raw = v.toStringAsFixed(2);
+  raw = raw.replaceFirst(RegExp(r'\.?0+$'), '');
+  return AmountFormatter()
+      .formatEditUpdate(TextEditingValue.empty, TextEditingValue(text: raw))
+      .text;
+}
+
 double? parseAmount(String s) {
   final v = double.tryParse(s.trim().replaceAll(',', ''));
   return (v != null && v > 0 && v.isFinite) ? v : null;

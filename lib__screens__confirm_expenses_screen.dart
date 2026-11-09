@@ -28,7 +28,7 @@ class _Draft {
     required this.heard,
     this.accountId,
   }) : amount = TextEditingController(
-         text: amt == null ? '' : Fmt.number(amt).replaceAll(',', ''),
+         text: amt == null ? '' : amountText(amt),
        ),
        desc = TextEditingController(text: description),
        amountMissing = amt == null;

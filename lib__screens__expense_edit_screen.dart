@@ -36,7 +36,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
     final e = widget.expense;
     final state = context.read<AppState>();
     _amount = TextEditingController(
-      text: e == null ? '' : Fmt.number(e.amount).replaceAll(',', ''),
+      text: e == null ? '' : amountText(e.amount),
     );
     _desc = TextEditingController(text: e?.description ?? '');
     _categoryId = e?.categoryId ?? state.categoryByName('Other').id;
