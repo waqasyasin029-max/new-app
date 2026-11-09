@@ -83,6 +83,13 @@ const Map<String, String> urExact = {
   'Only when app is closed': 'صرف ایپ بند ہونے پر',
   'Recommended': 'تجویز کردہ',
   'Not locked while it stays in background': 'بیک گراؤنڈ میں رہنے پر لاک نہیں ہوتی',
+  'Daily': 'روزانہ',
+  'Months': 'مہینے',
+  'Spending by day': 'دن کے حساب سے خرچ',
+  'Tap a bar to see the amount': 'رقم دیکھنے کے لیے بار پر ٹیپ کریں',
+  'Highest day': 'سب سے زیادہ خرچ کا دن',
+  'Average per day': 'روزانہ اوسط',
+  'Safe per day': 'روزانہ محفوظ حد',
   'App lock': 'ایپ لاک',
   'Ask for your fingerprint or phone PIN when the app opens':
       'ایپ کھولتے وقت فنگر پرنٹ یا فون کا پن مانگے',

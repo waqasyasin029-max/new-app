@@ -112,7 +112,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     AppCard(
                       margin: const EdgeInsets.all(4),
                       padding: const EdgeInsets.fromLTRB(16, 16, 12, 12),
-                      child: IncomeExpenseChart(points: d.months),
+                      child: SpendingChartCard(
+                        key: ValueKey(_month),
+                        month: _month,
+                        daily: d.daily,
+                        budget: d.income,
+                        perDay: d.spent / elapsed,
+                        months: d.months,
+                      ),
                     ),
                     _SummaryCard(
                       budget: d.income,
