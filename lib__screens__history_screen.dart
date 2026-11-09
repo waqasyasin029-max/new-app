@@ -9,6 +9,7 @@ import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import 'expense_edit_screen.dart';
 import '../core/i18n.dart';
+import '../widgets/date_sheet.dart';
 import '../core/app_icons.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -35,11 +36,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       _range != null || _categoryId != null || _search.isNotEmpty;
 
   Future<void> _pickRange() async {
-    final r = await showDateRangePicker(
-      context: context,
+    final r = await showDateRangeSheet(
+      context,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 1)),
-      initialDateRange: _range,
+      initial: _range,
     );
     if (r != null) setState(() => _range = r);
   }

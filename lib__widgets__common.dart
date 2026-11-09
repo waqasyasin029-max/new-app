@@ -12,6 +12,7 @@ import '../main.dart' show navigatorKey;
 import '../data/models.dart';
 import '../state/app_state.dart';
 import '../core/i18n.dart';
+import 'picker_sheet.dart';
 import '../core/app_icons.dart';
 
 class CategoryAvatar extends StatelessWidget {
@@ -168,30 +169,24 @@ class CategoryDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cats = context.read<AppState>().categories;
-    return DropdownButtonFormField<int?>(
-      borderRadius: BorderRadius.circular(16),
+    return PickerField<int?>(
+      label: label,
       value: value,
-      isExpanded: true,
-      decoration: InputDecoration(labelText: tr(label)),
-      items: [
+      onChanged: onChanged,
+      options: [
         if (allowAll)
-          const DropdownMenuItem<int?>(
+          PickerOption<int?>(
             value: null,
-            child: Text('All categories'),
+            label: 'All categories',
+            leading: Icon(AppIcons.category, size: 24, color: AppColors.muted),
           ),
         for (final c in cats)
-          DropdownMenuItem<int?>(
+          PickerOption<int?>(
             value: c.id,
-            child: Row(
-              children: [
-                CategoryAvatar(c.name, radius: 12),
-                const SizedBox(width: 8),
-                Text(c.name),
-              ],
-            ),
+            label: c.name,
+            leading: CategoryAvatar(c.name, radius: 14),
           ),
       ],
-      onChanged: onChanged,
     );
   }
 }
@@ -612,37 +607,30 @@ class AccountDropdown extends StatelessWidget {
         .where((a) => a.id != excludeId)
         .toList();
     final valid = accounts.any((a) => a.id == value);
-    return DropdownButtonFormField<int?>(
-      borderRadius: BorderRadius.circular(16),
-      value: valid || (allowNone && value == null) ? value : null,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: tr(label),
-        errorText: errorText == null ? null : tr(errorText!),
-      ),
-      items: [
+    return PickerField<int?>(
+      label: label,
+      errorText: errorText,
+      value: valid || (allowNone && value == null) ? value : -1,
+      onChanged: onChanged,
+      options: [
         if (allowNone)
-          const DropdownMenuItem<int?>(
+          PickerOption<int?>(
             value: null,
-            child: Text('Not linked to an account'),
+            label: 'Not linked to an account',
+            leading: Icon(AppIcons.wallet, size: 24, color: AppColors.muted),
           ),
         for (final a in accounts)
-          DropdownMenuItem<int?>(
+          PickerOption<int?>(
             value: a.id,
-            child: Row(
-              children: [
-                Icon(
-                  AccountStyle.icon(a.type),
-                  size: 18,
-                  color: AppColors.muted,
-                ),
-                const SizedBox(width: 8),
-                Flexible(child: Text(a.name, overflow: TextOverflow.ellipsis)),
-              ],
+            label: a.name,
+            verbatim: true,
+            leading: Icon(
+              AccountStyle.icon(a.type),
+              size: 24,
+              color: AppColors.muted,
             ),
           ),
       ],
-      onChanged: onChanged,
     );
   }
 }
