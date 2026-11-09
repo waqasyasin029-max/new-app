@@ -10,7 +10,43 @@ class CategoryRepository {
   }
 }
 
+/// A title the user has typed several times, with the category it was last filed under.
+class TitleSuggestion {
+  final String title;
+  final int categoryId;
+  final int count;
+  const TitleSuggestion(this.title, this.categoryId, this.count);
+}
+
 class ExpenseRepository {
+  /// Titles used at least [minCount] times, most used first. Titles that are
+  /// just a category name (filled in when no title was typed) are left out.
+  Future<List<TitleSuggestion>> frequentTitles({
+    int minCount = 2,
+    int limit = 40,
+  }) async {
+    final db = await DatabaseHelper.instance.database;
+    final rows = await db.rawQuery(
+      'SELECT e.description AS title, e.category_id AS cat, '
+      'COUNT(*) AS cnt, MAX(e.date) AS last '
+      'FROM expenses e JOIN categories c ON c.id = e.category_id '
+      "WHERE TRIM(e.description) != '' "
+      'AND LOWER(TRIM(e.description)) != LOWER(c.name) '
+      'GROUP BY LOWER(TRIM(e.description)) '
+      'HAVING COUNT(*) >= ? '
+      'ORDER BY cnt DESC, last DESC LIMIT ?',
+      [minCount, limit],
+    );
+    return [
+      for (final r in rows)
+        TitleSuggestion(
+          (r['title'] as String).trim(),
+          r['cat'] as int,
+          (r['cnt'] as num).toInt(),
+        ),
+    ];
+  }
+
   /// Adds one expense and returns its id (so it can be undone).
   Future<int> insert(Expense e) async {
     final db = await DatabaseHelper.instance.database;

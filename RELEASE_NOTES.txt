@@ -1,2 +1,5 @@
-Reports se mahine ki report PDF mein save ya share karne ka masla theek kiya
-Home par kharch din ke hisab se alag alag dikhte hain
+PDF report banne ke baad seedha PDF viewer mein khulti hai
+History ka calendar aur category/account chunne ke sheets ab app ki theme mein
+Kharch add karte waqt pehle likhi hui titles suggestion mein aati hain
+History ka plus button bhi naya kharch usi tarah add karta hai jaise neeche wala plus
+Nav bar ka selected tab ab orange hai

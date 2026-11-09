@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -42,10 +43,20 @@ class ReportPdfService {
     return b.toString();
   }
 
-  /// Creates the PDF for [month] and shows the share sheet.
-  static Future<void> shareMonth(AppState s, DateTime month) async {
+  /// Creates the PDF for [month] and opens it in the phone's PDF viewer (which
+  /// has its own share button). With no viewer installed it shows the share
+  /// sheet instead.
+  static Future<void> openMonth(AppState s, DateTime month) async {
     final file = await build(s, month);
-    stage = 'share';
+    stage = 'open';
+    final r = await OpenFilex.open(file.path, type: 'application/pdf');
+    if (r.type != ResultType.done) {
+      stage = 'share';
+      await _share(file, month);
+    }
+  }
+
+  static Future<void> _share(File file, DateTime month) async {
     final label = DateFormat('MMMM yyyy').format(month);
     await SharePlus.instance.share(
       ShareParams(
@@ -53,6 +64,13 @@ class ReportPdfService {
         subject: 'Kharcha report - $label',
       ),
     );
+  }
+
+  /// Creates the PDF for [month] and shows the share sheet.
+  static Future<void> shareMonth(AppState s, DateTime month) async {
+    final file = await build(s, month);
+    stage = 'share';
+    await _share(file, month);
   }
 
   static Future<File> build(AppState s, DateTime month) async {

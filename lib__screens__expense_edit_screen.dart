@@ -9,6 +9,7 @@ import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../core/i18n.dart';
+import '../widgets/date_sheet.dart';
 import '../core/app_icons.dart';
 
 /// Add a new expense manually, or edit/delete an existing one.
@@ -51,9 +52,9 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
   }
 
   Future<void> _pickDate() async {
-    final d = await showDatePicker(
-      context: context,
-      initialDate: _date,
+    final d = await showDateSheet(
+      context,
+      initial: _date,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 1)),
     );

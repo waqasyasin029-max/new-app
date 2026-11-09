@@ -7,6 +7,7 @@ import '../core/format.dart';
 import '../core/i18n.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
+import '../data/repositories.dart';
 import '../logic/lexicon.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
@@ -76,6 +77,7 @@ class _FlowSheetState extends State<_FlowSheet> {
   Category? _cat;
   final _title = TextEditingController();
   String _detectedFor = '';
+  List<TitleSuggestion> _sugs = [];
   List<AccountBalance> _bals = [];
   bool _saving = false;
 
@@ -97,15 +99,48 @@ class _FlowSheetState extends State<_FlowSheet> {
     return null;
   }
 
+  /// The category this exact title was filed under before, if it was used often.
+  Category? _fromHistory(AppState s) {
+    final key = _title.text.trim().toLowerCase();
+    if (key.isEmpty) return null;
+    for (final g in _sugs) {
+      if (g.title.toLowerCase() == key) {
+        for (final c in s.categories) {
+          if (c.id == g.categoryId) return c;
+        }
+      }
+    }
+    return null;
+  }
+
   /// From the title step: pre-select the matching category, then continue.
   void _titleNext(AppState s) {
     final text = _title.text.trim();
     if (text != _detectedFor) {
       _detectedFor = text;
-      final d = _detect(s);
+      final d = _fromHistory(s) ?? _detect(s);
       if (d != null) _cat = d;
     }
     setState(() => _step = 2);
+  }
+
+  /// Titles typed before (2+ times) that fit what is typed now.
+  List<TitleSuggestion> _matching() {
+    final q = _title.text.trim().toLowerCase();
+    final out = <TitleSuggestion>[];
+    for (final g in _sugs) {
+      final t = g.title.toLowerCase();
+      if (t == q) continue;
+      if (q.isEmpty || t.contains(q)) out.add(g);
+      if (out.length >= 6) break;
+    }
+    return out;
+  }
+
+  void _useSuggestion(TitleSuggestion g) {
+    _title.text = g.title;
+    _title.selection = TextSelection.collapsed(offset: g.title.length);
+    setState(() {});
   }
 
   String get _description {
@@ -118,6 +153,12 @@ class _FlowSheetState extends State<_FlowSheet> {
   void initState() {
     super.initState();
     _loadBalances();
+    _loadSuggestions();
+  }
+
+  Future<void> _loadSuggestions() async {
+    final g = await context.read<AppState>().expenses.frequentTitles();
+    if (mounted) setState(() => _sugs = g);
   }
 
   Future<void> _loadBalances() async {
@@ -446,8 +487,48 @@ class _FlowSheetState extends State<_FlowSheet> {
     );
   }
 
+  Widget _suggestionChips() {
+    final list = _matching();
+    if (list.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final g in list)
+              GestureDetector(
+                onTap: () => _useSuggestion(g),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 9,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: AppColors.line),
+                  ),
+                  child: Text(
+                    g.title,
+                    verbatim: true,
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _titleStep(AppState s) {
-    final d = _detect(s);
+    final d = _fromHistory(s) ?? _detect(s);
     return Column(
       key: const ValueKey('title'),
       mainAxisSize: MainAxisSize.min,
@@ -470,6 +551,7 @@ class _FlowSheetState extends State<_FlowSheet> {
             prefixIcon: const Icon(AppIcons.editNote),
           ),
         ),
+        _suggestionChips(),
         const SizedBox(height: 12),
         SizedBox(
           height: 36,

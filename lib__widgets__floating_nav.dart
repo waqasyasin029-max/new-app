@@ -33,7 +33,7 @@ class FloatingNav extends StatelessWidget {
 
   Widget _item(int i, IconData off, IconData on, String label) {
     final selected = index == i;
-    final color = selected ? AppColors.ink : AppColors.muted;
+    final color = selected ? AppColors.primary : AppColors.muted;
     return Expanded(
       child: Semantics(
         label: tr(label),

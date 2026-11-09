@@ -7,8 +7,10 @@ import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
+import 'add_expense_flow.dart';
 import 'expense_edit_screen.dart';
 import '../core/i18n.dart';
+import '../widgets/date_sheet.dart';
 import '../core/app_icons.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -35,11 +37,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
       _range != null || _categoryId != null || _search.isNotEmpty;
 
   Future<void> _pickRange() async {
-    final r = await showDateRangePicker(
-      context: context,
+    final r = await showDateRangeSheet(
+      context,
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 1)),
-      initialDateRange: _range,
+      initial: _range,
     );
     if (r != null) setState(() => _range = r);
   }
@@ -53,14 +55,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               title: const Text('History'),
               actions: [
                 IconButton(
-                  tooltip: tr('Add manually'),
+                  tooltip: tr('Add expense'),
                   icon: const Icon(AppIcons.addCircle),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ExpenseEditScreen(),
-                    ),
-                  ),
+                  onPressed: () => AddExpenseFlow.start(context),
                 ),
               ],
             ),
@@ -94,14 +91,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           side: BorderSide(color: AppColors.line),
                         ),
                         child: IconButton(
-                          tooltip: tr('Add manually'),
+                          tooltip: tr('Add expense'),
                           icon: const Icon(AppIcons.addCircle),
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ExpenseEditScreen(),
-                            ),
-                          ),
+                          onPressed: () => AddExpenseFlow.start(context),
                         ),
                       ),
                     ],
