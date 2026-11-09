@@ -7,6 +7,7 @@ import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
+import 'add_expense_flow.dart';
 import 'expense_edit_screen.dart';
 import '../core/i18n.dart';
 import '../widgets/date_sheet.dart';
@@ -54,14 +55,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
               title: const Text('History'),
               actions: [
                 IconButton(
-                  tooltip: tr('Add manually'),
+                  tooltip: tr('Add expense'),
                   icon: const Icon(AppIcons.addCircle),
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const ExpenseEditScreen(),
-                    ),
-                  ),
+                  onPressed: () => AddExpenseFlow.start(context),
                 ),
               ],
             ),
@@ -95,14 +91,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           side: BorderSide(color: AppColors.line),
                         ),
                         child: IconButton(
-                          tooltip: tr('Add manually'),
+                          tooltip: tr('Add expense'),
                           icon: const Icon(AppIcons.addCircle),
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ExpenseEditScreen(),
-                            ),
-                          ),
+                          onPressed: () => AddExpenseFlow.start(context),
                         ),
                       ),
                     ],
