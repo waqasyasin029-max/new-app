@@ -670,7 +670,7 @@ class _DailyBars extends StatelessWidget {
 
   Widget _tip(int p, double w, double bw) {
     const tw = 104.0;
-    final left = (p * bw + bw / 2 - tw / 2).clamp(0.0, w - tw);
+    final left = (p * bw + bw / 2 - tw / 2).clamp(0.0, w - tw).toDouble();
     return Positioned(
       left: left,
       top: 0,
@@ -1148,7 +1148,9 @@ class _WeekPainter extends CustomPainter {
         final bubbleW = tt.width + 22;
         final bubbleH = 26.0;
         final by = base - h - bubbleH - 8;
-        final bx = (cx - bubbleW / 2).clamp(axisW - 8, size.width - bubbleW);
+        final bx = (cx - bubbleW / 2)
+            .clamp(axisW - 8, size.width - bubbleW)
+            .toDouble();
         canvas.drawRRect(
           RRect.fromRectAndRadius(
             Rect.fromLTWH(bx, by, bubbleW, bubbleH),
