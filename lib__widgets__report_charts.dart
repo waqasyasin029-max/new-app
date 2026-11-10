@@ -743,6 +743,8 @@ class _DailyPainter extends CustomPainter {
       );
     }
 
+    double? hotCx;
+    double? hotTop;
     for (var i = 0; i < n; i++) {
       final v = values[i];
       final w = math.min(bw * 0.62, 30.0);
@@ -786,41 +788,48 @@ class _DailyPainter extends CustomPainter {
       lt.paint(canvas, Offset(cx - lt.width / 2, base + 6));
 
       if (isHot) {
-        final d = _tp(hotTitle, 11, FontWeight.w700, muted);
-        final ls = [
-          for (final l in hotLines) _tp(l, 13, FontWeight.w800, ink),
-        ];
-        var cardW = d.width;
-        for (final l in ls) {
-          cardW = math.max(cardW, l.width);
-        }
-        cardW += 24;
-        final cardH = 14.0 + 16 + ls.length * 18;
-        var by = base - h - cardH - 8;
-        if (by < 0) by = 0;
-        final bx = (cx - cardW / 2)
-            .clamp(axisW - 8, size.width - cardW)
-            .toDouble();
-        final card = RRect.fromRectAndRadius(
-          Rect.fromLTWH(bx, by, cardW, cardH),
-          const Radius.circular(10),
+        hotCx = cx;
+        hotTop = base - h;
+      }
+    }
+
+    // The card is drawn last so no bar or track can cover it.
+    if (hotCx != null && hotTop != null) {
+      final cx = hotCx;
+      final d = _tp(hotTitle, 11, FontWeight.w700, muted);
+      final ls = [
+        for (final l in hotLines) _tp(l, 13, FontWeight.w800, ink),
+      ];
+      var cardW = d.width;
+      for (final l in ls) {
+        cardW = math.max(cardW, l.width);
+      }
+      cardW += 24;
+      final cardH = 14.0 + 16 + ls.length * 18;
+      var by = hotTop - cardH - 8;
+      if (by < 0) by = 0;
+      final bx = (cx - cardW / 2)
+          .clamp(axisW - 8, size.width - cardW)
+          .toDouble();
+      final card = RRect.fromRectAndRadius(
+        Rect.fromLTWH(bx, by, cardW, cardH),
+        const Radius.circular(10),
+      );
+      canvas.drawShadow(Path()..addRRect(card), Colors.black, 6, true);
+      canvas.drawRRect(card, Paint()..color = surface);
+      canvas.drawRRect(
+        card,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1
+          ..color = grid,
+      );
+      d.paint(canvas, Offset(bx + (cardW - d.width) / 2, by + 7));
+      for (var k = 0; k < ls.length; k++) {
+        ls[k].paint(
+          canvas,
+          Offset(bx + (cardW - ls[k].width) / 2, by + 7 + 16 + k * 18),
         );
-        canvas.drawShadow(Path()..addRRect(card), Colors.black, 6, true);
-        canvas.drawRRect(card, Paint()..color = surface);
-        canvas.drawRRect(
-          card,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1
-            ..color = grid,
-        );
-        d.paint(canvas, Offset(bx + (cardW - d.width) / 2, by + 7));
-        for (var k = 0; k < ls.length; k++) {
-          ls[k].paint(
-            canvas,
-            Offset(bx + (cardW - ls[k].width) / 2, by + 7 + 16 + k * 18),
-          );
-        }
       }
     }
   }
