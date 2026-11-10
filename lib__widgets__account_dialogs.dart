@@ -195,95 +195,267 @@ Future<void> showReconcileDialog(
   double expected,
 ) async {
   final c = TextEditingController();
-  final choice = await showDialog<String>(
+  final choice = await showModalBottomSheet<String>(
     context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    backgroundColor: AppColors.surface,
+    showDragHandle: false,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+    ),
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setD) {
         final actual = double.tryParse(c.text.trim().replaceAll(',', ''));
         final diff = actual == null ? null : actual - expected;
-        Widget msg;
-        if (diff == null) {
-          msg = const SizedBox.shrink();
-        } else if (diff.abs() < 0.005) {
-          msg = const Text(
-            'Matches. Everything is recorded correctly.',
-            style: TextStyle(
-              color: AppColors.positive,
-              fontWeight: FontWeight.w600,
-            ),
-          );
-        } else if (diff < 0) {
-          msg = Text(
-            'Rs ${Fmt.number(-diff)} is missing. That much was spent or lost but not recorded.',
-            style: const TextStyle(
-              color: AppColors.danger,
-              fontWeight: FontWeight.w600,
-            ),
-          );
-        } else {
-          msg = Text(
-            'You have Rs ${Fmt.number(diff)} more than recorded. Some money received was not recorded.',
-            style: const TextStyle(
-              color: AppColors.gold,
-              fontWeight: FontWeight.w600,
-            ),
-          );
-        }
-        return AlertDialog(
-          title: Text('Check ${account.name}'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Should be: ${Fmt.money(expected)}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                '(from what you recorded)',
-                style: TextStyle(color: AppColors.muted, fontSize: 12),
-              ),
-              const SizedBox(height: 14),
-              TextField(
-                controller: c,
-                autofocus: true,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                inputFormatters: [AmountFormatter()],
-                onChanged: (_) => setD(() {}),
-                decoration: InputDecoration(
-                  labelText: tr(
-                    account.isCash
-                        ? 'Cash in hand now (Rs)'
-                        : 'Balance shown in the app/bank (Rs)',
+        final matched = diff != null && diff.abs() < 0.005;
+        final less = diff != null && diff < -0.005;
+        return Padding(
+          padding: EdgeInsets.fromLTRB(
+            18,
+            0,
+            18,
+            16 + MediaQuery.of(ctx).viewInsets.bottom,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.only(top: 10),
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColors.line,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              msg,
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Close'),
+                const SizedBox(height: 14),
+                Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.14),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        AppIcons.factCheck,
+                        color: AppColors.primary,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Check ${account.name}',
+                            style: const TextStyle(
+                              fontSize: 19,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          Text(
+                            account.isCash
+                                ? 'How much cash is in your hand right now?'
+                                : 'How much does your bank or wallet app show right now?',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: AppColors.muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Center(
+                  child: Text(
+                    'Actual balance',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.muted,
+                    ),
+                  ),
+                ),
+                TextField(
+                  controller: c,
+                  autofocus: true,
+                  textAlign: TextAlign.center,
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  inputFormatters: [AmountFormatter()],
+                  onChanged: (_) => setD(() {}),
+                  style: const TextStyle(
+                    fontSize: 44,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.primary,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: '0',
+                    prefixText: 'Rs ',
+                    prefixStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.muted,
+                    ),
+                    filled: false,
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    errorBorder: InputBorder.none,
+                    focusedErrorBorder: InputBorder.none,
+                  ),
+                ),
+                Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 9,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.navy,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'In the app: ${Fmt.money(expected)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ),
+                if (diff != null) ...[
+                  const SizedBox(height: 14),
+                  if (matched)
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.positive.withOpacity(0.10),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: const Text(
+                        'Matches. Everything is recorded correctly.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: AppColors.positive,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: (less ? AppColors.danger : AppColors.gold)
+                            .withOpacity(0.10),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            '${less ? '-' : '+'} ${Fmt.money(diff.abs())}',
+                            verbatim: true,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: less
+                                  ? AppColors.danger
+                                  : const Color(0xFFB98500),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              less
+                                  ? 'That much was spent or lost but not recorded.'
+                                  : 'Some money received was not recorded.',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: AppColors.ink,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+                const SizedBox(height: 16),
+                if (diff == null || matched)
+                  SizedBox(
+                    height: 54,
+                    child: matched
+                        ? FilledButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            style: _sheetBtn(),
+                            child: const Text('Done', style: _btnText),
+                          )
+                        : FilledButton.tonal(
+                            onPressed: () => Navigator.pop(ctx),
+                            style: _sheetBtn(tonal: true),
+                            child: const Text('Close', style: _btnText),
+                          ),
+                  )
+                else ...[
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 54,
+                          child: FilledButton.tonal(
+                            onPressed: () => Navigator.pop(
+                              ctx,
+                              less ? 'expense' : null,
+                            ),
+                            style: _sheetBtn(tonal: true),
+                            child: Text(
+                              less ? 'Add as expense' : 'Cancel',
+                              textAlign: TextAlign.center,
+                              style: _btnText,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        flex: 13,
+                        child: SizedBox(
+                          height: 54,
+                          child: FilledButton(
+                            onPressed: () => Navigator.pop(ctx, 'fix'),
+                            style: _sheetBtn(),
+                            child: const Text(
+                              'Just fix balance',
+                              textAlign: TextAlign.center,
+                              style: _btnText,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (less)
+                    Center(
+                      child: TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: const Text('Close'),
+                      ),
+                    ),
+                ],
+              ],
             ),
-            if (diff != null && diff < -0.005)
-              TextButton(
-                onPressed: () => Navigator.pop(ctx, 'expense'),
-                child: const Text('Add as expense'),
-              ),
-            if (diff != null && diff.abs() >= 0.005)
-              FilledButton(
-                style: FilledButton.styleFrom(minimumSize: const Size(90, 44)),
-                onPressed: () => Navigator.pop(ctx, 'fix'),
-                child: const Text('Just fix balance'),
-              ),
-          ],
+          ),
         );
       },
     ),
@@ -317,3 +489,11 @@ Future<void> showReconcileDialog(
     );
   }
 }
+
+const _btnText = TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800);
+
+ButtonStyle _sheetBtn({bool tonal = false}) => FilledButton.styleFrom(
+  backgroundColor: tonal ? AppColors.fieldFill : null,
+  foregroundColor: tonal ? AppColors.ink : null,
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+);

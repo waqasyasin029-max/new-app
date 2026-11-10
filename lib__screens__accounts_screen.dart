@@ -5,11 +5,18 @@ import '../core/format.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
 import '../widgets/account_dialogs.dart';
+import '../widgets/activity_tile.dart';
 import '../widgets/data_loader.dart';
 import 'account_detail_screen.dart';
-import 'transfer_screen.dart';
+import '../widgets/transfer_sheet.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
+
+class _Data {
+  final List<AccountBalance> balances;
+  final List<ActivityItem> activity;
+  _Data(this.balances, this.activity);
+}
 
 class AccountsScreen extends StatelessWidget {
   const AccountsScreen({super.key});
@@ -30,9 +37,11 @@ class AccountsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: DataLoader<List<AccountBalance>>(
-        load: (s) => s.accountRepo.balances(),
-        builder: (context, list) {
+      body: DataLoader<_Data>(
+        load: (s) async =>
+            _Data(await s.accountRepo.balances(), await s.accountRepo.allActivity()),
+        builder: (context, data) {
+          final list = data.balances;
           final total = list.fold<double>(0, (a, b) => a + b.balance);
           final allZero = list.every((b) => b.balance == 0);
           return ListView(
@@ -71,10 +80,8 @@ class AccountsScreen extends StatelessWidget {
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.navy,
                             ),
-                            onPressed: () => _open(
-                              context,
-                              const TransferScreen(withdraw: true),
-                            ),
+                            onPressed: () =>
+                                showTransferSheet(context, withdraw: true),
                             icon: const Icon(AppIcons.atm, size: 20),
                             label: const Text('Withdraw'),
                           ),
@@ -86,8 +93,7 @@ class AccountsScreen extends StatelessWidget {
                               backgroundColor: AppColors.surface,
                               foregroundColor: AppColors.ink,
                             ),
-                            onPressed: () =>
-                                _open(context, const TransferScreen()),
+                            onPressed: () => showTransferSheet(context),
                             icon: const Icon(AppIcons.swapHoriz, size: 20),
                             label: const Text('Transfer'),
                           ),
@@ -112,26 +118,29 @@ class AccountsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              const SizedBox(height: 8),
+              const SectionTitle('My accounts'),
               for (final b in list)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Material(
                     color: AccountStyle.tint(b.account.type),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(22),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(22),
                       onTap: () => _open(
                         context,
                         AccountDetailScreen(accountId: b.account.id),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         child: Row(
                           children: [
                             Container(
-                              width: 46,
-                              height: 46,
+                              width: 38,
+                              height: 38,
                               decoration: BoxDecoration(
                                 color: AppColors.softWhite,
                                 shape: BoxShape.circle,
@@ -180,6 +189,40 @@ class AccountsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              const SectionTitle('Activity · all accounts'),
+              if (data.activity.isEmpty)
+                AppCard(
+                  padding: const EdgeInsets.all(18),
+                  child: Text(
+                    'Nothing recorded yet.',
+                    style: TextStyle(color: AppColors.muted),
+                  ),
+                )
+              else ...[
+                for (final g in groupActivityByDay(data.activity)) ...[
+                  ActivityDayHeader(g.key),
+                  TileGroup(
+                    children: [
+                      for (final i in g.value)
+                        ActivityTile(
+                          item: i,
+                          showAccount: true,
+                          onTap: () => _open(
+                            context,
+                            AccountDetailScreen(accountId: i.accountId),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(6, 10, 6, 0),
+                  child: Text(
+                    'Showing the latest entries. Open an account to see more.',
+                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                  ),
+                ),
+              ],
             ],
           );
         },

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
+import '../services/budget_alert.dart';
+import '../services/sound_service.dart';
 import '../core/format.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
@@ -188,6 +190,8 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
     try {
       await state.expenses.insertMany(list);
       state.changed();
+      SoundService.saved();
+      BudgetAlert.check();
       final total = list.fold<double>(0, (a, e) => a + e.amount);
       final used = {for (final e in list) e.accountId!};
       final bals = await state.accountRepo.balances();

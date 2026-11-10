@@ -39,6 +39,7 @@ ICONS = {
     "badge": "id-card", "backspace": "arrow-left-02",
     "arrowForward": "arrow-right-02", "alarm": "alarm-clock", "bank": "bank",
     "settingsFill": "custom:settingsFill",
+    "volume": "volume-high",
 }
 
 # Hand-made icons (24 grid): the filled "selected" versions for the nav bar, plus our bar chart.

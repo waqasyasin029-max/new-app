@@ -115,12 +115,18 @@ class ActivityItem {
   final String subtitle;
   final double delta;
   final DateTime date;
+
+  /// Only filled for the all-accounts list: which account this belongs to.
+  final String account;
+  final int accountId;
   const ActivityItem(
     this.kind,
     this.id,
     this.title,
     this.subtitle,
     this.delta,
-    this.date,
-  );
+    this.date, {
+    this.account = '',
+    this.accountId = 0,
+  });
 }

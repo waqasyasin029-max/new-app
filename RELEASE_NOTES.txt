@@ -1,3 +1,8 @@
-Amount mein hazaar ke commas ab save ke baad dubara kholne par bhi nazar aate hain (Set budget, income, edit expense, confirm)
-Reminder notification naya: Urdu title "آج کا حساب لکھا؟", orange rang aur bara app icon
-Developer ke naye notices ab aap ke phone par khud aa jayenge (background check, sirf ek dafa dikhte hain)
+Accounts screen par ab sab accounts ki history neeche ek saath, din ke hisaab se
+Account ke andar naya design: white card, orange "Check balance", Withdraw aur Add money; activity din ke hisaab se
+Transfer, Withdraw, Check balance aur Set budget ab app ki theme wale popups mein; budget ke liye sirf numbers wala keyboard
+Edit expense ki nayi screen: upar card, neeche tap karke badlo, Delete aur Save neeche
+Budget 80% use hone par bar laal aur warning; 80% par alert (mahine mein ek dafa), budget se upar jaane par hafte mein ek dafa
+Kharcha save hone par chhoti si "level up" sound (Settings mein band kar sakte ho)
+Naam ab 24 ghante baad dobara badal sakte ho (14 din ki jagah)
+Chart ka card ab bars ke neeche nahi chhupta; aage ke din swipe se nahi khulte

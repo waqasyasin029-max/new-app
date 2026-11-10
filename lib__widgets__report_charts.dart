@@ -462,6 +462,8 @@ class _SpendingChartCardState extends State<SpendingChartCard> {
             step: _niceStep(maxV / 3),
             picked: _picked,
             startPage: isCurrent ? (now.day - 1) ~/ 10 : top ~/ 10,
+            // No pages for days that have not come yet.
+            lastPage: isCurrent ? (now.day - 1) ~/ 10 : 2,
             onPick: (i) => setState(() => _picked = i == _picked ? null : i),
           ),
         ),
@@ -528,6 +530,7 @@ class _DailyPages extends StatefulWidget {
   final double step;
   final int? picked; // 0-based day of month
   final int startPage;
+  final int lastPage;
   final ValueChanged<int> onPick;
   const _DailyPages({
     required this.month,
@@ -535,6 +538,7 @@ class _DailyPages extends StatefulWidget {
     required this.step,
     required this.picked,
     required this.startPage,
+    required this.lastPage,
     required this.onPick,
   });
 
@@ -544,7 +548,8 @@ class _DailyPages extends StatefulWidget {
 
 class _DailyPagesState extends State<_DailyPages> {
   static const _pages = 3;
-  late int _page = widget.startPage.clamp(0, _pages - 1);
+  late final int _count = widget.lastPage.clamp(0, _pages - 1) + 1;
+  late int _page = widget.startPage.clamp(0, _count - 1);
   late final PageController _ctrl = PageController(initialPage: _page);
 
   @override
@@ -564,7 +569,7 @@ class _DailyPagesState extends State<_DailyPages> {
           height: 210,
           child: PageView.builder(
             controller: _ctrl,
-            itemCount: _pages,
+            itemCount: _count,
             onPageChanged: (i) => setState(() => _page = i),
             itemBuilder: (_, page) => _DailyPage(
               month: widget.month,
@@ -577,10 +582,11 @@ class _DailyPagesState extends State<_DailyPages> {
           ),
         ),
         const SizedBox(height: 4),
+        if (_count > 1)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (var i = 0; i < _pages; i++)
+            for (var i = 0; i < _count; i++)
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -595,7 +601,9 @@ class _DailyPagesState extends State<_DailyPages> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Swipe for the next days. Tap a bar to see the amount.',
+          _count > 1
+              ? 'Swipe for the next days. Tap a bar to see the amount.'
+              : 'Tap a bar to see the amount.',
           style: TextStyle(fontSize: 11.5, color: AppColors.muted),
         ),
       ],
@@ -743,6 +751,8 @@ class _DailyPainter extends CustomPainter {
       );
     }
 
+    double? hotCx;
+    double? hotTop;
     for (var i = 0; i < n; i++) {
       final v = values[i];
       final w = math.min(bw * 0.62, 30.0);
@@ -786,41 +796,48 @@ class _DailyPainter extends CustomPainter {
       lt.paint(canvas, Offset(cx - lt.width / 2, base + 6));
 
       if (isHot) {
-        final d = _tp(hotTitle, 11, FontWeight.w700, muted);
-        final ls = [
-          for (final l in hotLines) _tp(l, 13, FontWeight.w800, ink),
-        ];
-        var cardW = d.width;
-        for (final l in ls) {
-          cardW = math.max(cardW, l.width);
-        }
-        cardW += 24;
-        final cardH = 14.0 + 16 + ls.length * 18;
-        var by = base - h - cardH - 8;
-        if (by < 0) by = 0;
-        final bx = (cx - cardW / 2)
-            .clamp(axisW - 8, size.width - cardW)
-            .toDouble();
-        final card = RRect.fromRectAndRadius(
-          Rect.fromLTWH(bx, by, cardW, cardH),
-          const Radius.circular(10),
+        hotCx = cx;
+        hotTop = base - h;
+      }
+    }
+
+    // The card is drawn last so no bar or track can cover it.
+    if (hotCx != null && hotTop != null) {
+      final cx = hotCx;
+      final d = _tp(hotTitle, 11, FontWeight.w700, muted);
+      final ls = [
+        for (final l in hotLines) _tp(l, 13, FontWeight.w800, ink),
+      ];
+      var cardW = d.width;
+      for (final l in ls) {
+        cardW = math.max(cardW, l.width);
+      }
+      cardW += 24;
+      final cardH = 14.0 + 16 + ls.length * 18;
+      var by = hotTop - cardH - 8;
+      if (by < 0) by = 0;
+      final bx = (cx - cardW / 2)
+          .clamp(axisW - 8, size.width - cardW)
+          .toDouble();
+      final card = RRect.fromRectAndRadius(
+        Rect.fromLTWH(bx, by, cardW, cardH),
+        const Radius.circular(10),
+      );
+      canvas.drawShadow(Path()..addRRect(card), Colors.black, 6, true);
+      canvas.drawRRect(card, Paint()..color = surface);
+      canvas.drawRRect(
+        card,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1
+          ..color = grid,
+      );
+      d.paint(canvas, Offset(bx + (cardW - d.width) / 2, by + 7));
+      for (var k = 0; k < ls.length; k++) {
+        ls[k].paint(
+          canvas,
+          Offset(bx + (cardW - ls[k].width) / 2, by + 7 + 16 + k * 18),
         );
-        canvas.drawShadow(Path()..addRRect(card), Colors.black, 6, true);
-        canvas.drawRRect(card, Paint()..color = surface);
-        canvas.drawRRect(
-          card,
-          Paint()
-            ..style = PaintingStyle.stroke
-            ..strokeWidth = 1
-            ..color = grid,
-        );
-        d.paint(canvas, Offset(bx + (cardW - d.width) / 2, by + 7));
-        for (var k = 0; k < ls.length; k++) {
-          ls[k].paint(
-            canvas,
-            Offset(bx + (cardW - ls[k].width) / 2, by + 7 + 16 + k * 18),
-          );
-        }
       }
     }
   }

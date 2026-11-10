@@ -198,4 +198,8 @@ class AppIcons {
     0xe03f,
     fontFamily: _f,
   ); // hugeicons:custom:settingsFill
+  static const volume = IconData(
+    0xe040,
+    fontFamily: _f,
+  ); // hugeicons:volume-high
 }

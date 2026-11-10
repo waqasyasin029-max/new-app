@@ -252,7 +252,7 @@ class _NameSheetState extends State<_NameSheet> {
           const SizedBox(height: 14),
           Center(
             child: Text(
-              'Free to change for 5 minutes, then once every 14 days',
+              'Free to change for 5 minutes, then once every 24 hours',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 12.5,

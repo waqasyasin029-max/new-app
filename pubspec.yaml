@@ -24,6 +24,7 @@ dependencies:
   pdf: ^3.11.0
   share_plus: ^13.2.0
   workmanager: ^0.10.0
+  audioplayers: ^6.1.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +35,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/icon/logo.png
+    - assets/sounds/save.wav
   fonts:
     - family: Manrope
       fonts:
