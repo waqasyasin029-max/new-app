@@ -5,6 +5,7 @@ import '../core/format.dart';
 import '../core/theme.dart';
 import '../data/models.dart';
 import '../widgets/account_dialogs.dart';
+import '../widgets/activity_tile.dart';
 import '../widgets/data_loader.dart';
 import 'account_detail_screen.dart';
 import '../widgets/transfer_sheet.dart';
@@ -198,22 +199,19 @@ class AccountsScreen extends StatelessWidget {
                   ),
                 )
               else ...[
-                for (final g in _groups(data.activity)) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(6, 12, 6, 6),
-                    child: Text(
-                      Fmt.dayLabel(g.key),
-                      verbatim: true,
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.muted,
-                      ),
-                    ),
-                  ),
+                for (final g in groupActivityByDay(data.activity)) ...[
+                  ActivityDayHeader(g.key),
                   TileGroup(
                     children: [
-                      for (final i in g.value) _activityRow(context, i),
+                      for (final i in g.value)
+                        ActivityTile(
+                          item: i,
+                          showAccount: true,
+                          onTap: () => _open(
+                            context,
+                            AccountDetailScreen(accountId: i.accountId),
+                          ),
+                        ),
                     ],
                   ),
                 ],
@@ -228,88 +226,6 @@ class AccountsScreen extends StatelessWidget {
             ],
           );
         },
-      ),
-    );
-  }
-
-  /// Groups the (already sorted) items by day, keeping the order.
-  List<MapEntry<DateTime, List<ActivityItem>>> _groups(
-    List<ActivityItem> items,
-  ) {
-    final out = <MapEntry<DateTime, List<ActivityItem>>>[];
-    for (final i in items) {
-      final d = Fmt.dateOnly(i.date);
-      if (out.isEmpty || out.last.key != d) {
-        out.add(MapEntry(d, <ActivityItem>[]));
-      }
-      out.last.value.add(i);
-    }
-    return out;
-  }
-
-  Widget _activityRow(BuildContext context, ActivityItem i) {
-    final isIn = i.kind == 'deposit';
-    final isTransfer = i.kind == 'transfer';
-    final color = isTransfer
-        ? AppColors.muted
-        : (isIn ? AppColors.positive : AppColors.danger);
-    final icon = isTransfer
-        ? AppIcons.swapHoriz
-        : (isIn ? AppIcons.arrowDownLeft : AppIcons.arrowUpRight);
-    final sign = isTransfer ? '' : (isIn ? '+' : '-');
-    return ListTile(
-      onTap: () => _open(context, AccountDetailScreen(accountId: i.accountId)),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
-      leading: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(icon, size: 17, color: color),
-      ),
-      title: Text(
-        i.title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.w600),
-      ),
-      subtitle: Padding(
-        padding: const EdgeInsets.only(top: 3),
-        child: Wrap(
-          spacing: 6,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
-              decoration: BoxDecoration(
-                color: AppColors.fieldFill,
-                borderRadius: BorderRadius.circular(9),
-              ),
-              child: Text(
-                i.account,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.muted,
-                ),
-              ),
-            ),
-            if (isTransfer && i.subtitle.isNotEmpty)
-              Text(
-                i.subtitle,
-                style: TextStyle(color: AppColors.muted, fontSize: 12),
-              ),
-          ],
-        ),
-      ),
-      trailing: Text(
-        '$sign${Fmt.money(i.delta.abs())}',
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: isIn ? AppColors.positive : AppColors.ink,
-        ),
       ),
     );
   }

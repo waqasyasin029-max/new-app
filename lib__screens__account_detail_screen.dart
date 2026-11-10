@@ -8,6 +8,7 @@ import '../data/models.dart';
 import '../state/app_state.dart';
 import '../widgets/account_dialogs.dart';
 import '../widgets/common.dart';
+import '../widgets/activity_tile.dart';
 import '../widgets/data_loader.dart';
 import '../widgets/transfer_sheet.dart';
 import '../core/i18n.dart';
@@ -253,93 +254,43 @@ class AccountDetailScreen extends StatelessWidget {
                   ),
                 )
               else
-                TileGroup(
-                  children: [
-                    for (final i in d.items)
-                      ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 2,
-                        ),
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color:
-                                (i.delta >= 0
-                                        ? AppColors.positive
-                                        : AppColors.danger)
-                                    .withOpacity(0.12),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            i.delta >= 0
-                                ? AppIcons.arrowDownLeft
-                                : AppIcons.arrowUpRight,
-                            size: 18,
-                            color: i.delta >= 0
-                                ? AppColors.positive
-                                : AppColors.danger,
-                          ),
-                        ),
-                        title: Text(
-                          i.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        subtitle: Text(
-                          [
-                            Fmt.dayShort(i.date),
-                            if (i.subtitle.isNotEmpty) i.subtitle,
-                          ].join(' • '),
-                          style: TextStyle(
-                            color: AppColors.muted,
-                            fontSize: 12.5,
-                          ),
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              '${i.delta >= 0 ? '+' : '-'}${Fmt.money(i.delta.abs())}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: i.delta >= 0
-                                    ? AppColors.positive
-                                    : AppColors.ink,
-                              ),
-                            ),
-                            if (i.kind != 'expense')
-                              IconButton(
-                                icon: Icon(
-                                  AppIcons.delete,
-                                  color: AppColors.muted,
+                for (final g in groupActivityByDay(d.items)) ...[
+                  ActivityDayHeader(g.key),
+                  TileGroup(
+                    children: [
+                      for (final i in g.value)
+                        ActivityTile(
+                          item: i,
+                          action: i.kind == 'expense'
+                              ? null
+                              : IconButton(
+                                  icon: Icon(
+                                    AppIcons.delete,
+                                    color: AppColors.muted,
+                                  ),
+                                  onPressed: () async {
+                                    if (!await confirmDialog(
+                                      context,
+                                      'Delete this entry?',
+                                      '${i.title} – ${Fmt.money(i.delta.abs())}',
+                                    ))
+                                      return;
+                                    final s = context.read<AppState>();
+                                    if (i.kind == 'transfer') {
+                                      await s.accountRepo.deleteTransfer(i.id);
+                                    } else {
+                                      await s.incomes.delete(i.id);
+                                    }
+                                    s.changed();
+                                    if (context.mounted) {
+                                      snackOk(context, 'Entry deleted');
+                                    }
+                                  },
                                 ),
-                                onPressed: () async {
-                                  if (!await confirmDialog(
-                                    context,
-                                    'Delete this entry?',
-                                    '${i.title} – ${Fmt.money(i.delta.abs())}',
-                                  ))
-                                    return;
-                                  final s = context.read<AppState>();
-                                  if (i.kind == 'transfer') {
-                                    await s.accountRepo.deleteTransfer(i.id);
-                                  } else {
-                                    await s.incomes.delete(i.id);
-                                  }
-                                  s.changed();
-                                  if (context.mounted) {
-                                    snackOk(context, 'Entry deleted');
-                                  }
-                                },
-                              ),
-                          ],
                         ),
-                      ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               Padding(
                 padding: EdgeInsets.fromLTRB(4, 8, 4, 0),
                 child: Text(
