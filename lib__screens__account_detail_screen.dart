@@ -122,7 +122,6 @@ class AccountDetailScreen extends StatelessWidget {
     if (acc == null)
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     final a = acc;
-    final today = Fmt.dateOnly(DateTime.now());
     return Scaffold(
       appBar: AppBar(
         title: Text(a.name),
@@ -146,103 +145,108 @@ class AccountDetailScreen extends StatelessWidget {
           await s.accountRepo.activity(a.id),
         ),
         builder: (context, d) {
-          var inToday = 0.0, outToday = 0.0;
-          for (final i in d.items) {
-            if (Fmt.dateOnly(i.date) == today) {
-              if (i.delta >= 0) {
-                inToday += i.delta;
-              } else {
-                outToday += -i.delta;
-              }
-            }
-          }
-          final startOfDay = d.balance - inToday + outToday;
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
             children: [
               Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: AccountStyle.tint(a.type),
+                  color: AppColors.surface,
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Text(
-                      '${AccountStyle.label(a.type)} balance (recorded)',
-                      style: const TextStyle(fontSize: 13),
+                    Row(
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: AppColors.fieldFill,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            AccountStyle.icon(a.type),
+                            color: AppColors.ink,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${AccountStyle.label(a.type)} balance (recorded)',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  color: AppColors.muted,
+                                ),
+                              ),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: AlignmentDirectional.centerStart,
+                                child: Text(
+                                  Fmt.money(d.balance),
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    fontWeight: FontWeight.w800,
+                                    color: d.balance < 0
+                                        ? AppColors.danger
+                                        : AppColors.ink,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        Fmt.money(d.balance),
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700,
-                          color: d.balance < 0
-                              ? AppColors.danger
-                              : AppColors.ink,
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      height: 48,
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        onPressed: () =>
+                            showReconcileDialog(context, a, d.balance),
+                        icon: const Icon(AppIcons.factCheck, size: 18),
+                        label: const Text(
+                          'Check balance',
+                          style: TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
-                          child: _mini('Today start', Fmt.money(startOfDay)),
-                        ),
-                        Expanded(
-                          child: _mini(
-                            'Came in today',
-                            '+${Fmt.money(inToday)}',
+                          child: _tonal(
+                            icon: a.isCash ? AppIcons.swapHoriz : AppIcons.atm,
+                            label: a.isCash ? 'Transfer out' : 'Withdraw',
+                            onTap: () => showTransferSheet(
+                              context,
+                              fromId: a.id,
+                              withdraw: !a.isCash,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 8),
                         Expanded(
-                          child: _mini(
-                            'Went out today',
-                            '-${Fmt.money(outToday)}',
+                          child: _tonal(
+                            icon: AppIcons.add,
+                            label: 'Add money',
+                            onTap: () => _addMoney(context, a),
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.navy,
-                    ),
-                    onPressed: () => showReconcileDialog(context, a, d.balance),
-                    icon: const Icon(AppIcons.factCheck, size: 18),
-                    label: const Text('Check balance'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => showTransferSheet(
-                      context,
-                      fromId: a.id,
-                      withdraw: !a.isCash,
-                    ),
-                    icon: Icon(
-                      a.isCash ? AppIcons.swapHoriz : AppIcons.atm,
-                      size: 18,
-                    ),
-                    label: Text(
-                      a.isCash ? 'Transfer out' : 'Withdraw / transfer',
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () => _addMoney(context, a),
-                    icon: const Icon(AppIcons.add, size: 18),
-                    label: const Text('Add money'),
-                  ),
-                ],
               ),
               const SectionTitle('Activity'),
               if (d.items.isEmpty)
@@ -305,18 +309,27 @@ class AccountDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _mini(String label, String value) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(label, style: const TextStyle(fontSize: 11.5)),
-      const SizedBox(height: 2),
-      FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
-        ),
+  Widget _tonal({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) => SizedBox(
+    height: 46,
+    child: FilledButton.tonalIcon(
+      onPressed: onTap,
+      style: FilledButton.styleFrom(
+        backgroundColor: AppColors.fieldFill,
+        foregroundColor: AppColors.ink,
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
-    ],
+      icon: Icon(icon, size: 17),
+      label: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+      ),
+    ),
   );
 }
