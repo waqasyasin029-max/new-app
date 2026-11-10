@@ -13,12 +13,12 @@ Future<void> askName(BuildContext context) async {
   if (!context.mounted) return;
   if (until != null) {
     final left = until.difference(DateTime.now());
-    final days = (left.inHours / 24).ceil().clamp(1, 14);
+    final hours = (left.inMinutes / 60).ceil().clamp(1, 24);
     snack(
       context,
-      days <= 1
-          ? 'You can change your name only once in 14 days. Try again in 1 day.'
-          : 'You can change your name only once in 14 days. Try again in $days days.',
+      hours <= 1
+          ? 'You can change your name only once in 24 hours. Try again in 1 hour.'
+          : 'You can change your name only once in 24 hours. Try again in $hours hours.',
     );
     return;
   }
@@ -41,7 +41,7 @@ Future<void> askName(BuildContext context) async {
           ),
           const SizedBox(height: 4),
           Text(
-            'You can change it freely for 5 minutes. After that, once every 14 days.',
+            'You can change it freely for 5 minutes. After that, once every 24 hours.',
             style: TextStyle(fontSize: 12.5, color: AppColors.muted, height: 1.4),
           ),
         ],

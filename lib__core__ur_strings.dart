@@ -184,12 +184,12 @@ const Map<String, String> urExact = {
   'Profile': 'پروفائل',
   'Not set': 'مقرر نہیں',
   'Name saved': 'نام محفوظ ہو گیا',
-  'You can change your name only once in 14 days. Try again in 1 day.':
-      'آپ اپنا نام 14 دن میں صرف ایک بار بدل سکتے ہیں۔ 1 دن بعد دوبارہ کوشش کریں۔',
-  'You can change it freely for 5 minutes. After that, once every 14 days.':
-      'آپ 5 منٹ تک نام جتنی بار چاہیں بدل سکتے ہیں۔ اس کے بعد 14 دن میں ایک بار۔',
-  'Your name is shown on Home. It stays on this phone. You can change it freely for 5 minutes; after that, once every 14 days.':
-      'آپ کا نام ہوم پر نظر آتا ہے۔ یہ اسی فون میں رہتا ہے۔ 5 منٹ تک آپ اسے جتنی بار چاہیں بدل سکتے ہیں، اس کے بعد 14 دن میں ایک بار۔',
+  'You can change your name only once in 24 hours. Try again in 1 hour.':
+      'آپ اپنا نام 24 گھنٹے میں صرف ایک بار بدل سکتے ہیں۔ 1 گھنٹے بعد دوبارہ کوشش کریں۔',
+  'You can change it freely for 5 minutes. After that, once every 24 hours.':
+      'آپ 5 منٹ تک نام جتنی بار چاہیں بدل سکتے ہیں۔ اس کے بعد 24 گھنٹے میں ایک بار۔',
+  'Your name is shown on Home. It stays on this phone. You can change it freely for 5 minutes; after that, once every 24 hours.':
+      'آپ کا نام ہوم پر نظر آتا ہے۔ یہ اسی فون میں رہتا ہے۔ 5 منٹ تک آپ اسے جتنی بار چاہیں بدل سکتے ہیں، اس کے بعد 24 گھنٹے میں ایک بار۔',
   'Name removed': 'نام ہٹا دیا گیا',
   'What should we call you?': 'ہم آپ کو کس نام سے بلائیں؟',
   'Your name is shown on Home. It stays on this phone.': 'آپ کا نام ہوم پر دکھایا جائے گا۔ یہ اسی فون میں رہتا ہے۔',
@@ -624,14 +624,14 @@ const Map<String, String> urExact = {
   'Type the amount you spent': 'خرچ کی رقم لکھیں',
   'Type your name': 'اپنا نام لکھیں',
   'Shown on Home. Stays on this phone.': 'ہوم پر نظر آتا ہے۔ اسی فون میں رہتا ہے۔',
-  'Free to change for 5 minutes, then once every 14 days': '5 منٹ تک بدلنا مفت، پھر 14 دن میں ایک بار',
+  'Free to change for 5 minutes, then once every 24 hours': '5 منٹ تک بدلنا مفت، پھر 24 گھنٹے میں ایک بار',
   'What was it for?': 'کس چیز پر خرچ ہوا؟',
 };
 
 const Map<String, String> urTemplates = {
   'Hello, {}': 'ہیلو، {0}',
-  'You can change your name only once in 14 days. Try again in {} days.':
-      'آپ اپنا نام 14 دن میں صرف ایک بار بدل سکتے ہیں۔ {0} دن بعد دوبارہ کوشش کریں۔',
+  'You can change your name only once in 24 hours. Try again in {} hours.':
+      'آپ اپنا نام 24 گھنٹے میں صرف ایک بار بدل سکتے ہیں۔ {0} گھنٹے بعد دوبارہ کوشش کریں۔',
   'Category: {}': 'کیٹیگری: {0}',
   'Last budget was {}. Change it or keep it.':
       'پچھلا بجٹ {0} تھا۔ بدل لیں یا ویسا ہی رکھیں۔',

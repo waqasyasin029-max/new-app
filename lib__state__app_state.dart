@@ -113,9 +113,9 @@ class AppState extends ChangeNotifier {
   }
 
   /// For 5 minutes after the name is first set it can be changed freely.
-  /// After that it can be changed once every 14 days.
+  /// After that it can be changed once every 24 hours.
   static const nameFreeWindow = Duration(minutes: 5);
-  static const nameLockPeriod = Duration(days: 14);
+  static const nameLockPeriod = Duration(hours: 24);
 
   /// Until when the name cannot be changed, or null if it can be changed now.
   Future<DateTime?> nameLockedUntil() async {
