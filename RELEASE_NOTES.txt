@@ -1,8 +1,10 @@
-Accounts screen par ab sab accounts ki history neeche ek saath, din ke hisaab se
-Account ke andar naya design: white card, orange "Check balance", Withdraw aur Add money; activity din ke hisaab se
-Transfer, Withdraw, Check balance aur Set budget ab app ki theme wale popups mein; budget ke liye sirf numbers wala keyboard
-Edit expense ki nayi screen: upar card, neeche tap karke badlo, Delete aur Save neeche
-Budget 80% use hone par bar laal aur warning; 80% par alert (mahine mein ek dafa), budget se upar jaane par hafte mein ek dafa
-Kharcha save hone par chhoti si "level up" sound (Settings mein band kar sakte ho)
-Naam ab 24 ghante baad dobara badal sakte ho (14 din ki jagah)
-Chart ka card ab bars ke neeche nahi chhupta; aage ke din swipe se nahi khulte
+Accounts screen par ab sab accounts ki history ek saath, din ke hisaab se
+Account ke andar naya design: white card, bara orange Check balance, Withdraw aur Add money; activity din ki headings ke saath
+Transfer aur Withdraw ab popup mein: bara amount, From → To pill, fee/date/note ek tap par
+Check balance ka naya popup: asal balance likho, rangeen nateeja (barabar / kam / zyada)
+Set budget ka naya popup har jagah ek jaisa, sirf numbers wala keyboard
+Edit expense ki nayi screen: white card, tap karke badlo, neeche Delete aur Save
+Budget 80% par bar laal aur warning note; 80% par notification (mahine mein ek dafa), budget se upar hone par hafte mein ek dafa
+Kharcha save hone par "level up" sound (Settings mein band kar sakte ho, silent mode mein nahi bajti)
+Naam badalne ka lock ab 24 ghante (pehle 5 minute free)
+Chart par tap wala card ab hamesha sab bars ke upar; aage ke din swipe se nahi khulte
