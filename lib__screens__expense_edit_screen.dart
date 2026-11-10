@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
 
+import '../services/budget_alert.dart';
 import '../services/sound_service.dart';
 import '../core/theme.dart';
 
@@ -90,6 +91,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
       SoundService.saved();
     }
     state.changed();
+    BudgetAlert.check(state);
     if (mounted) Navigator.pop(context);
   }
 

@@ -251,6 +251,28 @@ class NotificationService {
     );
   }
 
+  /// Budget warning (80% of the monthly budget used). Shows now.
+  static Future<void> showBudgetAlert(String title, String body) async {
+    await _plugin.show(
+      1200,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'budget',
+          'Budget alerts',
+          channelDescription: 'When most of the monthly budget is used',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: 'ic_notification',
+          color: const Color(0xFFEE6F2B),
+          largeIcon: const DrawableResourceAndroidBitmap('ic_notification_large'),
+          styleInformation: BigTextStyleInformation(body),
+        ),
+      ),
+    );
+  }
+
   /// One-off reminder [after] from now, to prove that alarms really fire.
   static Future<void> scheduleTestIn(Duration after) async {
     final exact = await canScheduleExact();

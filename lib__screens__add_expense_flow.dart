@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
+import '../services/budget_alert.dart';
 import '../services/sound_service.dart';
 import '../core/account_style.dart';
 import '../core/category_style.dart';
@@ -42,6 +43,7 @@ class AddExpenseFlow {
     );
     if (saved == null) return;
     SoundService.saved();
+    BudgetAlert.check(state);
     showOk(
       messenger,
       content: Column(

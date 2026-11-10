@@ -113,6 +113,8 @@ class DashboardScreen extends StatelessWidget {
     final left = budget - d.monthExpenses;
     final over = left < 0;
     final used = (d.monthExpenses / budget).clamp(0.0, 1.0);
+    final warn = d.monthExpenses / budget >= 0.8;
+    final pct = (d.monthExpenses / budget * 100).floor();
     return AppCard(
       margin: const EdgeInsets.only(top: 12),
       padding: const EdgeInsets.fromLTRB(18, 16, 18, 16),
@@ -159,10 +161,40 @@ class DashboardScreen extends StatelessWidget {
             child: LinearProgressIndicator(
               value: used,
               minHeight: 10,
-              backgroundColor: AppColors.line,
-              color: over ? AppColors.danger : AppColors.primary,
+              backgroundColor: warn
+                  ? AppColors.danger.withOpacity(0.15)
+                  : AppColors.line,
+              color: warn ? AppColors.danger : AppColors.primary,
             ),
           ),
+          if (warn)
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.danger.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(AppIcons.info, size: 20, color: AppColors.danger),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      over
+                          ? 'Budget is over. Spend only on what is really needed.'
+                          : 'Budget is $pct% used. Only ${Fmt.money(left)} left, spend carefully.',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        height: 1.45,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           const SizedBox(height: 8),
           Text(
             '${Fmt.money(d.monthExpenses)} spent this month',
