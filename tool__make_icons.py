@@ -103,11 +103,12 @@ for dens, px in notif.items():
     icon = Image.new("RGBA", (px, px), (255, 255, 255, 0))
     icon.putalpha(a)
     save(icon, f"{res}/drawable-{dens}/ic_notification.png")
+save(logo.resize((192, 192), Image.LANCZOS), f"{res}/drawable-xxhdpi/ic_notification_large.png")
 os.makedirs(f"{res}/raw", exist_ok=True)
 with open(f"{res}/raw/keep.xml", "w") as f:
     f.write(
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<resources xmlns:tools="http://schemas.android.com/tools"\n'
-        '    tools:keep="@drawable/ic_notification,@mipmap/ic_launcher,@mipmap/ic_launcher_foreground,@mipmap/ic_launcher_background" />\n'
+        '    tools:keep="@drawable/ic_notification,@drawable/ic_notification_large,@mipmap/ic_launcher,@mipmap/ic_launcher_foreground,@mipmap/ic_launcher_background" />\n'
     )
 print("icons generated, adaptive background", bg_hex)

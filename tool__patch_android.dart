@@ -4,6 +4,9 @@ import 'dart:io';
 
 const marker = 'kharcha-patched';
 
+/// Set NOTICE_APP=1 to patch the small Kharcha Notice app instead.
+final bool _notice = Platform.environment['NOTICE_APP'] == '1';
+
 void main() {
   final manifest = File('android/app/src/main/AndroidManifest.xml');
   if (!manifest.existsSync()) {
@@ -82,10 +85,12 @@ void _patchManifest(File f) {
     RegExp(r'<application'),
     '$perms    <application $noBackup',
   );
-  x = x.replaceFirst('</application>', '$receivers    </application>');
+  if (!_notice) {
+    x = x.replaceFirst('</application>', '$receivers    </application>');
+  }
   x = x.replaceFirstMapped(
     RegExp(r'android:label="[^"]*"'),
-    (_) => 'android:label="Kharcha Tracker"',
+    (_) => 'android:label="${_notice ? 'Kharcha Notice' : 'Kharcha Tracker'}"',
   );
   f.writeAsStringSync(x);
   final xmlDir = Directory('android/app/src/main/res/xml')

@@ -15,7 +15,7 @@ Future<void> askBudget(BuildContext context, {bool monthly = false}) async {
   final info = await state.incomes.salaryFor(month);
   if (!context.mounted) return;
   final c = TextEditingController(
-    text: info.amount > 0 ? Fmt.number(info.amount).replaceAll(',', '') : '',
+    text: info.amount > 0 ? amountText(info.amount) : '',
   );
   final v = await showDialog<double>(
     context: context,

@@ -3,7 +3,11 @@ name: Build APK
 on:
   workflow_dispatch:
   push:
-    branches: [main, master]
+    branches: [main, master, next]
+    # The small Kharcha Notice app has its own workflow.
+    paths-ignore:
+      - 'notice_app__**'
+      - '.github/workflows/build-notice-app.yml'
 
 permissions:
   contents: write
@@ -78,6 +82,7 @@ jobs:
           path: ${{ runner.temp }}/app/build/app/outputs/flutter-apk/app-release.apk
 
       - name: Publish release (the app checks this for updates)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -91,6 +96,7 @@ jobs:
       # Optional: a copy in the small public downloads repo, for when the code
       # repo goes private. Never fails the build while that is not set up.
       - name: Also publish to the public downloads repo (optional)
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
         continue-on-error: true
         env:
           RELEASES_TOKEN: ${{ secrets.RELEASES_TOKEN }}

@@ -6,6 +6,7 @@ import 'core/i18n.dart' show L10n;
 import 'core/theme.dart';
 import 'screens/onboarding_screen.dart';
 import 'screens/add_expense_flow.dart';
+import 'services/announce_service.dart';
 import 'services/notification_service.dart';
 import 'services/update_service.dart';
 import 'widgets/lock_gate.dart';
@@ -48,6 +49,9 @@ Future<void> main() async {
       if (payload == NotificationService.payloadRecord) openRecordScreen();
     } catch (_) {}
     _checkForUpdateOnLaunch();
+    // Notices from the developer: check now and keep checking in the background.
+    AnnounceService.checkAndShow();
+    AnnounceService.schedule();
   });
 }
 

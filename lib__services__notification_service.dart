@@ -123,6 +123,9 @@ class NotificationService {
     await _android?.requestExactAlarmsPermission();
   }
 
+  /// The reminder's title is always Urdu, whatever the app language is.
+  static const String _title = 'آج کا حساب لکھا؟';
+
   static const NotificationDetails _details = NotificationDetails(
     android: AndroidNotificationDetails(
       _channelId,
@@ -131,6 +134,8 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       icon: 'ic_notification',
+      color: Color(0xFFEE6F2B),
+      largeIcon: DrawableResourceAndroidBitmap('ic_notification_large'),
     ),
   );
 
@@ -143,6 +148,8 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
       icon: 'ic_notification',
+      color: const Color(0xFFEE6F2B),
+      largeIcon: const DrawableResourceAndroidBitmap('ic_notification_large'),
       styleInformation: BigTextStyleInformation(line),
     ),
   );
@@ -171,7 +178,7 @@ class NotificationService {
         final line = _lineFor(when);
         await _plugin.zonedSchedule(
           _rotationBase + i,
-          tr('Kharcha Tracker'),
+          _title,
           line,
           tz.TZDateTime.from(when, tz.UTC),
           _detailsFor(line),
@@ -220,6 +227,28 @@ class NotificationService {
       lastError = '$e';
       rethrow;
     }
+  }
+
+  /// A notice sent by the developer (not the daily reminder). Shows now.
+  static Future<void> showNotice(String title, String body) async {
+    await _plugin.show(
+      1100,
+      title,
+      body,
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          'notices',
+          'Notices',
+          channelDescription: 'Messages from the developer',
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: 'ic_notification',
+          color: const Color(0xFFEE6F2B),
+          largeIcon: const DrawableResourceAndroidBitmap('ic_notification_large'),
+          styleInformation: BigTextStyleInformation(body),
+        ),
+      ),
+    );
   }
 
   /// One-off reminder [after] from now, to prove that alarms really fire.
@@ -288,7 +317,7 @@ class NotificationService {
 
   static Future<void> showTest() => _plugin.show(
     1002,
-    tr('Kharcha Tracker'),
+    _title,
     _lineFor(DateTime.now()),
     _detailsFor(_lineFor(DateTime.now())),
     payload: payloadRecord,
