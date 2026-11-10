@@ -462,6 +462,8 @@ class _SpendingChartCardState extends State<SpendingChartCard> {
             step: _niceStep(maxV / 3),
             picked: _picked,
             startPage: isCurrent ? (now.day - 1) ~/ 10 : top ~/ 10,
+            // No pages for days that have not come yet.
+            lastPage: isCurrent ? (now.day - 1) ~/ 10 : 2,
             onPick: (i) => setState(() => _picked = i == _picked ? null : i),
           ),
         ),
@@ -528,6 +530,7 @@ class _DailyPages extends StatefulWidget {
   final double step;
   final int? picked; // 0-based day of month
   final int startPage;
+  final int lastPage;
   final ValueChanged<int> onPick;
   const _DailyPages({
     required this.month,
@@ -535,6 +538,7 @@ class _DailyPages extends StatefulWidget {
     required this.step,
     required this.picked,
     required this.startPage,
+    required this.lastPage,
     required this.onPick,
   });
 
@@ -544,7 +548,8 @@ class _DailyPages extends StatefulWidget {
 
 class _DailyPagesState extends State<_DailyPages> {
   static const _pages = 3;
-  late int _page = widget.startPage.clamp(0, _pages - 1);
+  late final int _count = widget.lastPage.clamp(0, _pages - 1) + 1;
+  late int _page = widget.startPage.clamp(0, _count - 1);
   late final PageController _ctrl = PageController(initialPage: _page);
 
   @override
@@ -564,7 +569,7 @@ class _DailyPagesState extends State<_DailyPages> {
           height: 210,
           child: PageView.builder(
             controller: _ctrl,
-            itemCount: _pages,
+            itemCount: _count,
             onPageChanged: (i) => setState(() => _page = i),
             itemBuilder: (_, page) => _DailyPage(
               month: widget.month,
@@ -577,10 +582,11 @@ class _DailyPagesState extends State<_DailyPages> {
           ),
         ),
         const SizedBox(height: 4),
+        if (_count > 1)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (var i = 0; i < _pages; i++)
+            for (var i = 0; i < _count; i++)
               AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 margin: const EdgeInsets.symmetric(horizontal: 3),
@@ -595,7 +601,9 @@ class _DailyPagesState extends State<_DailyPages> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Swipe for the next days. Tap a bar to see the amount.',
+          _count > 1
+              ? 'Swipe for the next days. Tap a bar to see the amount.'
+              : 'Tap a bar to see the amount.',
           style: TextStyle(fontSize: 11.5, color: AppColors.muted),
         ),
       ],
