@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../core/format.dart';
 import '../data/models.dart';
 import '../state/app_state.dart';
+import '../widgets/budget_dialog.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
 import '../core/i18n.dart';
@@ -29,46 +30,8 @@ class IncomeScreen extends StatefulWidget {
 class _IncomeScreenState extends State<IncomeScreen> {
   DateTime _month = Fmt.firstOfMonth(DateTime.now());
 
-  Future<void> _editSalary(double current) async {
-    final c = TextEditingController(
-      text: current > 0 ? amountText(current) : '',
-    );
-    final v = await showDialog<double>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Budget for ${Fmt.month(_month)}'),
-        content: TextField(
-          controller: c,
-          autofocus: true,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: [AmountFormatter()],
-          decoration: InputDecoration(labelText: tr('Amount (Rs)')),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () {
-              final a = parseAmount(c.text);
-              if (a == null) {
-                snack(ctx, 'Enter a valid amount.');
-                return;
-              }
-              Navigator.pop(ctx, a);
-            },
-            child: const Text('Save'),
-          ),
-        ],
-      ),
-    );
-    c.dispose();
-    if (v == null || !mounted) return;
-    final state = context.read<AppState>();
-    await state.incomes.setSalary(_month, v);
-    state.changed();
-  }
+  Future<void> _editSalary(double current) =>
+      askBudget(context, forMonth: _month);
 
   Future<void> _addExtra() async {
     final amount = TextEditingController();

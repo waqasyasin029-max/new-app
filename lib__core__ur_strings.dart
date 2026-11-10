@@ -640,6 +640,7 @@ const Map<String, String> urTemplates = {
       'پچھلا بجٹ {0} تھا۔ بدل لیں یا ویسا ہی رکھیں۔',
   '{} spent this month': 'اس مہینے {0} خرچ ہوئے',
   'Budget for {}': '{0} کا بجٹ',
+  'Same as last: {}': 'پچھلے جتنا: {0}',
   '{} over budget': 'بجٹ سے {0} زیادہ',
   '{} left of budget': 'بجٹ میں {0} باقی',
   'Add money to {}': '{0} میں رقم شامل کریں',
