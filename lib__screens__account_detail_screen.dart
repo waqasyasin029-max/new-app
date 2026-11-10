@@ -9,7 +9,7 @@ import '../state/app_state.dart';
 import '../widgets/account_dialogs.dart';
 import '../widgets/common.dart';
 import '../widgets/data_loader.dart';
-import 'transfer_screen.dart';
+import '../widgets/transfer_sheet.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
@@ -223,12 +223,10 @@ class AccountDetailScreen extends StatelessWidget {
                     label: const Text('Check balance'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => Navigator.push(
+                    onPressed: () => showTransferSheet(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            TransferScreen(fromId: a.id, withdraw: !a.isCash),
-                      ),
+                      fromId: a.id,
+                      withdraw: !a.isCash,
                     ),
                     icon: Icon(
                       a.isCash ? AppIcons.swapHoriz : AppIcons.atm,

@@ -7,7 +7,7 @@ import '../data/models.dart';
 import '../widgets/account_dialogs.dart';
 import '../widgets/data_loader.dart';
 import 'account_detail_screen.dart';
-import 'transfer_screen.dart';
+import '../widgets/transfer_sheet.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
@@ -79,10 +79,8 @@ class AccountsScreen extends StatelessWidget {
                             style: FilledButton.styleFrom(
                               backgroundColor: AppColors.navy,
                             ),
-                            onPressed: () => _open(
-                              context,
-                              const TransferScreen(withdraw: true),
-                            ),
+                            onPressed: () =>
+                                showTransferSheet(context, withdraw: true),
                             icon: const Icon(AppIcons.atm, size: 20),
                             label: const Text('Withdraw'),
                           ),
@@ -94,8 +92,7 @@ class AccountsScreen extends StatelessWidget {
                               backgroundColor: AppColors.surface,
                               foregroundColor: AppColors.ink,
                             ),
-                            onPressed: () =>
-                                _open(context, const TransferScreen()),
+                            onPressed: () => showTransferSheet(context),
                             icon: const Icon(AppIcons.swapHoriz, size: 20),
                             label: const Text('Transfer'),
                           ),
