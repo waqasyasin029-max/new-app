@@ -356,6 +356,88 @@ class AccountRepository {
     await db.delete('transfers', where: 'id = ?', whereArgs: [id]);
   }
 
+  /// Latest entries of ALL accounts together, newest first. A transfer is
+  /// listed once (as "From → To"), its [ActivityItem.delta] is the plain amount.
+  Future<List<ActivityItem>> allActivity({int limit = 30}) async {
+    final db = await DatabaseHelper.instance.database;
+    final items = <ActivityItem>[];
+
+    final ex = await db.rawQuery(
+      'SELECT e.id, e.amount, e.description, e.date, e.account_id, '
+      'c.name AS cat, a.name AS acc FROM expenses e '
+      'JOIN categories c ON c.id = e.category_id '
+      'JOIN accounts a ON a.id = e.account_id '
+      'ORDER BY e.date DESC, e.id DESC LIMIT $limit',
+    );
+    for (final r in ex) {
+      final desc = (r['description'] as String?) ?? '';
+      items.add(
+        ActivityItem(
+          'expense',
+          r['id'] as int,
+          desc.isEmpty ? r['cat'] as String : desc,
+          r['cat'] as String,
+          -(r['amount'] as num).toDouble(),
+          Fmt.parseKey(r['date'] as String),
+          account: r['acc'] as String,
+          accountId: r['account_id'] as int,
+        ),
+      );
+    }
+
+    final inc = await db.rawQuery(
+      'SELECT i.id, i.amount, i.source, i.date, i.account_id, a.name AS acc '
+      'FROM incomes i JOIN accounts a ON a.id = i.account_id '
+      'ORDER BY i.date DESC, i.id DESC LIMIT $limit',
+    );
+    for (final r in inc) {
+      final src = (r['source'] as String?) ?? '';
+      items.add(
+        ActivityItem(
+          'deposit',
+          r['id'] as int,
+          src.isEmpty ? 'Money added' : src,
+          'Money added',
+          (r['amount'] as num).toDouble(),
+          Fmt.parseKey(r['date'] as String),
+          account: r['acc'] as String,
+          accountId: r['account_id'] as int,
+        ),
+      );
+    }
+
+    final tr = await db.rawQuery(
+      'SELECT t.*, f.name AS from_name, o.name AS to_name FROM transfers t '
+      'JOIN accounts f ON f.id = t.from_id JOIN accounts o ON o.id = t.to_id '
+      'ORDER BY t.date DESC, t.id DESC LIMIT $limit',
+    );
+    for (final r in tr) {
+      final fee = (r['fee'] as num).toDouble();
+      final note = (r['note'] as String?) ?? '';
+      items.add(
+        ActivityItem(
+          'transfer',
+          r['id'] as int,
+          '${r['from_name']} → ${r['to_name']}',
+          [
+            if (fee > 0) 'fee ${Fmt.money(fee)}',
+            if (note.isNotEmpty) note,
+          ].join(' • '),
+          (r['amount'] as num).toDouble(),
+          Fmt.parseKey(r['date'] as String),
+          account: 'Transfer',
+          accountId: r['from_id'] as int,
+        ),
+      );
+    }
+
+    items.sort((a, b) {
+      final c = b.date.compareTo(a.date);
+      return c != 0 ? c : b.id.compareTo(a.id);
+    });
+    return items.take(limit).toList();
+  }
+
   /// Everything that touched this account, newest first.
   Future<List<ActivityItem>> activity(int accountId, {int limit = 80}) async {
     final db = await DatabaseHelper.instance.database;

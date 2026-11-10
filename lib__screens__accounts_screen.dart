@@ -11,6 +11,12 @@ import 'transfer_screen.dart';
 import '../core/i18n.dart';
 import '../core/app_icons.dart';
 
+class _Data {
+  final List<AccountBalance> balances;
+  final List<ActivityItem> activity;
+  _Data(this.balances, this.activity);
+}
+
 class AccountsScreen extends StatelessWidget {
   const AccountsScreen({super.key});
 
@@ -30,9 +36,11 @@ class AccountsScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: DataLoader<List<AccountBalance>>(
-        load: (s) => s.accountRepo.balances(),
-        builder: (context, list) {
+      body: DataLoader<_Data>(
+        load: (s) async =>
+            _Data(await s.accountRepo.balances(), await s.accountRepo.allActivity()),
+        builder: (context, data) {
+          final list = data.balances;
           final total = list.fold<double>(0, (a, b) => a + b.balance);
           final allZero = list.every((b) => b.balance == 0);
           return ListView(
@@ -112,26 +120,29 @@ class AccountsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-              const SizedBox(height: 8),
+              const SectionTitle('My accounts'),
               for (final b in list)
                 Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 5),
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Material(
                     color: AccountStyle.tint(b.account.type),
-                    borderRadius: BorderRadius.circular(24),
+                    borderRadius: BorderRadius.circular(22),
                     child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(22),
                       onTap: () => _open(
                         context,
                         AccountDetailScreen(accountId: b.account.id),
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         child: Row(
                           children: [
                             Container(
-                              width: 46,
-                              height: 46,
+                              width: 38,
+                              height: 38,
                               decoration: BoxDecoration(
                                 color: AppColors.softWhite,
                                 shape: BoxShape.circle,
@@ -180,9 +191,128 @@ class AccountsScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+              const SectionTitle('Activity · all accounts'),
+              if (data.activity.isEmpty)
+                AppCard(
+                  padding: const EdgeInsets.all(18),
+                  child: Text(
+                    'Nothing recorded yet.',
+                    style: TextStyle(color: AppColors.muted),
+                  ),
+                )
+              else ...[
+                for (final g in _groups(data.activity)) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(6, 12, 6, 6),
+                    child: Text(
+                      Fmt.dayLabel(g.key),
+                      verbatim: true,
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.muted,
+                      ),
+                    ),
+                  ),
+                  TileGroup(
+                    children: [
+                      for (final i in g.value) _activityRow(context, i),
+                    ],
+                  ),
+                ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(6, 10, 6, 0),
+                  child: Text(
+                    'Showing the latest entries. Open an account to see more.',
+                    style: TextStyle(color: AppColors.muted, fontSize: 12),
+                  ),
+                ),
+              ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  /// Groups the (already sorted) items by day, keeping the order.
+  List<MapEntry<DateTime, List<ActivityItem>>> _groups(
+    List<ActivityItem> items,
+  ) {
+    final out = <MapEntry<DateTime, List<ActivityItem>>>[];
+    for (final i in items) {
+      final d = Fmt.dateOnly(i.date);
+      if (out.isEmpty || out.last.key != d) {
+        out.add(MapEntry(d, <ActivityItem>[]));
+      }
+      out.last.value.add(i);
+    }
+    return out;
+  }
+
+  Widget _activityRow(BuildContext context, ActivityItem i) {
+    final isIn = i.kind == 'deposit';
+    final isTransfer = i.kind == 'transfer';
+    final color = isTransfer
+        ? AppColors.muted
+        : (isIn ? AppColors.positive : AppColors.danger);
+    final icon = isTransfer
+        ? AppIcons.swapHoriz
+        : (isIn ? AppIcons.arrowDownLeft : AppIcons.arrowUpRight);
+    final sign = isTransfer ? '' : (isIn ? '+' : '-');
+    return ListTile(
+      onTap: () => _open(context, AccountDetailScreen(accountId: i.accountId)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 17, color: color),
+      ),
+      title: Text(
+        i.title,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Padding(
+        padding: const EdgeInsets.only(top: 3),
+        child: Wrap(
+          spacing: 6,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+              decoration: BoxDecoration(
+                color: AppColors.fieldFill,
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Text(
+                i.account,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.muted,
+                ),
+              ),
+            ),
+            if (isTransfer && i.subtitle.isNotEmpty)
+              Text(
+                i.subtitle,
+                style: TextStyle(color: AppColors.muted, fontSize: 12),
+              ),
+          ],
+        ),
+      ),
+      trailing: Text(
+        '$sign${Fmt.money(i.delta.abs())}',
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          color: isIn ? AppColors.positive : AppColors.ink,
+        ),
       ),
     );
   }
