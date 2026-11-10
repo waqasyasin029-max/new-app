@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart' hide Text;
 
+import '../services/sound_service.dart';
 import '../core/theme.dart';
 
 import 'package:provider/provider.dart';
@@ -86,6 +87,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
       await state.expenses.update(e);
     } else {
       await state.expenses.insertMany([e]);
+      SoundService.saved();
     }
     state.changed();
     if (mounted) Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart' hide Text;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
+import '../services/sound_service.dart';
 import '../core/theme.dart';
 import '../services/notification_service.dart';
 import '../services/update_service.dart';
@@ -84,6 +85,21 @@ class SettingsScreen extends StatelessWidget {
                     onSelectionChanged: (v) => s.setLanguage(v.first),
                   ),
                 ),
+              ),
+              SwitchListTile(
+                secondary: const Icon(AppIcons.volume),
+                title: const Text(
+                  'Sound on save',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+                subtitle: const Text(
+                  'Plays a short sound when an expense is saved',
+                ),
+                value: s.saveSound,
+                onChanged: (on) {
+                  s.setSaveSound(on);
+                  if (on) SoundService.saved();
+                },
               ),
             ],
           ),

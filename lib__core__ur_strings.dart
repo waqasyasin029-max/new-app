@@ -119,6 +119,8 @@ const Map<String, String> urExact = {
   '(from what you recorded)': '(آپ کے درج کردہ حساب سے)',
   'Accounts': 'اکاؤنٹس',
   'Activity': 'سرگرمی',
+  'Sound on save': 'محفوظ کرنے پر آواز',
+  'Plays a short sound when an expense is saved': 'خرچ محفوظ ہونے پر ایک چھوٹی سی آواز بجتی ہے',
   'Done': 'ہو گیا',
   'How much cash is in your hand right now?': 'ابھی آپ کے ہاتھ میں کتنا کیش ہے؟',
   'How much does your bank or wallet app show right now?': 'ابھی آپ کی بینک یا والٹ ایپ میں کتنا دکھ رہا ہے؟',

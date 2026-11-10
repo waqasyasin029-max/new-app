@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide Text;
 import 'package:provider/provider.dart';
 
+import '../services/sound_service.dart';
 import '../core/account_style.dart';
 import '../core/category_style.dart';
 import '../core/format.dart';
@@ -40,6 +41,7 @@ class AddExpenseFlow {
       builder: (_) => const _FlowSheet(),
     );
     if (saved == null) return;
+    SoundService.saved();
     showOk(
       messenger,
       content: Column(

@@ -40,6 +40,7 @@ class AppState extends ChangeNotifier {
 
   /// Ask for the phone's fingerprint / PIN when the app opens.
   bool appLock = false;
+  bool saveSound = true;
 
   /// Seconds away from the app before it locks again. 0 = right away,
   /// -1 = only when the app was closed (never on coming back from background).
@@ -64,6 +65,7 @@ class AppState extends ChangeNotifier {
     setupDone = prefs.getBool('setup_done') ?? onboardingDone;
     welcomeDone = prefs.getBool('welcome_done') ?? setupDone;
     appLock = prefs.getBool('app_lock') ?? false;
+    saveSound = prefs.getBool('save_sound') ?? true;
     appLockDelay = prefs.getInt('app_lock_delay') ?? 30;
     userName = prefs.getString('user_name') ?? '';
     applyLook();
@@ -240,6 +242,13 @@ class AppState extends ChangeNotifier {
     appLock = on;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('app_lock', on);
+    notifyListeners();
+  }
+
+  Future<void> setSaveSound(bool on) async {
+    saveSound = on;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('save_sound', on);
     notifyListeners();
   }
 }
