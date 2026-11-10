@@ -191,7 +191,7 @@ class _ConfirmExpensesScreenState extends State<ConfirmExpensesScreen> {
       await state.expenses.insertMany(list);
       state.changed();
       SoundService.saved();
-      BudgetAlert.check(state);
+      BudgetAlert.check();
       final total = list.fold<double>(0, (a, e) => a + e.amount);
       final used = {for (final e in list) e.accountId!};
       final bals = await state.accountRepo.balances();

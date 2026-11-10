@@ -5,12 +5,14 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:workmanager/workmanager.dart';
 
+import 'budget_alert.dart';
 import 'notification_service.dart';
 
 /// The notice the developer sends from the Kharcha Notice app.
 const String _noticeUrl =
     'https://raw.githubusercontent.com/waqasyasin029-max/kharcha-notices/main/latest.json';
 const String _taskName = 'kharcha_notice_check';
+const String _budgetTask = 'kharcha_budget_check';
 const String _seenKey = 'notice_seen_id';
 
 /// Runs in the background (even when the app is closed).
@@ -19,7 +21,11 @@ void announceDispatcher() {
   Workmanager().executeTask((task, inputData) async {
     try {
       WidgetsFlutterBinding.ensureInitialized();
-      await AnnounceService.checkAndShow();
+      if (task == _budgetTask) {
+        await BudgetAlert.check(background: true);
+      } else {
+        await AnnounceService.checkAndShow();
+      }
     } catch (_) {}
     return true;
   });
@@ -35,6 +41,12 @@ class AnnounceService {
         _taskName,
         frequency: const Duration(hours: 2),
         constraints: Constraints(networkType: NetworkType.connected),
+      );
+      // Budget alerts need no internet.
+      await Workmanager().registerPeriodicTask(
+        _budgetTask,
+        _budgetTask,
+        frequency: const Duration(hours: 6),
       );
     } catch (_) {}
   }

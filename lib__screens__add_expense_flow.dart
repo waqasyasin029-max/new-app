@@ -43,7 +43,7 @@ class AddExpenseFlow {
     );
     if (saved == null) return;
     SoundService.saved();
-    BudgetAlert.check(state);
+    BudgetAlert.check();
     showOk(
       messenger,
       content: Column(

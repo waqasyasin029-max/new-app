@@ -91,7 +91,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
       SoundService.saved();
     }
     state.changed();
-    BudgetAlert.check(state);
+    BudgetAlert.check();
     if (mounted) Navigator.pop(context);
   }
 
