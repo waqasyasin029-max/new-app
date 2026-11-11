@@ -372,6 +372,7 @@ class _TimeSheetState extends State<_TimeSheet> {
           Row(
             children: [
               Expanded(
+                flex: 10,
                 child: SizedBox(
                   height: 54,
                   child: FilledButton.tonal(

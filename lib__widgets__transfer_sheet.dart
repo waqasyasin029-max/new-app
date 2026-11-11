@@ -469,6 +469,7 @@ class _TransferSheetState extends State<_TransferSheet> {
           Row(
             children: [
               Expanded(
+                flex: 10,
                 child: SizedBox(
                   height: 54,
                   child: FilledButton.tonal(

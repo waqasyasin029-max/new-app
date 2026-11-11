@@ -241,31 +241,118 @@ class MonthSwitcher extends StatelessWidget {
   }
 }
 
+/// Themed confirm dialog (centre of the screen). For "Delete" it is red with
+/// a bin icon and says it cannot be undone; other actions use the orange style.
 Future<bool> confirmDialog(
   BuildContext context,
   String title,
   String message, {
   String action = 'Delete',
 }) async {
+  final danger = action == 'Delete';
+  final color = danger ? AppColors.danger : AppColors.primary;
   final r = await showDialog<bool>(
     context: context,
-    builder: (ctx) => AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(ctx, false),
-          child: const Text('Cancel'),
+    builder: (ctx) => Dialog(
+      backgroundColor: AppColors.surface,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 28),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 18),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                danger ? AppIcons.delete : AppIcons.info,
+                color: color,
+                size: 28,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.5,
+                height: 1.45,
+                fontWeight: FontWeight.w600,
+                color: AppColors.ink,
+              ),
+            ),
+            if (danger && message != 'This cannot be undone.') ...[
+              const SizedBox(height: 2),
+              Text(
+                'This cannot be undone.',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.5, color: AppColors.muted),
+              ),
+            ],
+            const SizedBox(height: 18),
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton.tonal(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.fieldFill,
+                        foregroundColor: AppColors.ink,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: const Text(
+                        'Cancel',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: SizedBox(
+                    height: 52,
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(ctx, true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: color,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: Text(
+                        action,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        FilledButton(
-          onPressed: () => Navigator.pop(ctx, true),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size(90, 44),
-            backgroundColor: action == 'Delete' ? AppColors.danger : null,
-          ),
-          child: Text(action),
-        ),
-      ],
+      ),
     ),
   );
   return r ?? false;

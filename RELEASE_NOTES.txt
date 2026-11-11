@@ -1,10 +1,5 @@
-Accounts screen par ab sab accounts ki history ek saath, din ke hisaab se
-Account ke andar naya design: white card, bara orange Check balance, Withdraw aur Add money; activity din ki headings ke saath
-Transfer aur Withdraw ab popup mein: bara amount, From → To pill, fee/date/note ek tap par
-Check balance ka naya popup: asal balance likho, rangeen nateeja (barabar / kam / zyada)
-Set budget ka naya popup har jagah ek jaisa, sirf numbers wala keyboard
-Edit expense ki nayi screen: white card, tap karke badlo, neeche Delete aur Save
-Budget 80% par bar laal aur warning note; 80% par notification (mahine mein ek dafa), budget se upar hone par hafte mein ek dafa
-Kharcha save hone par "level up" sound (Settings mein band kar sakte ho, silent mode mein nahi bajti)
-Naam badalne ka lock ab 24 ghante (pehle 5 minute free)
-Chart par tap wala card ab hamesha sab bars ke upar; aage ke din swipe se nahi khulte
+Budget & income ki nayi screen: orange budget card, Budget / Other income / Total tiles, aur income list
+Other income add karne ka naya popup: amount, kahan se aayi (Freelance, Bonus, Gift), aur account
+Edit expense mein Delete aur Save ab upar heading ke saath icons
+Delete aur confirm ka naya dialog: Cancel aur Delete ek line mein
+Popups mein Cancel button ab sahi size ka (pehle bohot patla tha)
