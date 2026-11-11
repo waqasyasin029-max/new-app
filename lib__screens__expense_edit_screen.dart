@@ -99,10 +99,14 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
   }
 
   Future<void> _delete() async {
+    final e = widget.expense!;
+    final label = e.description.isEmpty
+        ? (e.categoryName ?? 'Expense')
+        : e.description;
     if (!await confirmDialog(
       context,
       'Delete expense?',
-      'This cannot be undone.',
+      '$label – ${Fmt.money(e.amount)}',
     ))
       return;
     final state = context.read<AppState>();
