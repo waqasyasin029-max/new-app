@@ -195,6 +195,7 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
             Row(
               children: [
                 Expanded(
+                  flex: 10,
                   child: SizedBox(
                     height: 54,
                     child: FilledButton.tonal(
