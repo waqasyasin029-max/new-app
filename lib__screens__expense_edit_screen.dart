@@ -352,7 +352,33 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
     final desc = _desc.text.trim();
     final meta = TextStyle(fontSize: 12.5, color: AppColors.muted);
     return Scaffold(
-      appBar: AppBar(title: Text(_editing ? 'Edit expense' : 'Add expense')),
+      appBar: AppBar(
+        title: Text(_editing ? 'Edit expense' : 'Add expense'),
+        actions: [
+          if (_editing)
+            IconButton(
+              tooltip: tr('Delete'),
+              onPressed: _delete,
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.danger.withOpacity(0.10),
+              ),
+              icon: const Icon(AppIcons.delete, color: AppColors.danger),
+            ),
+          const SizedBox(width: 8),
+          Padding(
+            padding: const EdgeInsetsDirectional.only(end: 12),
+            child: IconButton.filled(
+              tooltip: tr(_editing ? 'Save changes' : 'Add expense'),
+              onPressed: _save,
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(AppIcons.check),
+            ),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
@@ -459,61 +485,6 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
             ],
           ),
         ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-          child: Row(
-            children: [
-              if (_editing) ...[
-                Expanded(
-                  child: SizedBox(
-                    height: 54,
-                    child: FilledButton.tonal(
-                      onPressed: _delete,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppColors.danger.withOpacity(0.10),
-                        foregroundColor: AppColors.danger,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                      ),
-                      child: const Text(
-                        'Delete',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-              ],
-              Expanded(
-                flex: 16,
-                child: SizedBox(
-                  height: 54,
-                  child: FilledButton(
-                    onPressed: _save,
-                    style: FilledButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                    ),
-                    child: Text(
-                      _editing ? 'Save changes' : 'Add expense',
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
