@@ -462,10 +462,10 @@ class _ExpenseEditScreenState extends State<ExpenseEditScreen> {
               ),
               _row(
                 icon: AppIcons.editNote,
-                label: 'Description',
+                label: 'What did you buy?',
                 value: desc.isEmpty ? tr('Not set') : desc,
                 verbatim: desc.isNotEmpty,
-                onTap: () => _editText(title: 'Description', target: _desc),
+                onTap: () => _editText(title: 'What did you buy?', target: _desc),
               ),
               _row(
                 icon: CategoryStyle.icon(catName),

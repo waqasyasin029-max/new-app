@@ -119,6 +119,7 @@ const Map<String, String> urExact = {
   '(from what you recorded)': '(آپ کے درج کردہ حساب سے)',
   'Accounts': 'اکاؤنٹس',
   'Activity': 'سرگرمی',
+  'Item': 'چیز',
   'Total': 'کل',
   'Freelance': 'فری لانس',
   'Bonus': 'بونس',
