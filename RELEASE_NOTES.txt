@@ -1,5 +1,2 @@
-Budget & income ki nayi screen: orange budget card, Budget / Other income / Total tiles, aur income list
-Other income add karne ka naya popup: amount, kahan se aayi (Freelance, Bonus, Gift), aur account
-Edit expense mein Delete aur Save ab upar heading ke saath icons
-Delete aur confirm ka naya dialog: Cancel aur Delete ek line mein
-Popups mein Cancel button ab sahi size ka (pehle bohot patla tha)
+PDF report mein kharche ke naam wale column ki heading ab "Item" (pehle "Description")
+Edit expense mein "Description" ki jagah wahi sawal "What did you buy?" jo kharcha add karte waqt aata hai
