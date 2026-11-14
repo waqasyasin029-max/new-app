@@ -415,7 +415,7 @@ class ReportPdfService {
                   decoration: headDeco,
                   children: [
                     cell('Date', header: true),
-                    cell('Description', header: true),
+                    cell('Item', header: true),
                     cell('Category', header: true),
                     cell('Account', header: true),
                     cell('Amount', header: true, right: true),
