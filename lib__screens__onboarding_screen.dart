@@ -282,7 +282,6 @@ class _PageView extends StatelessWidget {
           const SizedBox(height: 44),
           Text(
             page.title,
-            urdu: true,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.ink,
@@ -293,7 +292,6 @@ class _PageView extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             page.text,
-            urdu: true,
             textAlign: TextAlign.center,
             style: TextStyle(color: AppColors.muted, fontSize: 16, height: 1.5),
           ),
