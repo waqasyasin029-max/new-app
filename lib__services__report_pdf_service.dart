@@ -91,7 +91,8 @@ class ReportPdfService {
         style: fp.TextStyle(
           fontFamily: 'NotoNastaliqUrdu',
           fontFamilyFallback: const ['Manrope'],
-          fontSize: size * scale,
+          // Nastaliq looks smaller than Latin at the same size.
+          fontSize: size * 1.2 * scale,
           height: 2.0,
           color: ui.Color(color),
           fontWeight: bold ? ui.FontWeight.w700 : ui.FontWeight.w400,
