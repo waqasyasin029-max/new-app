@@ -1,2 +1,1 @@
-PDF report mein kharche ke naam wale column ki heading ab "Item" (pehle "Description")
-Edit expense mein "Description" ki jagah wahi sawal "What did you buy?" jo kharcha add karte waqt aata hai
+PDF report mein Urdu ab "????" ki jagah sahi Nastaliq mein (naam, kharche ka naam, category, account)
