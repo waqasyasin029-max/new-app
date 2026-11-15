@@ -1,5 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
+import 'package:flutter/painting.dart' as fp;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:intl/intl.dart';
 import 'package:open_filex/open_filex.dart';
@@ -10,6 +13,14 @@ import 'package:share_plus/share_plus.dart';
 
 import '../data/models.dart';
 import '../state/app_state.dart';
+
+/// Urdu (or other non-Latin) text drawn by Flutter as a picture for the PDF.
+class _Pic {
+  final Uint8List bytes;
+  final double w;
+  final double h;
+  const _Pic(this.bytes, this.w, this.h);
+}
 
 class _MonthRow {
   final DateTime month;
@@ -48,6 +59,58 @@ class ReportPdfService {
       b.write(ok ? String.fromCharCode(r) : '?');
     }
     return b.toString();
+  }
+
+  static bool _latin(String s) {
+    for (final r in s.runes) {
+      if (!((r >= 0x20 && r <= 0x24F) || (r >= 0x2010 && r <= 0x2027))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static final _rtl = RegExp(
+    r'[\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF]',
+  );
+
+  /// The PDF font cannot draw Urdu, so such text is drawn by Flutter with the
+  /// app's own Nastaliq font (correctly joined, right to left) and placed in
+  /// the PDF as a sharp picture.
+  static Future<_Pic> _picture(
+    String text,
+    double size,
+    int color, {
+    bool bold = false,
+    double maxWidth = 230,
+  }) async {
+    const scale = 4.0;
+    final tp = fp.TextPainter(
+      text: fp.TextSpan(
+        text: text,
+        style: fp.TextStyle(
+          fontFamily: 'NotoNastaliqUrdu',
+          fontFamilyFallback: const ['Manrope'],
+          // Nastaliq looks smaller than Latin at the same size.
+          fontSize: size * 1.2 * scale,
+          height: 2.0,
+          color: ui.Color(color),
+          fontWeight: bold ? ui.FontWeight.w700 : ui.FontWeight.w400,
+        ),
+      ),
+      textDirection: _rtl.hasMatch(text)
+          ? ui.TextDirection.rtl
+          : ui.TextDirection.ltr,
+      maxLines: 1,
+      ellipsis: '…',
+    )..layout(maxWidth: maxWidth * scale);
+    final rec = ui.PictureRecorder();
+    tp.paint(ui.Canvas(rec), ui.Offset.zero);
+    final w = tp.width.ceil() < 1 ? 1 : tp.width.ceil();
+    final h = tp.height.ceil() < 1 ? 1 : tp.height.ceil();
+    final img = await rec.endRecording().toImage(w, h);
+    final data = await img.toByteData(format: ui.ImageByteFormat.png);
+    return _Pic(data!.buffer.asUint8List(), w / scale, h / scale);
   }
 
   /// Creates the PDF for [month] and opens it in the phone's PDF viewer (which
@@ -160,6 +223,39 @@ class ReportPdfService {
         ? null
         : items.reduce((a, b) => b.amount > a.amount ? b : a);
 
+    stage = 'urdu';
+    const inkInt = 0xFF16161A, mutedInt = 0xFF5E5E69, whiteInt = 0xFFFFFFFF;
+    final pics = <String, _Pic>{};
+    String key(String s, double size, int color) => '$s|$size|$color';
+    Future<void> need(String s, double size, int color) async {
+      final k = key(s, size, color);
+      if (s.isEmpty || _latin(s) || pics.containsKey(k)) return;
+      try {
+        pics[k] = await _picture(s, size, color);
+      } catch (_) {
+        // Falls back to the plain text (question marks) for this one.
+      }
+    }
+
+    final userName = s.userName.trim();
+    await need(userName, 9.5, whiteInt);
+    for (final c in cats) {
+      await need(c.name, 9.5, inkInt);
+    }
+    for (final e in items) {
+      await need(
+        e.description.isEmpty ? (e.categoryName ?? '') : e.description,
+        9.5,
+        inkInt,
+      );
+      await need(e.categoryName ?? '', 9.5, inkInt);
+      await need(e.accountName ?? '', 9.5, inkInt);
+    }
+    final bigName = big == null
+        ? ''
+        : (big.description.isEmpty ? (big.categoryName ?? '') : big.description);
+    await need(bigName, 9.5, mutedInt);
+
     stage = 'fonts';
     pw.Font regular;
     pw.Font bold;
@@ -192,6 +288,18 @@ class ReportPdfService {
       color: color,
     );
 
+    /// Plain PDF text, or the Urdu picture when the text needs one.
+    pw.Widget txt(String text, double size, int color) {
+      final p = pics[key(text, size, color)];
+      if (p != null) {
+        return pw.Image(pw.MemoryImage(p.bytes), width: p.w, height: p.h);
+      }
+      return pw.Text(
+        _clean(text),
+        style: t(size, color: PdfColor.fromInt(color)),
+      );
+    }
+
     pw.Widget box(String label, String value, {PdfColor color = _ink}) =>
         pw.Expanded(
           child: pw.Container(
@@ -220,11 +328,15 @@ class ReportPdfService {
       PdfColor color = _ink,
     }) => pw.Padding(
       padding: pw.EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-      child: pw.Text(
-        text,
-        textAlign: right ? pw.TextAlign.right : pw.TextAlign.left,
-        style: header ? t(9, b: true, color: _muted) : t(9.5, color: color),
-      ),
+      child: !header && pics.containsKey(key(text, 9.5, inkInt))
+          ? txt(text, 9.5, inkInt)
+          : pw.Text(
+              _clean(text),
+              textAlign: right ? pw.TextAlign.right : pw.TextAlign.left,
+              style: header
+                  ? t(9, b: true, color: _muted)
+                  : t(9.5, color: color),
+            ),
     );
 
     pw.Widget section(String title) => pw.Padding(
@@ -241,7 +353,7 @@ class ReportPdfService {
       border: pw.Border(bottom: pw.BorderSide(color: _line, width: 0.8)),
     );
 
-    final name = s.userName.trim();
+    final name = userName;
 
     doc.addPage(
       pw.MultiPage(
@@ -280,10 +392,22 @@ class ReportPdfService {
                   style: t(24, b: true, color: PdfColors.white),
                 ),
                 pw.SizedBox(height: 6),
-                pw.Text(
-                  '${name.isEmpty ? '' : 'Prepared for ${_clean(name)}  |  '}'
-                  'Created ${DateFormat('d MMM yyyy').format(now)}',
-                  style: t(9.5, color: PdfColors.white),
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    if (name.isNotEmpty) ...[
+                      pw.Text(
+                        'Prepared for ',
+                        style: t(9.5, color: PdfColors.white),
+                      ),
+                      txt(name, 9.5, whiteInt),
+                      pw.Text('  |  ', style: t(9.5, color: PdfColors.white)),
+                    ],
+                    pw.Text(
+                      'Created ${DateFormat('d MMM yyyy').format(now)}',
+                      style: t(9.5, color: PdfColors.white),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -311,10 +435,16 @@ class ReportPdfService {
           if (big != null)
             pw.Padding(
               padding: pw.EdgeInsets.only(top: 3),
-              child: pw.Text(
-                'Largest expense: ${_clean(big.description.isEmpty ? (big.categoryName ?? '') : big.description)}'
-                ' (${_money(big.amount)}, ${DateFormat('d MMM').format(big.date)})',
-                style: t(9.5, color: _muted),
+              child: pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Text('Largest expense: ', style: t(9.5, color: _muted)),
+                  txt(bigName, 9.5, mutedInt),
+                  pw.Text(
+                    ' (${_money(big.amount)}, ${DateFormat('d MMM').format(big.date)})',
+                    style: t(9.5, color: _muted),
+                  ),
+                ],
               ),
             ),
           if (wholeYear && monthRows.isNotEmpty) ...[
@@ -385,7 +515,7 @@ class ReportPdfService {
                 for (final c in cats)
                   pw.TableRow(
                     children: [
-                      cell(_clean(c.name)),
+                      cell(c.name),
                       cell('${c.count}', right: true),
                       cell(_money(c.total), right: true),
                       cell(
@@ -426,14 +556,12 @@ class ReportPdfService {
                     children: [
                       cell(DateFormat('d MMM').format(e.date)),
                       cell(
-                        _clean(
-                          e.description.isEmpty
-                              ? (e.categoryName ?? '')
-                              : e.description,
-                        ),
+                        e.description.isEmpty
+                            ? (e.categoryName ?? '')
+                            : e.description,
                       ),
-                      cell(_clean(e.categoryName ?? '')),
-                      cell(_clean(e.accountName ?? '')),
+                      cell(e.categoryName ?? ''),
+                      cell(e.accountName ?? ''),
                       cell(_money(e.amount), right: true),
                     ],
                   ),
